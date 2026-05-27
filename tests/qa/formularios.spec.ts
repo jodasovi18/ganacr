@@ -36,20 +36,19 @@ test.describe('Validación de formularios', () => {
     const modal = page.locator('[class*="modal"], [class*="Modal"], dialog').first();
     await expect(modal).toBeVisible({ timeout: 5_000 });
 
-    // Usar arete que ya existe en el lote
-    await modal.locator('input[placeholder*="rete"], input[placeholder*="arete"]').fill('BN-001');
-    await modal.locator('input[placeholder*="aza"], input[placeholder*="raza"]').fill('Brahman');
+    // Usar arete que ya existe en el lote (placeholder real: "Ej: CR-001234")
+    await modal.locator('input[placeholder*="CR-"]').fill('BN-001');
+    // Raza es un <select> con clase form-select
+    await modal.locator('select.form-select').selectOption('Brahman');
     // Campos numéricos: peso y precio
     const numberInputs = modal.locator('input[type="number"]');
     await numberInputs.nth(0).fill('350');
     await numberInputs.nth(1).fill('250000');
 
-    await modal.locator('button[type="submit"], button:has-text("Agregar")').first().click();
+    await modal.locator('button[type="submit"]').click();
 
-    // Debe mostrar un mensaje de error (arete duplicado)
-    await expect(
-      modal.locator('[class*="error"], .error-message, p.error, div.error')
-    ).toBeVisible({ timeout: 8_000 });
+    // Debe mostrar un mensaje de error (arete duplicado) — clase real: div.form-error
+    await expect(modal.locator('div.form-error')).toBeVisible({ timeout: 8_000 });
   });
 
   test('modal de venta solo muestra animales activos (no los vendidos)', async ({ page }) => {

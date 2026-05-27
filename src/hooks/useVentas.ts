@@ -28,10 +28,17 @@ export function useVentas(loteId: string | null) {
       where('loteId', '==', loteId),
       orderBy('fecha', 'desc')
     );
-    const unsub = onSnapshot(q, (snap) => {
-      setVentas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta)));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setVentas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta)));
+        setLoading(false);
+      },
+      (err) => {
+        console.error('[useVentas] Error al cargar ventas (¿falta índice?):', err.code, err.message);
+        setLoading(false);
+      },
+    );
     return unsub;
   }, [user, loteId]);
 

@@ -32,9 +32,8 @@ test.describe('Detalle de Lote', () => {
       await expect(page.locator(`text=${arete}`)).toBeVisible();
     }
 
-    // Debe haber exactamente 3 badges/estados de "vendido"
-    const vendidoBadges = page.locator('[class*="badge"], [class*="estado"], td, span')
-      .filter({ hasText: /vendido/i });
+    // Debe haber exactamente 3 spans con badge de "vendido" (no "Vendidos" plural del stat)
+    const vendidoBadges = page.locator('span.badge').filter({ hasText: /^vendido$/i });
     await expect(vendidoBadges).toHaveCount(3);
   });
 
@@ -43,7 +42,7 @@ test.describe('Detalle de Lote', () => {
     await page.waitForSelector('text=CS-001', { timeout: 12_000 });
 
     // Navegar a pestaña de gastos
-    await page.locator('[class*="tab"], button, a').filter({ hasText: /gastos/i }).first().click();
+    await page.locator('button.tab-btn').filter({ hasText: /gastos/i }).click();
 
     await expect(page.locator('text=Alimento febrero')).toBeVisible({ timeout: 8_000 });
     await expect(page.locator('text=Veterinario general')).toBeVisible();
@@ -56,7 +55,7 @@ test.describe('Detalle de Lote', () => {
     await page.waitForSelector('text=CG-001', { timeout: 12_000 });
 
     // Navegar a pestaña de ventas
-    await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
+    await page.locator('button.tab-btn').filter({ hasText: /ventas/i }).click();
 
     await expect(page.locator('text=7').first()).toBeVisible({ timeout: 8_000 });
     // Verificar que el arete CG-001 aparece en la venta
