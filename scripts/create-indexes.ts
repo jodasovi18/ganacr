@@ -54,10 +54,11 @@ const INDEXES: IndexDef[] = [
       { fieldPath: 'fecha', order: 'DESCENDING' },
     ],
   },
-  // useVentas: where('loteId') + orderBy('fecha', 'desc')
+  // useVentas: where('userId') + where('loteId') + orderBy('fecha', 'desc')
   {
     collection: 'ventas',
     fields: [
+      { fieldPath: 'userId', order: 'ASCENDING' },
       { fieldPath: 'loteId', order: 'ASCENDING' },
       { fieldPath: 'fecha', order: 'DESCENDING' },
     ],

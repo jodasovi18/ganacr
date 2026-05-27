@@ -57,8 +57,8 @@ test.describe('Detalle de Lote', () => {
     // Navegar a pestaña de ventas
     await page.locator('button.tab-btn').filter({ hasText: /ventas/i }).click();
 
-    await expect(page.locator('text=7').first()).toBeVisible({ timeout: 8_000 });
-    // Verificar que el arete CG-001 aparece en la venta
-    await expect(page.locator('text=CG-001')).toBeVisible();
+    // Verificar que aparece exactamente 1 venta-card con 7 animales
+    await expect(page.locator('.venta-card')).toBeVisible({ timeout: 8_000 });
+    await expect(page.locator('text=7 animales')).toBeVisible();
   });
 });

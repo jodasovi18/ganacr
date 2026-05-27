@@ -8,8 +8,14 @@ export default defineConfig({
   retries: 1,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
+  webServer: {
+    command: 'npx vite --port 5174',
+    url: 'http://localhost:5174',
+    reuseExistingServer: false,
+    timeout: 60_000,
+  },
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5174',
     screenshot: 'only-on-failure',
     video: 'off',
     headless: true,

@@ -30,14 +30,13 @@ export function useVentas(loteId: string | null) {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const sorted = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Venta))
-          .sort((a, b) => b.fecha.localeCompare(a.fecha));
-        setVentas(sorted);
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta));
+        data.sort((a, b) => (b.fecha > a.fecha ? 1 : -1));
+        setVentas(data);
         setLoading(false);
       },
       (err) => {
-        console.error('[useVentas] Error al cargar ventas (¿falta índice?):', err.code, err.message);
+        console.error('[useVentas] Error:', err.code, err.message);
         setLoading(false);
       },
     );
