@@ -128,7 +128,7 @@ export function useEditarAnimal() {
     if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
     const batch = writeBatch(db);
-    batch.update(doc(db, 'animales', animalId), { ...data, updatedAt: now });
+    batch.update(doc(db, 'animales', animalId), { ...data, pesoActual: data.pesoInicial, updatedAt: now });
     const priceDiff = data.precioCompra - oldPrecioCompra;
     if (priceDiff !== 0) {
       batch.update(doc(db, 'lotes', loteId), {
@@ -156,7 +156,8 @@ export function useEliminarAnimal() {
     batch.delete(doc(db, 'animales', animal.id));
     batch.update(doc(db, 'lotes', animal.loteId), {
       totalAnimales: increment(-1),
-      animalesActivos: increment(-1),
+      ...(animal.estado === 'activo' && { animalesActivos: increment(-1) }),
+      ...(animal.estado === 'vendido' && { animalesVendidos: increment(-1) }),
       totalInvertido: increment(-animal.precioCompra),
       updatedAt: now,
     });
