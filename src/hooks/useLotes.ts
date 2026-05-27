@@ -122,24 +122,30 @@ export function useEliminarLoteConCascada() {
 
     // 1. Get all animales for this lote
     const animalesSnap = await getDocs(
-      query(collection(db, 'animales'), where('loteId', '==', loteId))
+      query(
+        collection(db, 'animales'),
+        where('userId', '==', user.uid),
+        where('loteId', '==', loteId)
+      )
     );
     const animalIds = animalesSnap.docs.map((d) => d.id);
 
-    // 2. Get pesos (chunked by 10 to respect Firestore 'in' limit)
-    const pesoDocs: DocumentReference[] = [];
+    // 2. Get pesos (chunked by 10, parallelised)
+    const chunks: string[][] = [];
     for (let i = 0; i < animalIds.length; i += 10) {
-      const chunk = animalIds.slice(i, i + 10);
-      const snap = await getDocs(
-        query(collection(db, 'pesos'), where('animalId', 'in', chunk))
-      );
-      snap.docs.forEach((d) => pesoDocs.push(d.ref));
+      chunks.push(animalIds.slice(i, i + 10));
     }
+    const pesoSnaps = await Promise.all(
+      chunks.map((chunk) =>
+        getDocs(query(collection(db, 'pesos'), where('userId', '==', user.uid), where('animalId', 'in', chunk)))
+      )
+    );
+    const pesoDocs: DocumentReference[] = pesoSnaps.flatMap((s) => s.docs.map((d) => d.ref));
 
     // 3. Get gastos and ventas
     const [gastosSnap, ventasSnap] = await Promise.all([
-      getDocs(query(collection(db, 'gastos'), where('loteId', '==', loteId))),
-      getDocs(query(collection(db, 'ventas'), where('loteId', '==', loteId))),
+      getDocs(query(collection(db, 'gastos'), where('userId', '==', user.uid), where('loteId', '==', loteId))),
+      getDocs(query(collection(db, 'ventas'), where('userId', '==', user.uid), where('loteId', '==', loteId))),
     ]);
 
     // 4. Collect all refs to delete (lote last)
