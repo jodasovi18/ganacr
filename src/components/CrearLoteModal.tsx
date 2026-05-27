@@ -1,15 +1,24 @@
 import { useState, FormEvent } from 'react';
-import { useCrearLote } from '@/hooks/useLotes';
+import { useCrearLote, useActualizarLote } from '@/hooks/useLotes';
+import { Lote } from '@/types';
 
-interface Props { onClose: () => void; }
+interface Props {
+  onClose: () => void;
+  editData?: Lote;
+}
 
-export default function CrearLoteModal({ onClose }: Props) {
+export default function CrearLoteModal({ onClose, editData }: Props) {
   const { crearLote } = useCrearLote();
-  const [nombre, setNombre] = useState('');
-  const [fechaCompra, setFechaCompra] = useState(new Date().toISOString().split('T')[0]);
-  const [tipo, setTipo] = useState<'propio' | 'medias'>('propio');
-  const [socioNombre, setSocioNombre] = useState('');
-  const [socioPorcentaje, setSocioPorcentaje] = useState(50);
+  const { actualizarLote } = useActualizarLote();
+  const isEdit = !!editData;
+
+  const [nombre, setNombre] = useState(editData?.nombreLote ?? '');
+  const [fechaCompra, setFechaCompra] = useState(
+    editData?.fechaCompra ?? new Date().toISOString().split('T')[0]
+  );
+  const [tipo, setTipo] = useState<'propio' | 'medias'>(editData?.tipoPropiedad ?? 'propio');
+  const [socioNombre, setSocioNombre] = useState(editData?.socio?.nombre ?? '');
+  const [socioPorcentaje, setSocioPorcentaje] = useState(editData?.socio?.porcentaje ?? 50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,15 +29,23 @@ export default function CrearLoteModal({ onClose }: Props) {
     if (tipo === 'medias' && !socioNombre.trim()) { setError('El nombre del socio es requerido'); return; }
     setLoading(true);
     try {
-      await crearLote({
-        nombreLote: nombre,
-        fechaCompra,
-        tipoPropiedad: tipo,
-        socio: tipo === 'medias' ? { nombre: socioNombre, porcentaje: socioPorcentaje } : undefined,
-      });
+      if (isEdit && editData) {
+        await actualizarLote(editData.id, {
+          nombreLote: nombre.trim(),
+          tipoPropiedad: tipo,
+          socio: tipo === 'medias' ? { nombre: socioNombre.trim(), porcentaje: socioPorcentaje } : null,
+        });
+      } else {
+        await crearLote({
+          nombreLote: nombre.trim(),
+          fechaCompra,
+          tipoPropiedad: tipo,
+          socio: tipo === 'medias' ? { nombre: socioNombre.trim(), porcentaje: socioPorcentaje } : undefined,
+        });
+      }
       onClose();
     } catch (err) {
-      setError('Error al crear lote: ' + String(err));
+      setError('Error: ' + String(err));
     } finally {
       setLoading(false);
     }
@@ -38,20 +55,21 @@ export default function CrearLoteModal({ onClose }: Props) {
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h2>🐄 Nuevo Lote</h2>
+          <h2>{isEdit ? '✏️ Editar Lote' : '🐄 Nuevo Lote'}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Nombre del lote *</label>
             <input className="form-input" placeholder="Ej: Lote Enero 2026" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Fecha de compra</label>
-            <input className="form-input" type="date" value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} />
-          </div>
+          {!isEdit && (
+            <div className="form-group">
+              <label className="form-label">Fecha de compra</label>
+              <input className="form-input" type="date" value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} />
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label">Tipo de propiedad</label>
@@ -79,7 +97,7 @@ export default function CrearLoteModal({ onClose }: Props) {
           <div className="flex gap-1 mt-2">
             <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
-              {loading ? 'Creando...' : 'Crear Lote'}
+              {loading ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear Lote'}
             </button>
           </div>
         </form>
