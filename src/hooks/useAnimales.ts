@@ -149,7 +149,7 @@ export function useEliminarAnimal() {
     const now = new Date().toISOString();
     // Delete associated pesos to avoid orphan documents
     const pesosSnap = await getDocs(
-      query(collection(db, 'pesos'), where('animalId', '==', animal.id))
+      query(collection(db, 'pesos'), where('userId', '==', user.uid), where('animalId', '==', animal.id))
     );
     const batch = writeBatch(db);
     pesosSnap.docs.forEach((d) => batch.delete(d.ref));
