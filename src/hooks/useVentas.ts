@@ -4,8 +4,6 @@ import {
   query,
   where,
   onSnapshot,
-  addDoc,
-  updateDoc,
   doc,
   increment,
   writeBatch,

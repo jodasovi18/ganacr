@@ -9,7 +9,6 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  getDoc,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
