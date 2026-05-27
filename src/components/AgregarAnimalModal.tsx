@@ -41,7 +41,7 @@ export default function AgregarAnimalModal({ loteId, onClose, editData }: Props)
           pesoInicial: Number(pesoInicial),
           precioCompra: Number(precioCompra),
           fechaIngreso,
-          notas,
+          notas: notas.trim(),
         });
       } else {
         await agregarAnimal({
