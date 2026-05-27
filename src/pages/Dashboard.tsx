@@ -1,20 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLotes } from '@/hooks/useLotes';
+import { useLotes, useEliminarLoteConCascada } from '@/hooks/useLotes';
 import { formatColones, formatFecha } from '@/utils/calculadora';
 import CrearLoteModal from '@/components/CrearLoteModal';
+import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
+import { Lote } from '@/types';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const { userData, logout } = useAuth();
   const { lotes, loading } = useLotes();
   const navigate = useNavigate();
+  const { eliminarLoteConCascada } = useEliminarLoteConCascada();
+
   const [showCrear, setShowCrear] = useState(false);
+  const [editLote, setEditLote] = useState<Lote | null>(null);
+  const [deleteLote, setDeleteLote] = useState<Lote | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const totalAnimales = lotes.reduce((s, l) => s + l.animalesActivos, 0);
   const totalInvertido = lotes.reduce((s, l) => s + l.totalInvertido, 0);
   const totalUtilidad = lotes.reduce((s, l) => s + l.utilidadTotal, 0);
+
+  async function handleDeleteLote() {
+    if (!deleteLote) return;
+    setDeletingId(deleteLote.id);
+    try {
+      await eliminarLoteConCascada(deleteLote.id);
+      setDeleteLote(null);
+    } catch (err) {
+      console.error('[handleDeleteLote]', err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="dashboard-page">
@@ -85,9 +105,22 @@ export default function Dashboard() {
               >
                 <div className="lote-card-header">
                   <h3>{lote.nombreLote}</h3>
-                  {lote.tipoPropiedad === 'medias' && lote.socio && (
-                    <span className="badge badge-yellow">🤝 {lote.socio.nombre}</span>
-                  )}
+                  <div className="flex gap-1" style={{ alignItems: 'center' }}>
+                    {lote.tipoPropiedad === 'medias' && lote.socio && (
+                      <span className="badge badge-yellow">🤝 {lote.socio.nombre}</span>
+                    )}
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      title="Editar lote"
+                      onClick={(e) => { e.stopPropagation(); setEditLote(lote); }}
+                    >✏️</button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      title="Eliminar lote"
+                      style={{ color: 'var(--color-danger, #dc3545)' }}
+                      onClick={(e) => { e.stopPropagation(); setDeleteLote(lote); }}
+                    >🗑️</button>
+                  </div>
                 </div>
                 <div className="lote-card-stats">
                   <div>
@@ -117,7 +150,18 @@ export default function Dashboard() {
         )}
       </main>
 
+      {/* ── Modales ── */}
       {showCrear && <CrearLoteModal onClose={() => setShowCrear(false)} />}
+      {editLote && <CrearLoteModal editData={editLote} onClose={() => setEditLote(null)} />}
+      {deleteLote && (
+        <ConfirmarBorradoModal
+          titulo={`¿Eliminar "${deleteLote.nombreLote}"?`}
+          descripcion="Se eliminarán TODOS los animales, pesajes, gastos y ventas de este lote. Esta acción no se puede deshacer."
+          loading={deletingId === deleteLote.id}
+          onConfirm={handleDeleteLote}
+          onClose={() => setDeleteLote(null)}
+        />
+      )}
     </div>
   );
 }

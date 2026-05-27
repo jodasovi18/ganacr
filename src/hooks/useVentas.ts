@@ -5,8 +5,10 @@ import {
   where,
   onSnapshot,
   doc,
+  getDoc,
   increment,
   writeBatch,
+  deleteField,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,7 +71,6 @@ export function useRegistrarVenta() {
 
     const batch = writeBatch(db);
 
-    // 1. Crear documento de venta
     const ventaRef = doc(collection(db, 'ventas'));
     batch.set(ventaRef, {
       userId: user.uid,
@@ -87,7 +88,6 @@ export function useRegistrarVenta() {
       createdAt: now,
     });
 
-    // 2. Marcar cada animal como vendido
     for (const item of input.animalesVendidos) {
       const animalRef = doc(db, 'animales', item.animalId);
       batch.update(animalRef, {
@@ -98,7 +98,6 @@ export function useRegistrarVenta() {
       });
     }
 
-    // 3. Actualizar contadores del lote
     const loteRef = doc(db, 'lotes', input.lote.id);
     batch.update(loteRef, {
       animalesActivos: increment(-input.animalesVendidos.length),
@@ -113,4 +112,44 @@ export function useRegistrarVenta() {
   }
 
   return { registrarVenta };
+}
+
+export function useAnularVenta() {
+  const { user } = useAuth();
+
+  async function anularVenta(ventaId: string) {
+    if (!user) throw new Error('No autenticado');
+
+    const ventaSnap = await getDoc(doc(db, 'ventas', ventaId));
+    if (!ventaSnap.exists()) throw new Error('Venta no encontrada');
+    const venta = { id: ventaSnap.id, ...ventaSnap.data() } as Venta;
+    if (venta.userId !== user.uid) throw new Error('No autorizado');
+
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+
+    // Restore each animal to active
+    for (const item of venta.animales) {
+      batch.update(doc(db, 'animales', item.animalId), {
+        estado: 'activo',
+        fechaSalida: deleteField(),
+        updatedAt: now,
+      });
+    }
+
+    // Reverse lote counters
+    batch.update(doc(db, 'lotes', venta.loteId), {
+      animalesActivos: increment(venta.cantidadAnimales),
+      animalesVendidos: increment(-venta.cantidadAnimales),
+      totalVentas: increment(-venta.totalVenta),
+      utilidadTotal: increment(-venta.utilidadBruta),
+      updatedAt: now,
+    });
+
+    // Delete venta
+    batch.delete(doc(db, 'ventas', ventaId));
+
+    await batch.commit();
+  }
+  return { anularVenta };
 }

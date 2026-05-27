@@ -20,7 +20,7 @@ export interface Lote {
   nombreLote: string;
   fechaCompra: string; // ISO date string
   tipoPropiedad: TipoPropiedad;
-  socio?: Socio;
+  socio?: Socio | null;
   totalAnimales: number;
   animalesActivos: number;
   animalesVendidos: number;
