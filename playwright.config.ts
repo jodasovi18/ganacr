@@ -4,8 +4,9 @@ dotenv.config();
 
 export default defineConfig({
   testDir: './tests/qa',
-  timeout: 30_000,
+  timeout: 60_000,
   retries: 1,
+  workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:5173',

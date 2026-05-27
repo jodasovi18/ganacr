@@ -18,29 +18,30 @@ test.describe('Cálculos financieros — Lote 3 (valores exactos al centavo)', (
 
   test('pestaña ventas: utilidad bruta = ₡530.000', async ({ page }) => {
     await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
-    // Busca el monto 530000 con separadores de miles (puntos o comas)
-    await expect(page.locator('text=/530[.,]000/').first()).toBeVisible({ timeout: 8_000 });
+    // Separador de miles puede ser punto, coma o espacio según locale del navegador
+    await expect(page.locator('text=/530[., ]000/').first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('pestaña ventas: socio Rolando Fallas recibe ₡212.000 (40%)', async ({ page }) => {
     await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
-    await expect(page.locator('text=/212[.,]000/').first()).toBeVisible({ timeout: 8_000 });
+    await expect(page.locator('text=/212[., ]000/').first()).toBeVisible({ timeout: 8_000 });
     await expect(page.locator(`text=${LOTE3_EXPECTED.socioNombre}`)).toBeVisible();
   });
 
   test('pestaña ventas: propietario recibe ₡318.000 (60%)', async ({ page }) => {
     await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
-    await expect(page.locator('text=/318[.,]000/').first()).toBeVisible({ timeout: 8_000 });
+    await expect(page.locator('text=/318[., ]000/').first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('el lote refleja totalVenta de ₡2.855.000', async ({ page }) => {
-    // El total de venta debe aparecer en algún lugar del detalle del lote
-    await expect(page.locator('text=/2[.,]855[.,]000/').first()).toBeVisible({ timeout: 8_000 });
+    await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
+    // El total de venta debe aparecer en la pestaña ventas
+    await expect(page.locator('text=/2[., ]855[., ]000/').first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('pestaña ventas: gastos proporcionales = ₡290.000', async ({ page }) => {
     await page.locator('[class*="tab"], button, a').filter({ hasText: /ventas/i }).first().click();
-    await expect(page.locator('text=/290[.,]000/').first()).toBeVisible({ timeout: 8_000 });
+    await expect(page.locator('text=/290[., ]000/').first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('cantidadAnimales en la venta = 7', async ({ page }) => {
