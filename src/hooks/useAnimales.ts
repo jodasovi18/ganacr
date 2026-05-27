@@ -10,6 +10,7 @@ import {
   updateDoc,
   doc,
   increment,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -55,7 +56,6 @@ export function useAgregarAnimal() {
   async function agregarAnimal(input: AgregarAnimalInput): Promise<string> {
     if (!user) throw new Error('No autenticado');
 
-    // Validar arete duplicado en el mismo lote
     const dupeSnap = await getDocs(query(
       collection(db, 'animales'),
       where('userId', '==', user.uid),
@@ -83,7 +83,6 @@ export function useAgregarAnimal() {
       updatedAt: now,
     });
 
-    // Actualizar contadores del lote
     await updateDoc(doc(db, 'lotes', input.loteId), {
       totalAnimales: increment(1),
       animalesActivos: increment(1),
@@ -97,6 +96,7 @@ export function useAgregarAnimal() {
   return { agregarAnimal };
 }
 
+// Kept for internal use (peso/venta hooks use it via batch directly)
 export function useActualizarAnimal() {
   async function actualizarAnimal(animalId: string, data: Partial<Animal>) {
     await updateDoc(doc(db, 'animales', animalId), {
@@ -105,4 +105,62 @@ export function useActualizarAnimal() {
     });
   }
   return { actualizarAnimal };
+}
+
+interface EditarAnimalInput {
+  raza: string;
+  numeroSubasta?: string;
+  pesoInicial: number;
+  precioCompra: number;
+  fechaIngreso: string;
+  notas?: string;
+}
+
+export function useEditarAnimal() {
+  const { user } = useAuth();
+
+  async function editarAnimal(
+    animalId: string,
+    loteId: string,
+    oldPrecioCompra: number,
+    data: EditarAnimalInput,
+  ) {
+    if (!user) throw new Error('No autenticado');
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'animales', animalId), { ...data, updatedAt: now });
+    const priceDiff = data.precioCompra - oldPrecioCompra;
+    if (priceDiff !== 0) {
+      batch.update(doc(db, 'lotes', loteId), {
+        totalInvertido: increment(priceDiff),
+        updatedAt: now,
+      });
+    }
+    await batch.commit();
+  }
+  return { editarAnimal };
+}
+
+export function useEliminarAnimal() {
+  const { user } = useAuth();
+
+  async function eliminarAnimal(animal: Animal) {
+    if (!user) throw new Error('No autenticado');
+    const now = new Date().toISOString();
+    // Delete associated pesos to avoid orphan documents
+    const pesosSnap = await getDocs(
+      query(collection(db, 'pesos'), where('animalId', '==', animal.id))
+    );
+    const batch = writeBatch(db);
+    pesosSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(doc(db, 'animales', animal.id));
+    batch.update(doc(db, 'lotes', animal.loteId), {
+      totalAnimales: increment(-1),
+      animalesActivos: increment(-1),
+      totalInvertido: increment(-animal.precioCompra),
+      updatedAt: now,
+    });
+    await batch.commit();
+  }
+  return { eliminarAnimal };
 }
