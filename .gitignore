@@ -25,6 +25,7 @@ dist-ssr/
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Git worktrees
 .worktrees/
