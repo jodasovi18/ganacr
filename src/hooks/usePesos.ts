@@ -5,9 +5,8 @@ import {
   where,
   orderBy,
   onSnapshot,
-  addDoc,
-  updateDoc,
   doc,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -49,17 +48,24 @@ export function useRegistrarPeso() {
   async function registrarPeso(input: RegistrarPesoInput): Promise<string> {
     if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
-    const ref = await addDoc(collection(db, 'pesos'), {
+    const batch = writeBatch(db);
+
+    // Nuevo documento de peso
+    const pesoRef = doc(collection(db, 'pesos'));
+    batch.set(pesoRef, {
       userId: user.uid,
       ...input,
       createdAt: now,
     });
-    // Actualizar pesoActual en el animal
-    await updateDoc(doc(db, 'animales', input.animalId), {
+
+    // Actualizar pesoActual en el animal (una sola operación batch)
+    batch.update(doc(db, 'animales', input.animalId), {
       pesoActual: input.peso,
       updatedAt: now,
     });
-    return ref.id;
+
+    await batch.commit();
+    return pesoRef.id;
   }
 
   return { registrarPeso };

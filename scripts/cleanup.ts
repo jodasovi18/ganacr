@@ -10,7 +10,6 @@ async function cleanup() {
     const snapshot = await db
       .collection(col)
       .where('userId', '==', TEST_USER_ID)
-      .where('_testData', '==', true)
       .get();
 
     if (snapshot.empty) {
