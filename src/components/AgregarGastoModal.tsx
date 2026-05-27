@@ -1,8 +1,12 @@
 import { useState, FormEvent } from 'react';
-import { useAgregarGasto } from '@/hooks/useGastos';
-import { TipoGasto } from '@/types';
+import { useAgregarGasto, useActualizarGasto } from '@/hooks/useGastos';
+import { TipoGasto, Gasto } from '@/types';
 
-interface Props { loteId: string; onClose: () => void; }
+interface Props {
+  loteId: string;
+  onClose: () => void;
+  editData?: Gasto;
+}
 
 const TIPOS: { value: TipoGasto; label: string }[] = [
   { value: 'alimento', label: '🌾 Alimento' },
@@ -12,14 +16,17 @@ const TIPOS: { value: TipoGasto; label: string }[] = [
   { value: 'otro', label: '📋 Otro' },
 ];
 
-export default function AgregarGastoModal({ loteId, onClose }: Props) {
+export default function AgregarGastoModal({ loteId, onClose, editData }: Props) {
   const { agregarGasto } = useAgregarGasto();
-  const [concepto, setConcepto] = useState('');
-  const [tipo, setTipo] = useState<TipoGasto>('alimento');
-  const [monto, setMonto] = useState('');
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
-  const [quienPago, setQuienPago] = useState('');
-  const [notas, setNotas] = useState('');
+  const { actualizarGasto } = useActualizarGasto();
+  const isEdit = !!editData;
+
+  const [concepto, setConcepto] = useState(editData?.concepto ?? '');
+  const [tipo, setTipo] = useState<TipoGasto>(editData?.tipo ?? 'alimento');
+  const [monto, setMonto] = useState(editData?.monto?.toString() ?? '');
+  const [fecha, setFecha] = useState(editData?.fecha ?? new Date().toISOString().split('T')[0]);
+  const [quienPago, setQuienPago] = useState(editData?.quienPago ?? '');
+  const [notas, setNotas] = useState(editData?.notas ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,7 +35,13 @@ export default function AgregarGastoModal({ loteId, onClose }: Props) {
     if (!concepto.trim() || !monto) { setError('Concepto y monto son requeridos'); return; }
     setLoading(true);
     try {
-      await agregarGasto({ loteId, concepto, tipo, monto: Number(monto), fecha, quienPago, notas });
+      if (isEdit && editData) {
+        await actualizarGasto(editData.id, loteId, editData.monto, {
+          concepto, tipo, monto: Number(monto), fecha, quienPago, notas,
+        });
+      } else {
+        await agregarGasto({ loteId, concepto, tipo, monto: Number(monto), fecha, quienPago, notas });
+      }
       onClose();
     } catch (err) {
       setError('Error: ' + String(err));
@@ -41,7 +54,7 @@ export default function AgregarGastoModal({ loteId, onClose }: Props) {
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h2>💸 Registrar Gasto</h2>
+          <h2>{isEdit ? '✏️ Editar Gasto' : '💸 Registrar Gasto'}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -83,7 +96,7 @@ export default function AgregarGastoModal({ loteId, onClose }: Props) {
           <div className="flex gap-1 mt-2">
             <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
-              {loading ? 'Guardando...' : 'Registrar Gasto'}
+              {loading ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar Gasto'}
             </button>
           </div>
         </form>
