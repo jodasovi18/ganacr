@@ -25,3 +25,13 @@ dist-ssr/
 # OS
 .DS_Store
 Thumbs.db
+
+# Git worktrees
+.worktrees/
+
+# Firebase service account
+scripts/service-account.json
+
+# Playwright output
+tests/qa/screenshots/
+playwright-report/
