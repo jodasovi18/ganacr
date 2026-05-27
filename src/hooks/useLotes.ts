@@ -8,7 +8,10 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   doc,
+  writeBatch,
+  DocumentReference,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,7 +97,7 @@ export function useCrearLote() {
   return { crearLote };
 }
 
-// ─── Actualizar / Eliminar lote ───────────────────────────────────────────────
+// ─── Actualizar lote ──────────────────────────────────────────────────────────
 
 export function useActualizarLote() {
   async function actualizarLote(loteId: string, data: Partial<Lote>) {
@@ -107,4 +110,53 @@ export function useActualizarLote() {
     await deleteDoc(doc(db, 'lotes', loteId));
   }
   return { actualizarLote, eliminarLote };
+}
+
+// ─── Eliminar lote con cascade ────────────────────────────────────────────────
+
+export function useEliminarLoteConCascada() {
+  const { user } = useAuth();
+
+  async function eliminarLoteConCascada(loteId: string) {
+    if (!user) throw new Error('No autenticado');
+
+    // 1. Get all animales for this lote
+    const animalesSnap = await getDocs(
+      query(collection(db, 'animales'), where('loteId', '==', loteId))
+    );
+    const animalIds = animalesSnap.docs.map((d) => d.id);
+
+    // 2. Get pesos (chunked by 10 to respect Firestore 'in' limit)
+    const pesoDocs: DocumentReference[] = [];
+    for (let i = 0; i < animalIds.length; i += 10) {
+      const chunk = animalIds.slice(i, i + 10);
+      const snap = await getDocs(
+        query(collection(db, 'pesos'), where('animalId', 'in', chunk))
+      );
+      snap.docs.forEach((d) => pesoDocs.push(d.ref));
+    }
+
+    // 3. Get gastos and ventas
+    const [gastosSnap, ventasSnap] = await Promise.all([
+      getDocs(query(collection(db, 'gastos'), where('loteId', '==', loteId))),
+      getDocs(query(collection(db, 'ventas'), where('loteId', '==', loteId))),
+    ]);
+
+    // 4. Collect all refs to delete (lote last)
+    const allRefs: DocumentReference[] = [
+      ...animalesSnap.docs.map((d) => d.ref),
+      ...pesoDocs,
+      ...gastosSnap.docs.map((d) => d.ref),
+      ...ventasSnap.docs.map((d) => d.ref),
+      doc(db, 'lotes', loteId),
+    ];
+
+    // 5. Delete in batches of 500 (Firestore limit)
+    for (let i = 0; i < allRefs.length; i += 500) {
+      const batch = writeBatch(db);
+      allRefs.slice(i, i + 500).forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
+  }
+  return { eliminarLoteConCascada };
 }
