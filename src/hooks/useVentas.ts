@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -26,12 +25,14 @@ export function useVentas(loteId: string | null) {
     const q = query(
       collection(db, 'ventas'),
       where('loteId', '==', loteId),
-      orderBy('fecha', 'desc')
     );
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setVentas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta)));
+        const sorted = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Venta))
+          .sort((a, b) => b.fecha.localeCompare(a.fecha));
+        setVentas(sorted);
         setLoading(false);
       },
       (err) => {
