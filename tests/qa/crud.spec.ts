@@ -154,9 +154,10 @@ test.describe('CRUD — edición y borrado', () => {
       const modal = page.locator('.modal').last();
       await expect(modal).toBeVisible({ timeout: 5_000 });
 
-      // Arete pre-llenado
-      const areteInput = modal.locator('input').filter({ hasValue: 'BN-001' });
+      // Arete es el único input disabled en el modal de edición
+      const areteInput = modal.locator('input[disabled]');
       await expect(areteInput).toBeVisible();
+      await expect(areteInput).toHaveValue('BN-001');
       // Arete es inmutable en modo edición
       await expect(areteInput).toBeDisabled();
     });
@@ -242,8 +243,8 @@ test.describe('CRUD — edición y borrado', () => {
 
       const modal = page.locator('.modal').last();
       await expect(modal).toBeVisible({ timeout: 5_000 });
-      // Modal pre-llena el nombre del lote
-      await expect(modal.locator('input').filter({ hasValue: 'Lote Criollo Zona Norte' })).toBeVisible();
+      // Modal pre-llena el nombre del lote (primer input del form)
+      await expect(modal.locator('input').first()).toHaveValue('Lote Criollo Zona Norte');
       // La URL NO cambió (stopPropagation funcionó)
       await expect(page).toHaveURL('/');
     });
@@ -257,7 +258,8 @@ test.describe('CRUD — edición y borrado', () => {
       const modal = page.locator('.modal').last();
       await expect(modal).toBeVisible({ timeout: 5_000 });
 
-      const nombreInput = modal.locator('input').filter({ hasValue: 'Lote Criollo Zona Norte' });
+      const nombreInput = modal.locator('input').first();
+      await expect(nombreInput).toHaveValue('Lote Criollo Zona Norte');
       await nombreInput.fill('Lote Criollo Editado');
       await modal.locator('button:has-text("Guardar cambios")').click();
       await expect(modal).not.toBeVisible({ timeout: 20_000 });
