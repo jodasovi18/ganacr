@@ -32,7 +32,7 @@ export default function AgregarGastoModal({ loteId, onClose, editData }: Props) 
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!concepto.trim() || !monto) { setError('Concepto y monto son requeridos'); return; }
+    if (!concepto.trim() || !monto || Number(monto) <= 0) { setError('Concepto y monto son requeridos'); return; }
     setLoading(true);
     try {
       if (isEdit && editData) {
