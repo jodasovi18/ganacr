@@ -123,6 +123,7 @@ export function useAnularVenta() {
     const ventaSnap = await getDoc(doc(db, 'ventas', ventaId));
     if (!ventaSnap.exists()) throw new Error('Venta no encontrada');
     const venta = { id: ventaSnap.id, ...ventaSnap.data() } as Venta;
+    if (venta.userId !== user.uid) throw new Error('No autorizado');
 
     const now = new Date().toISOString();
     const batch = writeBatch(db);
