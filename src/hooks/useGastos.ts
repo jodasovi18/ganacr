@@ -6,10 +6,10 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
-  deleteDoc,
   doc,
   updateDoc,
   increment,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -59,7 +59,6 @@ export function useAgregarGasto() {
       ...input,
       createdAt: now,
     });
-    // Actualizar totalGastos en el lote
     await updateDoc(doc(db, 'lotes', input.loteId), {
       totalGastos: increment(input.monto),
       updatedAt: now,
@@ -70,13 +69,47 @@ export function useAgregarGasto() {
   return { agregarGasto };
 }
 
+interface ActualizarGastoInput {
+  concepto: string;
+  tipo: TipoGasto;
+  monto: number;
+  fecha: string;
+  quienPago?: string;
+  notas?: string;
+}
+
+export function useActualizarGasto() {
+  async function actualizarGasto(
+    gastoId: string,
+    loteId: string,
+    oldMonto: number,
+    data: ActualizarGastoInput,
+  ) {
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'gastos', gastoId), { ...data });
+    const diff = data.monto - oldMonto;
+    if (diff !== 0) {
+      batch.update(doc(db, 'lotes', loteId), {
+        totalGastos: increment(diff),
+        updatedAt: now,
+      });
+    }
+    await batch.commit();
+  }
+  return { actualizarGasto };
+}
+
 export function useEliminarGasto() {
   async function eliminarGasto(gastoId: string, loteId: string, monto: number) {
-    await deleteDoc(doc(db, 'gastos', gastoId));
-    await updateDoc(doc(db, 'lotes', loteId), {
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+    batch.delete(doc(db, 'gastos', gastoId));
+    batch.update(doc(db, 'lotes', loteId), {
       totalGastos: increment(-monto),
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
     });
+    await batch.commit();
   }
   return { eliminarGasto };
 }
