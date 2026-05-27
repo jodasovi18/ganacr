@@ -1,0 +1,37 @@
+.lote-detalle-page { min-height: 100vh; background: var(--color-bg); }
+
+.detalle-header {
+  background: var(--color-primary-dark);
+  color: white;
+  padding: 1rem 0 1.25rem;
+}
+.detalle-titulo { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.2rem; }
+.detalle-socio { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.2rem; }
+.detalle-acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.detalle-acciones .btn-ghost { border-color: rgba(255,255,255,0.4); color: white; }
+.detalle-acciones .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+.detalle-header .stat-card { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+.detalle-header .stat-value { color: white; }
+.detalle-header .stat-label { color: rgba(255,255,255,0.7); }
+.detalle-header .text-success { color: var(--color-accent) !important; }
+.detalle-header .text-danger { color: #ff8a80 !important; }
+
+.tabs { display: flex; gap: 0.25rem; border-bottom: 2px solid var(--color-border); }
+.tab-btn {
+  padding: 0.6rem 1rem; background: none; border: none;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color 0.15s;
+}
+.tab-btn.active { color: var(--color-primary-dark); border-bottom-color: var(--color-primary); }
+.tab-btn:hover { color: var(--color-primary); }
+
+.tab-content { min-height: 300px; }
+
+.venta-detalle {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 1rem; font-size: 0.85rem;
+}
+.venta-detalle > div { display: flex; justify-content: space-between; }
+.venta-detalle span:first-child { color: var(--color-text-muted); }

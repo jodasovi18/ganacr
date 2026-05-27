@@ -1,0 +1,232 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useLote } from '@/hooks/useLotes';
+import { useAnimales } from '@/hooks/useAnimales';
+import { useGastos } from '@/hooks/useGastos';
+import { useVentas } from '@/hooks/useVentas';
+import { formatColones, formatKg, formatFecha } from '@/utils/calculadora';
+import AgregarAnimalModal from '@/components/AgregarAnimalModal';
+import AgregarGastoModal from '@/components/AgregarGastoModal';
+import RegistrarPesoModal from '@/components/RegistrarPesoModal';
+import VenderAnimalesModal from '@/components/VenderAnimalesModal';
+import { Animal } from '@/types';
+import './LoteDetalle.css';
+
+type Tab = 'animales' | 'gastos' | 'ventas';
+
+export default function LoteDetalle() {
+  const { loteId } = useParams<{ loteId: string }>();
+  const { lote, loading } = useLote(loteId ?? null);
+  const { animales } = useAnimales(loteId ?? null);
+  const { gastos } = useGastos(loteId ?? null);
+  const { ventas } = useVentas(loteId ?? null);
+  const navigate = useNavigate();
+
+  const [tab, setTab] = useState<Tab>('animales');
+  const [showAnimal, setShowAnimal] = useState(false);
+  const [showGasto, setShowGasto] = useState(false);
+  const [showPeso, setShowPeso] = useState(false);
+  const [showVenta, setShowVenta] = useState(false);
+  const [animalPeso, setAnimalPeso] = useState<Animal | null>(null);
+
+  if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
+  if (!lote) return <div className="container page-content"><p>Lote no encontrado.</p></div>;
+
+  const animalesActivos = animales.filter((a) => a.estado === 'activo');
+
+  return (
+    <div className="lote-detalle-page">
+      {/* Header */}
+      <header className="detalle-header">
+        <div className="container">
+          <button className="btn btn-ghost btn-sm mb-2" onClick={() => navigate('/')}>
+            ← Volver
+          </button>
+          <div className="flex-between flex-wrap gap-2">
+            <div>
+              <h1 className="detalle-titulo">{lote.nombreLote}</h1>
+              {lote.tipoPropiedad === 'medias' && lote.socio && (
+                <p className="detalle-socio">🤝 A medias con <strong>{lote.socio.nombre}</strong> ({lote.socio.porcentaje}% / {100 - lote.socio.porcentaje}%)</p>
+              )}
+              <p className="text-muted" style={{ fontSize: '0.82rem' }}>Compra: {formatFecha(lote.fechaCompra)}</p>
+            </div>
+            <div className="detalle-acciones">
+              <button className="btn btn-primary btn-sm" onClick={() => setShowAnimal(true)}>+ Animal</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowGasto(true)}>+ Gasto</button>
+              {animalesActivos.length > 0 && (
+                <button className="btn btn-secondary btn-sm" onClick={() => setShowVenta(true)}>💰 Vender</button>
+              )}
+            </div>
+          </div>
+
+          {/* Stats del lote */}
+          <div className="stats-grid mt-2">
+            <div className="stat-card"><div className="stat-value">{lote.animalesActivos}</div><div className="stat-label">Activos</div></div>
+            <div className="stat-card"><div className="stat-value">{lote.animalesVendidos}</div><div className="stat-label">Vendidos</div></div>
+            <div className="stat-card"><div className="stat-value">{formatColones(lote.totalInvertido)}</div><div className="stat-label">Invertido</div></div>
+            <div className="stat-card"><div className="stat-value">{formatColones(lote.totalGastos)}</div><div className="stat-label">Gastos</div></div>
+            <div className="stat-card">
+              <div className={`stat-value ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-danger'}`}>
+                {formatColones(lote.utilidadTotal)}
+              </div>
+              <div className="stat-label">Utilidad</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Tabs */}
+      <div className="container">
+        <div className="tabs mt-2">
+          {(['animales', 'gastos', 'ventas'] as Tab[]).map((t) => (
+            <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+              {t === 'animales' && `🐄 Animales (${animales.length})`}
+              {t === 'gastos' && `💸 Gastos (${gastos.length})`}
+              {t === 'ventas' && `💰 Ventas (${ventas.length})`}
+            </button>
+          ))}
+        </div>
+
+        <div className="tab-content page-content">
+          {/* ── Tab Animales ── */}
+          {tab === 'animales' && (
+            animales.length === 0 ? (
+              <div className="empty-state">
+                <div className="emoji">🐄</div>
+                <h3>Sin animales aún</h3>
+                <p>Agregá el primer animal a este lote</p>
+                <button className="btn btn-primary" onClick={() => setShowAnimal(true)}>+ Agregar animal</button>
+              </div>
+            ) : (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Arete</th>
+                      <th>Raza</th>
+                      <th>Peso inicial</th>
+                      <th>Peso actual</th>
+                      <th>Ganancia</th>
+                      <th>Precio compra</th>
+                      <th>Estado</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {animales.map((animal) => {
+                      const ganancia = animal.pesoActual - animal.pesoInicial;
+                      return (
+                        <tr key={animal.id}>
+                          <td><strong>{animal.numeroArete}</strong></td>
+                          <td>{animal.raza}</td>
+                          <td>{formatKg(animal.pesoInicial)}</td>
+                          <td>{formatKg(animal.pesoActual)}</td>
+                          <td className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
+                            {ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}
+                          </td>
+                          <td>{formatColones(animal.precioCompra)}</td>
+                          <td>
+                            <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
+                              {animal.estado}
+                            </span>
+                          </td>
+                          <td>
+                            {animal.estado === 'activo' && (
+                              <button className="btn btn-ghost btn-sm" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
+                                ⚖️ Peso
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+
+          {/* ── Tab Gastos ── */}
+          {tab === 'gastos' && (
+            gastos.length === 0 ? (
+              <div className="empty-state">
+                <div className="emoji">💸</div>
+                <h3>Sin gastos registrados</h3>
+                <p>Registrá los gastos de alimento, veterinario, etc.</p>
+                <button className="btn btn-primary" onClick={() => setShowGasto(true)}>+ Agregar gasto</button>
+              </div>
+            ) : (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Quién pagó</th><th>Monto</th></tr>
+                  </thead>
+                  <tbody>
+                    {gastos.map((g) => (
+                      <tr key={g.id}>
+                        <td>{formatFecha(g.fecha)}</td>
+                        <td>{g.concepto}</td>
+                        <td><span className="badge badge-gray">{g.tipo.replace('_', ' ')}</span></td>
+                        <td>{g.quienPago || '—'}</td>
+                        <td><strong>{formatColones(g.monto)}</strong></td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td colSpan={4} className="text-right"><strong>TOTAL</strong></td>
+                      <td><strong className="text-danger">{formatColones(gastos.reduce((s, g) => s + g.monto, 0))}</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+
+          {/* ── Tab Ventas ── */}
+          {tab === 'ventas' && (
+            ventas.length === 0 ? (
+              <div className="empty-state">
+                <div className="emoji">💰</div>
+                <h3>Sin ventas registradas</h3>
+                <p>Cuando vendás animales, el registro aparecerá aquí</p>
+              </div>
+            ) : (
+              <div className="ventas-list">
+                {ventas.map((v) => (
+                  <div key={v.id} className="venta-card card mb-2">
+                    <div className="flex-between mb-1">
+                      <span><strong>{v.cantidadAnimales} animal{v.cantidadAnimales !== 1 ? 'es' : ''}</strong> — {formatFecha(v.fecha)}</span>
+                      <span className={`badge ${v.utilidadBruta >= 0 ? 'badge-green' : 'badge-red'}`}>
+                        {v.utilidadBruta >= 0 ? '+' : ''}{formatColones(v.utilidadBruta)}
+                      </span>
+                    </div>
+                    <div className="venta-detalle">
+                      <div><span>Inversión</span><span>{formatColones(v.totalInversion)}</span></div>
+                      <div><span>Gastos prop.</span><span>{formatColones(v.gastosProporcion)}</span></div>
+                      <div><span>Venta total</span><span>{formatColones(v.totalVenta)}</span></div>
+                      {v.utilidadSocio !== null && v.utilidadSocio !== undefined && lote.socio && (
+                        <>
+                          <div><span>Utilidad {lote.socio.nombre}</span><span className="text-success">{formatColones(v.utilidadSocio)}</span></div>
+                          <div><span>Tu utilidad</span><span className="text-success">{formatColones(v.utilidadPropietario ?? 0)}</span></div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Modales */}
+      {showAnimal && loteId && <AgregarAnimalModal loteId={loteId} onClose={() => setShowAnimal(false)} />}
+      {showGasto && loteId && <AgregarGastoModal loteId={loteId} onClose={() => setShowGasto(false)} />}
+      {showPeso && animalPeso && loteId && (
+        <RegistrarPesoModal animal={animalPeso} loteId={loteId} onClose={() => { setShowPeso(false); setAnimalPeso(null); }} />
+      )}
+      {showVenta && lote && (
+        <VenderAnimalesModal lote={lote} animalesActivos={animalesActivos} gastos={gastos} onClose={() => setShowVenta(false)} />
+      )}
+    </div>
+  );
+}

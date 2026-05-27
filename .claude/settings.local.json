@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "apify"
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)"
+    ]
+  }
+}
