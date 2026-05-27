@@ -1,10 +1,13 @@
 {
-  "enabledMcpjsonServers": [
-    "apify"
-  ],
   "permissions": {
     "allow": [
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(rm -rf tests/qa/screenshots/*)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "apify"
+  ]
 }
