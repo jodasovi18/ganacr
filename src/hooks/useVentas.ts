@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -25,13 +24,22 @@ export function useVentas(loteId: string | null) {
     if (!user || !loteId) { setLoading(false); return; }
     const q = query(
       collection(db, 'ventas'),
+      where('userId', '==', user.uid),
       where('loteId', '==', loteId),
-      orderBy('fecha', 'desc')
     );
-    const unsub = onSnapshot(q, (snap) => {
-      setVentas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta)));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta));
+        data.sort((a, b) => (b.fecha > a.fecha ? 1 : -1));
+        setVentas(data);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('[useVentas] Error:', err.code, err.message);
+        setLoading(false);
+      },
+    );
     return unsub;
   }, [user, loteId]);
 

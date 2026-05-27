@@ -86,7 +86,7 @@ export default function AgregarAnimalModal({ loteId, onClose }: Props) {
             </div>
             <div className="form-group">
               <label className="form-label">Precio de compra (₡) *</label>
-              <input className="form-input" type="number" min="1" step="1000" placeholder="Ej: 450000" value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} required />
+              <input className="form-input" type="number" min="1" step="any" placeholder="Ej: 450000" value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} required />
             </div>
           </div>
 

@@ -6,6 +6,7 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
+  getDocs,
   updateDoc,
   doc,
   increment,
@@ -53,6 +54,18 @@ export function useAgregarAnimal() {
 
   async function agregarAnimal(input: AgregarAnimalInput): Promise<string> {
     if (!user) throw new Error('No autenticado');
+
+    // Validar arete duplicado en el mismo lote
+    const dupeSnap = await getDocs(query(
+      collection(db, 'animales'),
+      where('userId', '==', user.uid),
+      where('loteId', '==', input.loteId),
+      where('numeroArete', '==', input.numeroArete),
+    ));
+    if (!dupeSnap.empty) {
+      throw new Error(`El arete "${input.numeroArete}" ya existe en este lote`);
+    }
+
     const now = new Date().toISOString();
     const ref = await addDoc(collection(db, 'animales'), {
       userId: user.uid,
