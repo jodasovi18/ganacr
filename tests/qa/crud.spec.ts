@@ -365,6 +365,10 @@ test.describe('CRUD — edición y borrado', () => {
     test('V3: tras anular, los animales de la venta tienen badge activo (no vendido)', async ({ page }) => {
       await loginAs(page);
       await page.locator('text=Lote Nelore Stress').first().click();
+      await page.waitForURL(/\/lote\//, { timeout: 10_000 });
+
+      // Navegar explícitamente a la pestaña Animales
+      await page.locator('button.tab-btn').filter({ hasText: /animales/i }).click();
       await page.waitForSelector('text=NS-001', { timeout: 15_000 });
 
       // Tras la anulación de V2, no debe haber ningún badge "vendido"
