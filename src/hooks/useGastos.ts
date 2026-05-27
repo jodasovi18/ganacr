@@ -79,15 +79,17 @@ interface ActualizarGastoInput {
 }
 
 export function useActualizarGasto() {
+  const { user } = useAuth();
   async function actualizarGasto(
     gastoId: string,
     loteId: string,
     oldMonto: number,
     data: ActualizarGastoInput,
   ) {
+    if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
     const batch = writeBatch(db);
-    batch.update(doc(db, 'gastos', gastoId), { ...data });
+    batch.update(doc(db, 'gastos', gastoId), { ...data, updatedAt: now });
     const diff = data.monto - oldMonto;
     if (diff !== 0) {
       batch.update(doc(db, 'lotes', loteId), {
@@ -101,7 +103,9 @@ export function useActualizarGasto() {
 }
 
 export function useEliminarGasto() {
+  const { user } = useAuth();
   async function eliminarGasto(gastoId: string, loteId: string, monto: number) {
+    if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
     const batch = writeBatch(db);
     batch.delete(doc(db, 'gastos', gastoId));
