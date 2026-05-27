@@ -24,6 +24,7 @@ export function useVentas(loteId: string | null) {
     if (!user || !loteId) { setLoading(false); return; }
     const q = query(
       collection(db, 'ventas'),
+      where('userId', '==', user.uid),
       where('loteId', '==', loteId),
     );
     const unsub = onSnapshot(
