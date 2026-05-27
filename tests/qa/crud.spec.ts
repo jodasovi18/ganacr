@@ -75,6 +75,7 @@ test.describe('CRUD — edición y borrado', () => {
     });
 
     test('G3: cancelar modal NO modifica el gasto', async ({ page }) => {
+      // depends on G2 — "Alimento febrero" monto is now 250000 (edited in G2)
       await loginAs(page);
       await page.locator('text=Lote Charolais Sur').first().click();
       await page.waitForSelector('text=CS-001', { timeout: 15_000 });
@@ -371,10 +372,14 @@ test.describe('CRUD — edición y borrado', () => {
       await page.locator('button.tab-btn').filter({ hasText: /animales/i }).click();
       await page.waitForSelector('text=NS-001', { timeout: 15_000 });
 
-      // Tras la anulación de V2, no debe haber ningún badge "vendido"
-      // Los 90 animales que eran vendidos ahora son activos
+      // depends on V2 — la venta de 90 animales fue anulada; todos deben ser activos ahora
+      // Esperar a que los 90 animales cambien de vendido → activo (batch write de V2)
+      const activoBadges = page.locator('span.badge').filter({ hasText: /^activo$/i });
+      await expect(activoBadges).toHaveCount(100, { timeout: 20_000 }); // 10 originales + 90 restaurados
+
+      // No debe haber ningún badge "vendido"
       const vendidoBadges = page.locator('span.badge').filter({ hasText: /^vendido$/i });
-      await expect(vendidoBadges).toHaveCount(0, { timeout: 15_000 });
+      await expect(vendidoBadges).toHaveCount(0, { timeout: 10_000 });
 
       // NS-011 era vendido → ahora debe tener badge activo
       const filaNS011 = page.locator('tr').filter({ hasText: 'NS-011' });
