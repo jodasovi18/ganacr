@@ -2,6 +2,7 @@ interface Props {
   titulo: string;
   descripcion?: string;
   labelConfirmar?: string;
+  labelCargando?: string;
   loading: boolean;
   onConfirm: () => void;
   onClose: () => void;
@@ -11,6 +12,7 @@ export default function ConfirmarBorradoModal({
   titulo,
   descripcion,
   labelConfirmar = 'Eliminar',
+  labelCargando = 'Eliminando...',
   loading,
   onConfirm,
   onClose,
@@ -41,7 +43,7 @@ export default function ConfirmarBorradoModal({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? 'Eliminando...' : labelConfirmar}
+            {loading ? labelCargando : labelConfirmar}
           </button>
         </div>
       </div>
