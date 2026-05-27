@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLote } from '@/hooks/useLotes';
-import { useAnimales } from '@/hooks/useAnimales';
-import { useGastos } from '@/hooks/useGastos';
-import { useVentas } from '@/hooks/useVentas';
+import { useAnimales, useEliminarAnimal } from '@/hooks/useAnimales';
+import { useGastos, useEliminarGasto } from '@/hooks/useGastos';
+import { useVentas, useAnularVenta } from '@/hooks/useVentas';
 import { formatColones, formatKg, formatFecha } from '@/utils/calculadora';
 import AgregarAnimalModal from '@/components/AgregarAnimalModal';
 import AgregarGastoModal from '@/components/AgregarGastoModal';
 import RegistrarPesoModal from '@/components/RegistrarPesoModal';
 import VenderAnimalesModal from '@/components/VenderAnimalesModal';
-import { Animal } from '@/types';
+import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
+import { Animal, Gasto, Venta } from '@/types';
 import './LoteDetalle.css';
 
 type Tab = 'animales' | 'gastos' | 'ventas';
@@ -22,17 +23,72 @@ export default function LoteDetalle() {
   const { ventas } = useVentas(loteId ?? null);
   const navigate = useNavigate();
 
+  const { eliminarAnimal } = useEliminarAnimal();
+  const { eliminarGasto } = useEliminarGasto();
+  const { anularVenta } = useAnularVenta();
+
   const [tab, setTab] = useState<Tab>('animales');
+
+  // Create modals
   const [showAnimal, setShowAnimal] = useState(false);
   const [showGasto, setShowGasto] = useState(false);
   const [showPeso, setShowPeso] = useState(false);
   const [showVenta, setShowVenta] = useState(false);
   const [animalPeso, setAnimalPeso] = useState<Animal | null>(null);
 
+  // Edit modals
+  const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
+  const [editGasto, setEditGasto] = useState<Gasto | null>(null);
+
+  // Delete confirms
+  const [deleteAnimal, setDeleteAnimal] = useState<Animal | null>(null);
+  const [deleteGasto, setDeleteGasto] = useState<Gasto | null>(null);
+  const [deleteVenta, setDeleteVenta] = useState<Venta | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
   if (!lote) return <div className="container page-content"><p>Lote no encontrado.</p></div>;
 
   const animalesActivos = animales.filter((a) => a.estado === 'activo');
+
+  async function handleDeleteAnimal() {
+    if (!deleteAnimal) return;
+    setDeletingId(deleteAnimal.id);
+    try {
+      await eliminarAnimal(deleteAnimal);
+      setDeleteAnimal(null);
+    } catch (err) {
+      console.error('[handleDeleteAnimal]', err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleDeleteGasto() {
+    if (!deleteGasto) return;
+    setDeletingId(deleteGasto.id);
+    try {
+      await eliminarGasto(deleteGasto.id, loteId!, deleteGasto.monto);
+      setDeleteGasto(null);
+    } catch (err) {
+      console.error('[handleDeleteGasto]', err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleAnularVenta() {
+    if (!deleteVenta) return;
+    setDeletingId(deleteVenta.id);
+    try {
+      await anularVenta(deleteVenta.id);
+      setDeleteVenta(null);
+    } catch (err) {
+      console.error('[handleAnularVenta]', err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="lote-detalle-page">
@@ -59,7 +115,6 @@ export default function LoteDetalle() {
             </div>
           </div>
 
-          {/* Stats del lote */}
           <div className="stats-grid mt-2">
             <div className="stat-card"><div className="stat-value">{lote.animalesActivos}</div><div className="stat-label">Activos</div></div>
             <div className="stat-card"><div className="stat-value">{lote.animalesVendidos}</div><div className="stat-label">Vendidos</div></div>
@@ -131,11 +186,26 @@ export default function LoteDetalle() {
                             </span>
                           </td>
                           <td>
-                            {animal.estado === 'activo' && (
-                              <button className="btn btn-ghost btn-sm" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
-                                ⚖️ Peso
-                              </button>
-                            )}
+                            <div className="flex gap-1">
+                              {animal.estado === 'activo' && (
+                                <>
+                                  <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
+                                    ⚖️
+                                  </button>
+                                  <button className="btn btn-ghost btn-sm" title="Editar animal" onClick={() => setEditAnimal(animal)}>
+                                    ✏️
+                                  </button>
+                                  <button
+                                    className="btn btn-ghost btn-sm"
+                                    title="Eliminar animal"
+                                    style={{ color: 'var(--color-danger, #dc3545)' }}
+                                    onClick={() => setDeleteAnimal(animal)}
+                                  >
+                                    🗑️
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -159,7 +229,7 @@ export default function LoteDetalle() {
               <div className="table-wrap">
                 <table>
                   <thead>
-                    <tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Quién pagó</th><th>Monto</th></tr>
+                    <tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Quién pagó</th><th>Monto</th><th></th></tr>
                   </thead>
                   <tbody>
                     {gastos.map((g) => (
@@ -169,11 +239,23 @@ export default function LoteDetalle() {
                         <td><span className="badge badge-gray">{g.tipo.replace('_', ' ')}</span></td>
                         <td>{g.quienPago || '—'}</td>
                         <td><strong>{formatColones(g.monto)}</strong></td>
+                        <td>
+                          <div className="flex gap-1">
+                            <button className="btn btn-ghost btn-sm" title="Editar gasto" onClick={() => setEditGasto(g)}>✏️</button>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              title="Eliminar gasto"
+                              style={{ color: 'var(--color-danger, #dc3545)' }}
+                              onClick={() => setDeleteGasto(g)}
+                            >🗑️</button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                     <tr>
                       <td colSpan={4} className="text-right"><strong>TOTAL</strong></td>
                       <td><strong className="text-danger">{formatColones(gastos.reduce((s, g) => s + g.monto, 0))}</strong></td>
+                      <td></td>
                     </tr>
                   </tbody>
                 </table>
@@ -195,9 +277,18 @@ export default function LoteDetalle() {
                   <div key={v.id} className="venta-card card mb-2">
                     <div className="flex-between mb-1">
                       <span><strong>{v.cantidadAnimales} animal{v.cantidadAnimales !== 1 ? 'es' : ''}</strong> — {formatFecha(v.fecha)}</span>
-                      <span className={`badge ${v.utilidadBruta >= 0 ? 'badge-green' : 'badge-red'}`}>
-                        {v.utilidadBruta >= 0 ? '+' : ''}{formatColones(v.utilidadBruta)}
-                      </span>
+                      <div className="flex gap-1" style={{ alignItems: 'center' }}>
+                        <span className={`badge ${v.utilidadBruta >= 0 ? 'badge-green' : 'badge-red'}`}>
+                          {v.utilidadBruta >= 0 ? '+' : ''}{formatColones(v.utilidadBruta)}
+                        </span>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          style={{ color: 'var(--color-danger, #dc3545)', fontSize: '0.78rem' }}
+                          onClick={() => setDeleteVenta(v)}
+                        >
+                          Anular
+                        </button>
+                      </div>
                     </div>
                     <div className="venta-detalle">
                       <div><span>Inversión</span><span>{formatColones(v.totalInversion)}</span></div>
@@ -218,7 +309,7 @@ export default function LoteDetalle() {
         </div>
       </div>
 
-      {/* Modales */}
+      {/* ── Modales de creación ── */}
       {showAnimal && loteId && <AgregarAnimalModal loteId={loteId} onClose={() => setShowAnimal(false)} />}
       {showGasto && loteId && <AgregarGastoModal loteId={loteId} onClose={() => setShowGasto(false)} />}
       {showPeso && animalPeso && loteId && (
@@ -226,6 +317,44 @@ export default function LoteDetalle() {
       )}
       {showVenta && lote && (
         <VenderAnimalesModal lote={lote} animalesActivos={animalesActivos} gastos={gastos} onClose={() => setShowVenta(false)} />
+      )}
+
+      {/* ── Modales de edición ── */}
+      {editAnimal && loteId && (
+        <AgregarAnimalModal loteId={loteId} editData={editAnimal} onClose={() => setEditAnimal(null)} />
+      )}
+      {editGasto && loteId && (
+        <AgregarGastoModal loteId={loteId} editData={editGasto} onClose={() => setEditGasto(null)} />
+      )}
+
+      {/* ── Modales de confirmación de borrado ── */}
+      {deleteAnimal && (
+        <ConfirmarBorradoModal
+          titulo={`¿Eliminar animal ${deleteAnimal.numeroArete}?`}
+          descripcion="Se eliminarán también todos sus pesajes registrados."
+          loading={deletingId === deleteAnimal.id}
+          onConfirm={handleDeleteAnimal}
+          onClose={() => setDeleteAnimal(null)}
+        />
+      )}
+      {deleteGasto && (
+        <ConfirmarBorradoModal
+          titulo="¿Eliminar este gasto?"
+          descripcion={`${deleteGasto.concepto} — ${formatColones(deleteGasto.monto)}`}
+          loading={deletingId === deleteGasto.id}
+          onConfirm={handleDeleteGasto}
+          onClose={() => setDeleteGasto(null)}
+        />
+      )}
+      {deleteVenta && (
+        <ConfirmarBorradoModal
+          titulo="¿Anular esta venta?"
+          descripcion="Los animales volverán a estado activo y los contadores del lote serán revertidos. Esta acción no se puede deshacer."
+          labelConfirmar="Anular venta"
+          loading={deletingId === deleteVenta.id}
+          onConfirm={handleAnularVenta}
+          onClose={() => setDeleteVenta(null)}
+        />
       )}
     </div>
   );
