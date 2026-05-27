@@ -60,7 +60,7 @@ export default function AgregarGastoModal({ loteId, onClose }: Props) {
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Monto (₡) *</label>
-              <input className="form-input" type="number" min="1" step="500" placeholder="Ej: 25000" value={monto} onChange={(e) => setMonto(e.target.value)} required />
+              <input className="form-input" type="number" min="1" step="any" placeholder="Ej: 25000" value={monto} onChange={(e) => setMonto(e.target.value)} required />
             </div>
             <div className="form-group">
               <label className="form-label">Fecha</label>

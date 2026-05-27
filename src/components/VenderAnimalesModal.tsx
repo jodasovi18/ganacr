@@ -111,7 +111,7 @@ export default function VenderAnimalesModal({ lote, animalesActivos, gastos, onC
                       <td>
                         <input
                           className="form-input"
-                          type="number" min="1" step="1000"
+                          type="number" min="1" step="any"
                           placeholder="0"
                           value={precios[animal.id] || ''}
                           onChange={(e) => setPrecios((p) => ({ ...p, [animal.id]: e.target.value }))}
