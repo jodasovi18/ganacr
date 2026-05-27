@@ -64,6 +64,7 @@ export function generateSeedData(userId: string) {
   });
 
   type AnimalDoc = ReturnType<typeof mkAnimal>;
+  type GastoDoc = ReturnType<typeof mkGasto>;
 
   // Helper para crear animales en bulk (aretes secuenciales)
   const mkBulkAnimals = (
@@ -268,7 +269,7 @@ export function generateSeedData(userId: string) {
   // Venta de 90 animales — todos los vendidos de L6
   const l6VentaTotalInversion = l6AnimalesVendidos.reduce((s, a) => s + a.precioCompra, 0);
   const l6VentaTotalVenta     = l6AnimalesVendidos.length * 360_000; // 90 × 360k = 32,400,000
-  const l6GastosProporcion    = 500_000;  // 100% de gastos (todos vendidos)
+  const l6GastosProporcion    = Math.round((500_000 / l6Animals.length) * l6AnimalesVendidos.length);  // 90/100 = 450,000
   const l6UtilidadBruta       = l6VentaTotalVenta - l6VentaTotalInversion - l6GastosProporcion;
 
   const ventaL6 = {
@@ -295,8 +296,6 @@ export function generateSeedData(userId: string) {
   };
 
   // ─── PESAJES (3 por animal) ────────────────────────────────────────────────
-  type GastoDoc = ReturnType<typeof mkGasto>;
-
   const generatePesajes = (animals: AnimalDoc[], baseDate: string, loteId: string) => {
     const result: object[] = [];
     const base = new Date(baseDate);
