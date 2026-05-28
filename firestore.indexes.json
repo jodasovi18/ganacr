@@ -67,6 +67,14 @@
         { "fieldPath": "animalId", "order": "ASCENDING" },
         { "fieldPath": "fecha", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "pesos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "loteId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
