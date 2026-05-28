@@ -1,0 +1,15 @@
+/* ─── FincaSelector ──────────────────────────────────────────────────────── */
+
+.finca-ajustes-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.35rem;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.finca-ajustes-btn:hover {
+  background: var(--color-bg);
+}

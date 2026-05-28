@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useFinca } from '@/contexts/FincaContext';
 import { useCrearFinca, useActualizarFinca } from '@/hooks/useFincas';
+import './FincaSelector.css';
 
 export default function FincaSelector() {
   const { fincas, fincaActiva, setFincaActiva, loading } = useFinca();
@@ -63,7 +64,8 @@ export default function FincaSelector() {
     setUmbralError('');
     setSavingUmbrales(true);
     try {
-      await actualizarUmbrales(fincaActiva!.id, umbralAmarillo, umbralRojo);
+      if (!fincaActiva) return;
+      await actualizarUmbrales(fincaActiva.id, umbralAmarillo, umbralRojo);
       setShowAjustes(false);
     } catch (err) {
       setUmbralError(err instanceof Error ? err.message : 'Error al guardar');
@@ -98,12 +100,6 @@ export default function FincaSelector() {
             setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
             setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
             setShowAjustes(true);
-          }}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '0.9rem', padding: '0.2rem 0.35rem',
-            color: 'var(--color-text-muted)',
-            borderRadius: 'var(--radius-sm)',
           }}
         >
           ⚙️
@@ -174,7 +170,7 @@ export default function FincaSelector() {
         <div className="modal-overlay" onClick={() => setShowAjustes(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Ajustes de pesaje — {fincaActiva!.nombre}</h2>
+              <h2>Ajustes de pesaje — {fincaActiva?.nombre}</h2>
               <button className="modal-close" onClick={() => setShowAjustes(false)}>×</button>
             </div>
             <form onSubmit={handleGuardarUmbrales}>
