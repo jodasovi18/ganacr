@@ -60,6 +60,7 @@
   top: 0;
   z-index: 10;
   background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border);
 }
 .tabs-sticky .tabs {
   border-bottom: none;   /* outer container has the border */
