@@ -81,3 +81,17 @@
 }
 .venta-detalle > div { display: flex; justify-content: space-between; }
 .venta-detalle span:first-child { color: var(--color-text-muted); }
+
+/* ─── Search filter ──────────────────────────────────────────────────────── */
+.arete-search-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.75rem 0 0.5rem;
+}
+.arete-search {
+  width: 220px;
+}
+@media (max-width: 640px) {
+  .arete-search-wrap { justify-content: stretch; }
+  .arete-search      { width: 100%; }
+}
