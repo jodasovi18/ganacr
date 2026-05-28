@@ -130,18 +130,22 @@ export default function LoteDetalle() {
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="container">
-        <div className="tabs mt-2">
-          {(['animales', 'gastos', 'ventas'] as Tab[]).map((t) => (
-            <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-              {t === 'animales' && `🐄 Animales (${animales.length})`}
-              {t === 'gastos' && `💸 Gastos (${gastos.length})`}
-              {t === 'ventas' && `💰 Ventas (${ventas.length})`}
-            </button>
-          ))}
+      {/* Sticky Tabs */}
+      <div className="tabs-sticky">
+        <div className="container">
+          <div className="tabs mt-2">
+            {(['animales', 'gastos', 'ventas'] as Tab[]).map((t) => (
+              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+                {t === 'animales' && `🐄 Animales (${animales.length})`}
+                {t === 'gastos' && `💸 Gastos (${gastos.length})`}
+                {t === 'ventas' && `💰 Ventas (${ventas.length})`}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
+      <div className="container">
         <div className="tab-content page-content">
           {/* ── Tab Animales ── */}
           {tab === 'animales' && (
