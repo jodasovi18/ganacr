@@ -1,16 +1,17 @@
 import { Page } from '@playwright/test';
 
-const TEST_EMAIL = process.env.TEST_EMAIL ?? '';
-const TEST_PASSWORD = process.env.TEST_PASSWORD ?? '';
-
 /**
  * Logs in using test credentials from environment variables.
  * Prerequisites: TEST_EMAIL and TEST_PASSWORD must be set.
+ * Credentials are read at call time (not module load) so dotenv
+ * fixtures injected after import are visible.
  */
 export async function loginAsTestUser(page: Page) {
+  const email = process.env.TEST_EMAIL ?? '';
+  const password = process.env.TEST_PASSWORD ?? '';
   await page.goto('/login');
-  await page.fill('input[type="email"]', TEST_EMAIL);
-  await page.fill('input[type="password"]', TEST_PASSWORD);
+  await page.fill('input[type="email"]', email);
+  await page.fill('input[type="password"]', password);
   await page.click('button[type="submit"]');
   await page.waitForURL('/');
   await page.waitForSelector('.finca-selector-chip', { timeout: 10_000 });
