@@ -10,10 +10,12 @@ import AgregarGastoModal from '@/components/AgregarGastoModal';
 import RegistrarPesoModal from '@/components/RegistrarPesoModal';
 import VenderAnimalesModal from '@/components/VenderAnimalesModal';
 import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
+import { useFinca } from '@/contexts/FincaContext';
+import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta } from '@/types';
 import './LoteDetalle.css';
 
-type Tab = 'animales' | 'gastos' | 'ventas';
+type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos';
 
 export default function LoteDetalle() {
   const { loteId } = useParams<{ loteId: string }>();
@@ -22,6 +24,7 @@ export default function LoteDetalle() {
   const { gastos } = useGastos(loteId ?? null);
   const { ventas } = useVentas(loteId ?? null);
   const navigate = useNavigate();
+  const { fincaActiva } = useFinca();
 
   const { eliminarAnimal } = useEliminarAnimal();
   const { eliminarGasto } = useEliminarGasto();
@@ -138,11 +141,12 @@ export default function LoteDetalle() {
       <div className="tabs-sticky">
         <div className="container">
           <div className="tabs mt-2">
-            {(['animales', 'gastos', 'ventas'] as Tab[]).map((t) => (
+            {(['animales', 'gastos', 'ventas', 'pesos'] as Tab[]).map((t) => (
               <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); }}>
                 {t === 'animales' && `🐄 Animales (${animales.length})`}
                 {t === 'gastos' && `💸 Gastos (${gastos.length})`}
                 {t === 'ventas' && `💰 Ventas (${ventas.length})`}
+                {t === 'pesos' && `⚖️ Pesos`}
               </button>
             ))}
           </div>
@@ -375,6 +379,13 @@ export default function LoteDetalle() {
                 ))}
               </div>
             )
+          )}
+
+          {/* ── Tab Pesos ── */}
+          {tab === 'pesos' && (
+            fincaActiva
+              ? <PesosTab lote={lote} animales={animales} finca={fincaActiva} />
+              : <p className="tab-empty">Cargando finca...</p>
           )}
         </div>
       </div>

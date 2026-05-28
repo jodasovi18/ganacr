@@ -43,6 +43,10 @@ export function FincaProvider({ children }: { children: ReactNode }) {
       } else {
         setFincaActivaState(null);
       }
+    }, (err) => {
+      // Snapshot error (e.g. permission-denied before rules propagate)
+      console.error('[FincaContext] onSnapshot error:', err.code, err.message);
+      setLoading(false);
     });
     return unsub;
   }, [user]);
