@@ -54,6 +54,19 @@
 }
 .tab-btn:hover:not(.active) { color: var(--color-primary); background: var(--color-bg); border-radius: 6px 6px 0 0; }
 
+/* Sticky tab wrapper */
+.tabs-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border);
+}
+.tabs-sticky .tabs {
+  border-bottom: none;   /* outer container has the border */
+  padding: 0;
+}
+
 .tab-content { min-height: 300px; }
 
 /* Venta card detalle */
@@ -68,3 +81,93 @@
 }
 .venta-detalle > div { display: flex; justify-content: space-between; }
 .venta-detalle span:first-child { color: var(--color-text-muted); }
+
+/* ─── Search filter ──────────────────────────────────────────────────────── */
+.arete-search-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.75rem 0 0.5rem;
+}
+.arete-search {
+  width: 220px;
+}
+@media (max-width: 640px) {
+  .arete-search-wrap { justify-content: stretch; }
+  .arete-search      { width: 100%; }
+}
+
+/* ─── Animal cards (mobile) ─────────────────────────────────────────────── */
+.animals-table-wrap { display: block; }
+.animals-cards      { display: none; }
+
+@media (max-width: 640px) {
+  .animals-table-wrap { display: none; }
+  .animals-cards      { display: flex; flex-direction: column; gap: 0.75rem; }
+}
+
+.animal-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  box-shadow: var(--shadow);
+}
+.animal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.animal-card-arete {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.animal-card-data {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 1rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+}
+.animal-card-data strong {
+  color: var(--color-text);
+}
+.animal-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.animal-card-actions .btn {
+  min-width: 40px;
+  min-height: 40px;
+  justify-content: center;
+}
+
+/* ─── Header stats — 3 col on mobile ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .detalle-header .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .detalle-header .stat-card {
+    padding: 0.55rem 0.4rem;
+  }
+  .detalle-header .stat-value {
+    font-size: 0.95rem !important;
+  }
+  .detalle-header .stat-label {
+    font-size: 0.62rem !important;
+  }
+  .detalle-titulo {
+    font-size: 1.15rem;
+  }
+  .detalle-acciones {
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  .detalle-acciones .btn {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.8rem;
+  }
+}

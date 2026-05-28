@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
-  testDir: './tests/qa',
+  testDir: './tests/responsive',
   timeout: 60_000,
   retries: 1,
   workers: 1,
@@ -20,7 +20,7 @@ export default defineConfig({
     video: 'off',
     headless: true,
   },
-  outputDir: 'tests/qa/screenshots',
+  outputDir: 'tests/responsive/screenshots',
   projects: [
     {
       name: 'chromium',

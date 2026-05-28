@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [editLote, setEditLote] = useState<Lote | null>(null);
   const [deleteLote, setDeleteLote] = useState<Lote | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const totalAnimales = lotes.reduce((s, l) => s + l.animalesActivos, 0);
   const totalInvertido = lotes.reduce((s, l) => s + l.totalInvertido, 0);
@@ -52,7 +53,26 @@ export default function Dashboard() {
             <span className="navbar-user">{userData?.nombre}</span>
             <button className="btn btn-ghost btn-sm" onClick={logout}>Salir</button>
           </div>
+          <button
+            className="navbar-hamburger"
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="navbar-mobile-menu">
+            <span className="navbar-user">{userData?.nombre}</span>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => { logout(); setMenuOpen(false); }}
+            >
+              Salir
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="container page-content">

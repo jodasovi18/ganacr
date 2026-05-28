@@ -217,3 +217,25 @@ tbody tr:hover td { background: #edf7f1 !important; }
 }
 .stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--color-primary-dark); line-height: 1.2; }
 .stat-card .stat-label { font-size: 0.72rem; font-weight: 600; color: var(--color-text-muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  /* Bottom-sheet modals */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0 0 env(safe-area-inset-bottom);
+  }
+  .modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 85vh;
+    animation: slide-up 0.25s ease-out;
+    overscroll-behavior: contain;
+    will-change: transform;
+  }
+}

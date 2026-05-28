@@ -22,10 +22,24 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - Registrar pesajes
 - Registrar gastos (alimento, veterinario, mano de obra, transporte)
 - Vender animales con cálculo automático de utilidad y división a medias
+- CRUD completo: editar y borrar animales, gastos, lotes; anular ventas con reversión de contadores
+- Diseño responsive mobile-first (móvil ≤640px, tablet 641–1024px, desktop ≥1025px); hamburger nav, bottom-sheet modals, cards por animal, filtro de arete offline
 
 ## Roadmap — Próximas fases
 
-### Fase 2 — Completar gestión básica
+### Fase 2A — Arquitectura multi-finca (FUNDACIÓN — hacer antes que Fase 2B y 3)
+Contexto: hoy la jerarquía es Usuario → Lotes. Introducir Fincas es el cambio
+arquitectónico más importante porque todas las features siguientes dependen de él.
+Jerarquía objetivo: Usuario → Fincas → Lotes → Animales/Gastos/Ventas.
+- [ ] Nueva colección `fincas` en Firestore; campo `fincaId` en `lotes`, `animales`, `gastos`, `ventas`
+- [ ] Hooks actualizados (`useLotes`, `useAnimales`, `useGastos`, `usePesos`, `useVentas`) para filtrar por `fincaId`
+- [ ] Pantalla de selección/gestión de fincas antes del Dashboard actual
+- [ ] Migración de datos: asignar lotes existentes a una "Finca por defecto" sin romper cuentas activas
+- [ ] Mover animales entre lotes de la misma finca: actualizar `loteId` + ajustar contadores con `writeBatch`
+- [ ] Mover animales entre fincas distintas: actualizar `fincaId` + `loteId` + manejar utilidad parcial en lotes a medias
+- [ ] Gastos a nivel de finca: el usuario crea el gasto, selecciona los lotes a los que aplica, y el sistema distribuye el monto proporcionalmente según animales activos de cada lote seleccionado (los lotes a medias se incluyen solo si el usuario los selecciona explícitamente)
+
+### Fase 2B — Completar gestión básica
 - [ ] Módulo de vacunas y tratamientos por animal
 - [ ] Control de partos (madre, fecha, peso al nacer)
 - [ ] Gráficos de evolución de peso por animal/lote
@@ -77,11 +91,12 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `src/types/index.ts` — todas las interfaces TypeScript
 - `src/services/firebase.ts` — configuración Firebase (credenciales aquí)
 - `src/contexts/AuthContext.tsx` — manejo de sesión
-- `src/hooks/` — lógica de datos (useLotes, useAnimales, useGastos, usePesos, useVentas)
+- `src/hooks/` — lógica de datos (useLotes, useAnimales, useGastos, usePesos, useVentas, useEditarAnimal, useEliminarAnimal, useActualizarGasto, useEliminarGasto, useEliminarLoteConCascada, useAnularVenta)
 - `src/utils/calculadora.ts` — cálculos de ventas y formateo
-- `src/pages/` — Dashboard, Login, LoteDetalle
-- `src/components/` — modales (CrearLote, AgregarAnimal, AgregarGasto, RegistrarPeso, VenderAnimales)
-- `src/index.css` — variables CSS y estilos globales (tema verde ganadero)
+- `src/pages/` — Dashboard, Login, LoteDetalle (con sus `.css` individuales)
+- `src/components/` — modales (CrearLote, AgregarAnimal, AgregarGasto, RegistrarPeso, VenderAnimales, ConfirmarBorrado)
+- `src/index.css` — variables CSS, estilos globales y responsive (bottom-sheet, breakpoints)
+- `tests/responsive/` — tests Playwright de filtro y responsive (`playwright.responsive.config.ts`)
 
 ## Convenciones del proyecto
 - Colones costarricenses (₡) para moneda, formateados con `formatColones()`
@@ -99,6 +114,11 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `pesos` — historial de pesajes por animal
 - `gastos` — gastos por lote
 - `ventas` — ventas realizadas con cálculo de utilidad
+
+## Base de datos Firestore (planeada — Fase 2A)
+- `fincas` — fincas del usuario (nivel superior antes de lotes)
+- `lotes` — se agrega campo `fincaId`
+- `animales`, `gastos`, `ventas` — se agrega campo `fincaId` para filtrado eficiente
 
 ## Contexto del desarrollador
 - José Daniel, contador en Costa Rica con conocimientos en Python, JS, TypeScript

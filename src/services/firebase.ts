@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import {
-  getFirestore,
-  enableIndexedDbPersistence,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
 } from 'firebase/firestore';
 
 // ─── CONFIGURACIÓN ──────────────────────────────────────────────────────────
@@ -21,15 +22,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
 
-// Persistencia offline — funciona aunque no haya internet
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn('GanaCR: Persistencia offline no disponible (múltiples pestañas abiertas)');
-  } else if (err.code === 'unimplemented') {
-    console.warn('GanaCR: Este navegador no soporta persistencia offline');
-  }
+// Persistencia offline con API moderna (Firestore v9.6+)
+// - persistentLocalCache: guarda todos los datos en IndexedDB del dispositivo
+// - persistentMultipleTabManager: soporta múltiples pestañas sin conflictos
+// Las escrituras hechas sin conexión se guardan en disco y se sincronizan
+// automáticamente cuando vuelve internet, aunque se haya cerrado el browser.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
 });
 
 export default app;
