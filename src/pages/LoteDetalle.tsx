@@ -180,66 +180,107 @@ export default function LoteDetalle() {
                     <p>No hay animales con arete "{filterText}"</p>
                   </div>
                 ) : (
-                  <div className="table-wrap animals-table-wrap">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Arete</th>
-                          <th>Raza</th>
-                          <th>Peso inicial</th>
-                          <th>Peso actual</th>
-                          <th>Ganancia</th>
-                          <th>Precio compra</th>
-                          <th>Estado</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {animalesFiltrados.map((animal) => {
-                          const ganancia = animal.pesoActual - animal.pesoInicial;
-                          return (
-                            <tr key={animal.id}>
-                              <td><strong>{animal.numeroArete}</strong></td>
-                              <td>{animal.raza}</td>
-                              <td>{formatKg(animal.pesoInicial)}</td>
-                              <td>{formatKg(animal.pesoActual)}</td>
-                              <td className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
-                                {ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}
-                              </td>
-                              <td>{formatColones(animal.precioCompra)}</td>
-                              <td>
-                                <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
-                                  {animal.estado}
-                                </span>
-                              </td>
-                              <td>
-                                <div className="flex gap-1">
-                                  {animal.estado === 'activo' && (
-                                    <>
-                                      <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
-                                        ⚖️
-                                      </button>
-                                      <button className="btn btn-ghost btn-sm" title="Editar animal" onClick={() => setEditAnimal(animal)}>
-                                        ✏️
-                                      </button>
-                                      <button
-                                        className="btn btn-ghost btn-sm"
-                                        title="Eliminar animal"
-                                        style={{ color: 'var(--color-danger, #dc3545)' }}
-                                        onClick={() => setDeleteAnimal(animal)}
-                                      >
-                                        🗑️
-                                      </button>
-                                    </>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                  <>
+                    {/* Desktop: tabla */}
+                    <div className="table-wrap animals-table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Arete</th>
+                            <th>Raza</th>
+                            <th>Peso inicial</th>
+                            <th>Peso actual</th>
+                            <th>Ganancia</th>
+                            <th>Precio compra</th>
+                            <th>Estado</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {animalesFiltrados.map((animal) => {
+                            const ganancia = animal.pesoActual - animal.pesoInicial;
+                            return (
+                              <tr key={animal.id}>
+                                <td><strong>{animal.numeroArete}</strong></td>
+                                <td>{animal.raza}</td>
+                                <td>{formatKg(animal.pesoInicial)}</td>
+                                <td>{formatKg(animal.pesoActual)}</td>
+                                <td className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
+                                  {ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}
+                                </td>
+                                <td>{formatColones(animal.precioCompra)}</td>
+                                <td>
+                                  <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
+                                    {animal.estado}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div className="flex gap-1">
+                                    {animal.estado === 'activo' && (
+                                      <>
+                                        <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
+                                          ⚖️
+                                        </button>
+                                        <button className="btn btn-ghost btn-sm" title="Editar animal" onClick={() => setEditAnimal(animal)}>
+                                          ✏️
+                                        </button>
+                                        <button
+                                          className="btn btn-ghost btn-sm"
+                                          title="Eliminar animal"
+                                          style={{ color: 'var(--color-danger, #dc3545)' }}
+                                          onClick={() => setDeleteAnimal(animal)}
+                                        >
+                                          🗑️
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile: cards */}
+                    <div className="animals-cards">
+                      {animalesFiltrados.map((animal) => {
+                        const ganancia = animal.pesoActual - animal.pesoInicial;
+                        return (
+                          <div key={animal.id} className="animal-card">
+                            <div className="animal-card-header">
+                              <span className="animal-card-arete">{animal.numeroArete}</span>
+                              <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
+                                {animal.estado}
+                              </span>
+                            </div>
+                            <div className="animal-card-data">
+                              <span>Raza: <strong>{animal.raza}</strong></span>
+                              <span>Precio: <strong>{formatColones(animal.precioCompra)}</strong></span>
+                              <span>Peso ini: <strong>{formatKg(animal.pesoInicial)}</strong></span>
+                              <span>Peso act: <strong>{formatKg(animal.pesoActual)}</strong></span>
+                              <span className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
+                                Ganancia: <strong>{ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}</strong>
+                              </span>
+                            </div>
+                            {animal.estado === 'activo' && (
+                              <div className="animal-card-actions">
+                                <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>⚖️</button>
+                                <button className="btn btn-ghost btn-sm" title="Editar" onClick={() => setEditAnimal(animal)}>✏️</button>
+                                <button
+                                  className="btn btn-ghost btn-sm"
+                                  title="Eliminar"
+                                  style={{ color: 'var(--color-danger, #dc3545)' }}
+                                  onClick={() => setDeleteAnimal(animal)}
+                                >🗑️</button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
               </>
             )
