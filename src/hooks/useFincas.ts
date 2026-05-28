@@ -108,7 +108,10 @@ export function useCrearFinca() {
 // ─── Actualizar finca ─────────────────────────────────────────────────────────
 
 export function useActualizarFinca() {
+  const { user } = useAuth();
+
   async function actualizarFinca(fincaId: string, nombre: string) {
+    if (!user) throw new Error('No autenticado');
     await updateDoc(doc(db, 'fincas', fincaId), {
       nombre: nombre.trim(),
       updatedAt: new Date().toISOString(),
