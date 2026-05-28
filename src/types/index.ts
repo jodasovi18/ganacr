@@ -18,6 +18,8 @@ export interface Finca {
   id: string;
   userId: string;
   nombre: string;
+  pesoUmbralAmarillo?: number; // days without weighing → 🟡 (default 15)
+  pesoUmbralRojo?: number;     // days without weighing → 🔴 (default 30)
   createdAt: string;
   updatedAt: string;
 }
