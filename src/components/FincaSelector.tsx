@@ -1,15 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
 import { useFinca } from '@/contexts/FincaContext';
-import { useCrearFinca } from '@/hooks/useFincas';
+import { useCrearFinca, useActualizarFinca } from '@/hooks/useFincas';
 
 export default function FincaSelector() {
   const { fincas, fincaActiva, setFincaActiva, loading } = useFinca();
   const { crearFinca } = useCrearFinca();
+  const { actualizarUmbrales } = useActualizarFinca();
   const [open, setOpen] = useState(false);
   const [showNueva, setShowNueva] = useState(false);
   const [nombre, setNombre] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showAjustes, setShowAjustes] = useState(false);
+  const [umbralAmarillo, setUmbralAmarillo] = useState<number>(
+    fincaActiva?.pesoUmbralAmarillo ?? 15
+  );
+  const [umbralRojo, setUmbralRojo] = useState<number>(
+    fincaActiva?.pesoUmbralRojo ?? 30
+  );
+  const [savingUmbrales, setSavingUmbrales] = useState(false);
+  const [umbralError, setUmbralError] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -44,6 +54,24 @@ export default function FincaSelector() {
     }
   }
 
+  async function handleGuardarUmbrales(e: React.FormEvent) {
+    e.preventDefault();
+    if (umbralAmarillo <= 0 || umbralRojo <= umbralAmarillo) {
+      setUmbralError('El umbral rojo debe ser mayor que el amarillo, y ambos deben ser > 0');
+      return;
+    }
+    setUmbralError('');
+    setSavingUmbrales(true);
+    try {
+      await actualizarUmbrales(fincaActiva!.id, umbralAmarillo, umbralRojo);
+      setShowAjustes(false);
+    } catch (err) {
+      setUmbralError(err instanceof Error ? err.message : 'Error al guardar');
+    } finally {
+      setSavingUmbrales(false);
+    }
+  }
+
   return (
     <div className="finca-selector" ref={dropdownRef}>
       {/* Chip — always visible */}
@@ -60,6 +88,27 @@ export default function FincaSelector() {
           {open ? '▲' : '▼'}
         </span>
       </button>
+
+      {/* Ajustes button — only visible when dropdown is closed */}
+      {!open && (
+        <button
+          className="finca-ajustes-btn"
+          title="Ajustes de la finca"
+          onClick={() => {
+            setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
+            setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
+            setShowAjustes(true);
+          }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: '0.9rem', padding: '0.2rem 0.35rem',
+            color: 'var(--color-text-muted)',
+            borderRadius: 'var(--radius-sm)',
+          }}
+        >
+          ⚙️
+        </button>
+      )}
 
       {/* Dropdown */}
       {open && (
@@ -113,6 +162,64 @@ export default function FincaSelector() {
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={saving || !nombre.trim()}>
                   {saving ? 'Creando...' : 'Crear finca'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Ajustes modal */}
+      {showAjustes && (
+        <div className="modal-overlay" onClick={() => setShowAjustes(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Ajustes de pesaje — {fincaActiva!.nombre}</h2>
+              <button className="modal-close" onClick={() => setShowAjustes(false)}>×</button>
+            </div>
+            <form onSubmit={handleGuardarUmbrales}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                Configurá cuántos días sin pesar activan cada alerta en la tab Pesos.
+              </p>
+              <div className="form-group">
+                <label className="form-label">
+                  🟡 Días sin pesar → amarillo
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  min={1}
+                  max={365}
+                  value={umbralAmarillo}
+                  onChange={(e) => setUmbralAmarillo(Number(e.target.value))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  🔴 Días sin pesar → rojo
+                </label>
+                <input
+                  type="number"
+                  className="input"
+                  min={1}
+                  max={365}
+                  value={umbralRojo}
+                  onChange={(e) => setUmbralRojo(Number(e.target.value))}
+                  required
+                />
+              </div>
+              {umbralError && <p className="form-error">{umbralError}</p>}
+              <div className="modal-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => setShowAjustes(false)}>
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={savingUmbrales}
+                >
+                  {savingUmbrales ? 'Guardando...' : 'Guardar'}
                 </button>
               </div>
             </form>

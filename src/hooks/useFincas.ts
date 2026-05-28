@@ -124,7 +124,21 @@ export function useActualizarFinca() {
       updatedAt: new Date().toISOString(),
     });
   }
-  return { actualizarFinca };
+
+  async function actualizarUmbrales(
+    fincaId: string,
+    pesoUmbralAmarillo: number,
+    pesoUmbralRojo: number
+  ) {
+    if (!user) throw new Error('No autenticado');
+    await updateDoc(doc(db, 'fincas', fincaId), {
+      pesoUmbralAmarillo,
+      pesoUmbralRojo,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  return { actualizarFinca, actualizarUmbrales };
 }
 
 // ─── Eliminar finca ───────────────────────────────────────────────────────────
