@@ -4,13 +4,14 @@ import { Animal, Gasto, Lote, ItemVenta } from '@/types';
 import { formatColones, calcularVenta } from '@/utils/calculadora';
 
 interface Props {
+  fincaId: string;
   lote: Lote;
   animalesActivos: Animal[];
   gastos: Gasto[];
   onClose: () => void;
 }
 
-export default function VenderAnimalesModal({ lote, animalesActivos, gastos, onClose }: Props) {
+export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, gastos, onClose }: Props) {
   const { registrarVenta } = useRegistrarVenta();
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
   const [precios, setPrecios] = useState<Record<string, string>>({});
@@ -49,7 +50,7 @@ export default function VenderAnimalesModal({ lote, animalesActivos, gastos, onC
     if (sinPrecio) { setError('Todos los animales seleccionados deben tener precio de venta'); return; }
     setLoading(true);
     try {
-      await registrarVenta({ lote, animalesVendidos: animalesVenta, fecha, gastos, totalAnimalesEnLote: lote.totalAnimales, notas });
+      await registrarVenta({ fincaId, lote, animalesVendidos: animalesVenta, fecha, gastos, totalAnimalesEnLote: lote.totalAnimales, notas });
       onClose();
     } catch (err) {
       setError('Error: ' + String(err));

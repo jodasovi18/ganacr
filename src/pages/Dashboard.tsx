@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFinca } from '@/contexts/FincaContext';
 import { useLotes, useEliminarLoteConCascada } from '@/hooks/useLotes';
 import { formatColones, formatFecha } from '@/utils/calculadora';
 import CrearLoteModal from '@/components/CrearLoteModal';
 import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
+import FincaSelector from '@/components/FincaSelector';
+import OnboardingFinca from '@/components/OnboardingFinca';
 import { Lote } from '@/types';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const { userData, logout } = useAuth();
-  const { lotes, loading } = useLotes();
+  const { fincaActiva, necesitaOnboarding } = useFinca();
+  const { lotes, loading } = useLotes(fincaActiva?.id ?? null);
   const navigate = useNavigate();
   const { eliminarLoteConCascada } = useEliminarLoteConCascada();
 
@@ -39,16 +43,17 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
+      {/* Onboarding modal — shown only when user has no fincas */}
+      {necesitaOnboarding && <OnboardingFinca />}
+
       {/* Navbar */}
       <header className="navbar">
         <div className="container flex-between">
           <div className="navbar-brand">
             <span>🐄</span>
             <span className="navbar-title">GanaCR</span>
-            {userData?.nombreFinca && (
-              <span className="navbar-finca">{userData.nombreFinca}</span>
-            )}
           </div>
+          <FincaSelector />
           <div className="navbar-right">
             <span className="navbar-user">{userData?.nombre}</span>
             <button className="btn btn-ghost btn-sm" onClick={logout}>Salir</button>
@@ -101,7 +106,11 @@ export default function Dashboard() {
         {/* Encabezado lista de lotes */}
         <div className="flex-between mb-2">
           <h2 className="section-title">Mis Lotes</h2>
-          <button className="btn btn-primary" onClick={() => setShowCrear(true)}>
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowCrear(true)}
+            disabled={!fincaActiva}
+          >
             + Nuevo Lote
           </button>
         </div>
@@ -113,7 +122,9 @@ export default function Dashboard() {
             <div className="emoji">🐄</div>
             <h3>Aún no tenés lotes</h3>
             <p>Creá tu primer lote para empezar a registrar tu ganado</p>
-            <button className="btn btn-primary" onClick={() => setShowCrear(true)}>Crear primer lote</button>
+            <button className="btn btn-primary" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>
+              Crear primer lote
+            </button>
           </div>
         ) : (
           <div className="lotes-grid">
@@ -171,8 +182,12 @@ export default function Dashboard() {
       </main>
 
       {/* ── Modales ── */}
-      {showCrear && <CrearLoteModal onClose={() => setShowCrear(false)} />}
-      {editLote && <CrearLoteModal editData={editLote} onClose={() => setEditLote(null)} />}
+      {showCrear && fincaActiva && (
+        <CrearLoteModal fincaId={fincaActiva.id} onClose={() => setShowCrear(false)} />
+      )}
+      {editLote && (
+        <CrearLoteModal fincaId={editLote.fincaId} editData={editLote} onClose={() => setEditLote(null)} />
+      )}
       {deleteLote && (
         <ConfirmarBorradoModal
           titulo={`¿Eliminar "${deleteLote.nombreLote}"?`}

@@ -3,6 +3,7 @@ import { useAgregarGasto, useActualizarGasto } from '@/hooks/useGastos';
 import { TipoGasto, Gasto } from '@/types';
 
 interface Props {
+  fincaId: string;
   loteId: string;
   onClose: () => void;
   editData?: Gasto;
@@ -16,7 +17,7 @@ const TIPOS: { value: TipoGasto; label: string }[] = [
   { value: 'otro', label: '📋 Otro' },
 ];
 
-export default function AgregarGastoModal({ loteId, onClose, editData }: Props) {
+export default function AgregarGastoModal({ fincaId, loteId, onClose, editData }: Props) {
   const { agregarGasto } = useAgregarGasto();
   const { actualizarGasto } = useActualizarGasto();
   const isEdit = !!editData;
@@ -40,7 +41,7 @@ export default function AgregarGastoModal({ loteId, onClose, editData }: Props) 
           concepto, tipo, monto: Number(monto), fecha, quienPago, notas,
         });
       } else {
-        await agregarGasto({ loteId, concepto, tipo, monto: Number(monto), fecha, quienPago, notas });
+        await agregarGasto({ fincaId, loteId, concepto, tipo, monto: Number(monto), fecha, quienPago, notas });
       }
       onClose();
     } catch (err) {

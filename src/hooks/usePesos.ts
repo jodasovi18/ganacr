@@ -35,6 +35,7 @@ export function usePesos(animalId: string | null) {
 }
 
 interface RegistrarPesoInput {
+  fincaId: string;
   animalId: string;
   loteId: string;
   peso: number;

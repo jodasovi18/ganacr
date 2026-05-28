@@ -3,9 +3,10 @@ import { generateSeedData } from './seed-data';
 
 async function seed() {
   console.log(`\n🌱 Iniciando seeding para userId: ${TEST_USER_ID}\n`);
-  const { lotes, animales, gastos, pesajes, ventas } = generateSeedData(TEST_USER_ID);
+  const { fincas, lotes, animales, gastos, pesajes, ventas } = generateSeedData(TEST_USER_ID);
 
   const allDocs: { collection: string; id: string; data: object }[] = [
+    ...fincas.map(d => ({ collection: 'fincas', id: d.id, data: d })),
     ...lotes.map(d => ({ collection: 'lotes', id: d.id, data: d })),
     ...animales.map(d => ({ collection: 'animales', id: d.id, data: d })),
     ...gastos.map(d => ({ collection: 'gastos', id: d.id, data: d })),
@@ -15,6 +16,7 @@ async function seed() {
 
   const total = allDocs.length;
   console.log(`📦 Documentos a insertar: ${total}`);
+  console.log(`   - Fincas:   ${fincas.length}`);
   console.log(`   - Lotes:    ${lotes.length}`);
   console.log(`   - Animales: ${animales.length}`);
   console.log(`   - Gastos:   ${gastos.length}`);
