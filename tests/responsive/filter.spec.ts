@@ -70,6 +70,9 @@ test.describe('Arete filter', () => {
     await page.waitForURL(/\/lote\//);
 
     // .animals-cards is always in the DOM (CSS hides it on desktop, shows on mobile)
+    // Wait for table rows to confirm data loaded (desktop viewport), then count cards from DOM
+    const rows = page.locator('table tbody tr');
+    await expect(rows.first()).toBeVisible({ timeout: 10_000 });
     const cards = page.locator('.animal-card');
     const cardCount = await cards.count();
     expect(cardCount).toBeGreaterThan(0);
