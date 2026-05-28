@@ -65,3 +65,35 @@
 .lote-utilidad { font-size: 0.88rem; font-weight: 700; }
 .lote-utilidad.pos { color: var(--color-success); }
 .lote-utilidad.neg { color: var(--color-danger); }
+
+/* ─── Mobile navbar ──────────────────────────────────────────────────────── */
+.navbar-hamburger {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.35);
+  color: white;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.navbar-mobile-menu {
+  background: var(--color-primary-dark);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.navbar-mobile-menu .navbar-user {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.9);
+  padding: 0.2rem 0;
+}
+
+@media (max-width: 640px) {
+  .navbar-right     { display: none; }
+  .navbar-hamburger { display: block; }
+}
