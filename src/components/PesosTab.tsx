@@ -76,6 +76,9 @@ export default function PesosTab({ lote, animales, finca }: Props) {
   const avgData = useMemo(() => calcularLoteAvgData(pesos), [pesos]);
 
   // ── Computed lote average (for passing to AnimalPesoModal) ────────────────
+  // Derived from animal.pesoActual counters (same source as lote.pesoPromedio),
+  // not from the pesos collection snapshot. This is intentional: the counter is
+  // always in sync with the latest registered weight and avoids an extra query.
   const pesoPromedioLote = useMemo(() => {
     const activos = animales.filter((a) => a.estado === 'activo');
     if (activos.length === 0) return 0;
@@ -84,8 +87,8 @@ export default function PesosTab({ lote, animales, finca }: Props) {
 
   // ── Alert counts ───────────────────────────────────────────────────────────
   const countRojo = animalesConSemaforo.filter((a) => a.status === '🔴').length;
-
-  const animalesActivos = animales.filter((a) => a.estado === 'activo');
+  // animalesConSemaforo already filters activos — reuse its length for the label
+  const animalesActivos = animalesConSemaforo;
 
   if (loading) {
     return (
