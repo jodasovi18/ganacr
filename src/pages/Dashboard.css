@@ -97,3 +97,114 @@
   .navbar-right     { display: none; }
   .navbar-hamburger { display: block; }
 }
+
+/* ─── FincaSelector ──────────────────────────────────────────────────────── */
+.finca-selector {
+  position: relative;
+}
+
+.finca-selector-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.82rem;
+  cursor: default;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.finca-selector-chip.clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.finca-selector-chip.clickable:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.finca-selector-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.finca-selector-arrow {
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+.finca-selector-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.finca-selector-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.88rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.finca-selector-option:hover {
+  background: var(--color-surface);
+}
+
+.finca-selector-option.active {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  background: var(--color-surface);
+}
+
+.finca-check {
+  color: var(--color-primary-dark);
+  font-size: 0.8rem;
+  width: 1rem;
+}
+
+.finca-selector-nueva {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.88rem;
+  background: none;
+  border: none;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+}
+
+.finca-selector-nueva:hover {
+  background: var(--color-surface);
+}
+
+@media (max-width: 640px) {
+  .finca-selector-nombre {
+    max-width: 80px;
+  }
+}
