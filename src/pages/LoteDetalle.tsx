@@ -382,12 +382,10 @@ export default function LoteDetalle() {
           )}
 
           {/* ── Tab Pesos ── */}
-          {tab === 'pesos' && fincaActiva && (
-            <PesosTab
-              lote={lote}
-              animales={animales}
-              finca={fincaActiva}
-            />
+          {tab === 'pesos' && (
+            fincaActiva
+              ? <PesosTab lote={lote} animales={animales} finca={fincaActiva} />
+              : <p className="tab-empty">Cargando finca...</p>
           )}
         </div>
       </div>
