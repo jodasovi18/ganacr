@@ -23,6 +23,12 @@ export default function FincaSelector() {
   const [umbralError, setUmbralError] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Sync threshold state when active finca changes (prevents stale values on finca switch)
+  useEffect(() => {
+    setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
+    setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
+  }, [fincaActiva?.id]);
+
   // Close dropdown on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
