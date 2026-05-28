@@ -228,12 +228,14 @@ tbody tr:hover td { background: #edf7f1 !important; }
   /* Bottom-sheet modals */
   .modal-overlay {
     align-items: flex-end;
-    padding: 0;
+    padding: 0 0 env(safe-area-inset-bottom);
   }
   .modal {
     max-width: 100%;
     border-radius: 16px 16px 0 0;
     max-height: 85vh;
     animation: slide-up 0.25s ease-out;
+    overscroll-behavior: contain;
+    will-change: transform;
   }
 }
