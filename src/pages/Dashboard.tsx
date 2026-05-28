@@ -55,7 +55,8 @@ export default function Dashboard() {
           </div>
           <button
             className="navbar-hamburger"
-            aria-label="Abrir menú"
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
           >
             {menuOpen ? '✕' : '☰'}
