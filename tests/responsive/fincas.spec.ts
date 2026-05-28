@@ -54,10 +54,8 @@ test.describe('FincaSelector', () => {
     await dropdown.locator('button', { hasText: FINCA_B_NOMBRE }).click();
     await expect(dropdown).not.toBeVisible();
 
-    // Wait for lote list to update
-    await page.waitForTimeout(1_000);
-    const lotesDespues = await page.locator('.lote-card').count();
-    expect(lotesDespues).toBe(1); // Only L6 in Finca B
+    // Wait for lote list to update (poll instead of fixed sleep — avoids flakiness)
+    await expect(page.locator('.lote-card')).toHaveCount(1, { timeout: 8_000 });
   });
 
   test('chip shows new finca name after switching', async ({ page }) => {

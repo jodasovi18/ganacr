@@ -78,12 +78,19 @@ export function useCrearFinca() {
     ];
 
     // 4. Batch update in chunks of 500 (Firestore limit)
-    for (let i = 0; i < allDocs.length; i += 500) {
-      const batch = writeBatch(db);
-      allDocs.slice(i, i + 500).forEach((d) => {
-        batch.update(d.ref, { fincaId: fincaRef.id });
-      });
-      await batch.commit();
+    // If any batch fails, roll back by deleting the finca doc so the user can retry
+    try {
+      for (let i = 0; i < allDocs.length; i += 500) {
+        const batch = writeBatch(db);
+        allDocs.slice(i, i + 500).forEach((d) => {
+          batch.update(d.ref, { fincaId: fincaRef.id });
+        });
+        await batch.commit();
+      }
+    } catch (err) {
+      // Rollback: delete the finca doc so onboarding can be retried cleanly
+      await deleteDoc(fincaRef);
+      throw err;
     }
 
     return fincaRef.id;
