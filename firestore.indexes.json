@@ -47,6 +47,14 @@
       "collectionGroup": "ventas",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "loteId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ventas",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "loteId", "order": "ASCENDING" },
         { "fieldPath": "fecha", "order": "DESCENDING" }
