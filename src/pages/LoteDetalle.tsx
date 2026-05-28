@@ -139,7 +139,7 @@ export default function LoteDetalle() {
         <div className="container">
           <div className="tabs mt-2">
             {(['animales', 'gastos', 'ventas'] as Tab[]).map((t) => (
-              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); }}>
                 {t === 'animales' && `🐄 Animales (${animales.length})`}
                 {t === 'gastos' && `💸 Gastos (${gastos.length})`}
                 {t === 'ventas' && `💰 Ventas (${ventas.length})`}
