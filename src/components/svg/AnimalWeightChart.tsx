@@ -15,6 +15,10 @@ const CH = H - MT - MB;
 export default function AnimalWeightChart({ pesos, pesoPromedioLote }: Props) {
   if (pesos.length === 0) return null;
 
+  // Unique gradient id per animal to avoid SVG id collisions when multiple
+  // chart instances render on the same page.
+  const gradId = `animalWeightGrad-${pesos[0].animalId}`;
+
   const valores = pesos.map((p) => p.peso);
   const allVals = [...valores, pesoPromedioLote];
   const minY = Math.min(...allVals) * 0.97;
@@ -44,7 +48,8 @@ export default function AnimalWeightChart({ pesos, pesoPromedioLote }: Props) {
       ? pesos.map((_, i) => i)
       : [0, Math.floor(pesos.length / 3), Math.floor((2 * pesos.length) / 3), pesos.length - 1];
 
-  const gridVals = [0.25, 0.5, 0.75].map((t) => ({
+  const gridVals = [0.25, 0.5, 0.75].map((t, idx) => ({
+    idx,
     yv: MT + t * CH,
     label: Math.round(maxY - t * rangeY),
   }));
@@ -57,15 +62,15 @@ export default function AnimalWeightChart({ pesos, pesoPromedioLote }: Props) {
       style={{ width: '100%', display: 'block' }}
     >
       <defs>
-        <linearGradient id="animalWeightGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
           <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
         </linearGradient>
       </defs>
 
       {/* Grid lines + y labels */}
-      {gridVals.map(({ yv, label }) => (
-        <g key={yv}>
+      {gridVals.map(({ idx, yv, label }) => (
+        <g key={idx}>
           <line x1={ML} y1={yv} x2={W - MR} y2={yv}
             stroke="var(--color-border)" strokeWidth="0.6" />
           <text x={ML - 4} y={yv + 3} fontSize="7"
@@ -83,7 +88,7 @@ export default function AnimalWeightChart({ pesos, pesoPromedioLote }: Props) {
       </text>
 
       {/* Area fill */}
-      {pesos.length > 1 && <path d={areaD} fill="url(#animalWeightGrad)" />}
+      {pesos.length > 1 && <path d={areaD} fill={`url(#${gradId})`} />}
 
       {/* Line */}
       {pesos.length > 1 && (
