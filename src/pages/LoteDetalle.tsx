@@ -380,21 +380,21 @@ export default function LoteDetalle() {
       </div>
 
       {/* ── Modales de creación ── */}
-      {showAnimal && loteId && <AgregarAnimalModal loteId={loteId} onClose={() => setShowAnimal(false)} />}
-      {showGasto && loteId && <AgregarGastoModal loteId={loteId} onClose={() => setShowGasto(false)} />}
+      {showAnimal && loteId && <AgregarAnimalModal fincaId={lote?.fincaId ?? ''} loteId={loteId} onClose={() => setShowAnimal(false)} />}
+      {showGasto && loteId && <AgregarGastoModal fincaId={lote?.fincaId ?? ''} loteId={loteId} onClose={() => setShowGasto(false)} />}
       {showPeso && animalPeso && loteId && (
-        <RegistrarPesoModal animal={animalPeso} loteId={loteId} onClose={() => { setShowPeso(false); setAnimalPeso(null); }} />
+        <RegistrarPesoModal fincaId={lote?.fincaId ?? ''} animal={animalPeso} loteId={loteId} onClose={() => { setShowPeso(false); setAnimalPeso(null); }} />
       )}
       {showVenta && lote && (
-        <VenderAnimalesModal lote={lote} animalesActivos={animalesActivos} gastos={gastos} onClose={() => setShowVenta(false)} />
+        <VenderAnimalesModal fincaId={lote.fincaId ?? ''} lote={lote} animalesActivos={animalesActivos} gastos={gastos} onClose={() => setShowVenta(false)} />
       )}
 
       {/* ── Modales de edición ── */}
       {editAnimal && loteId && (
-        <AgregarAnimalModal loteId={loteId} editData={editAnimal} onClose={() => setEditAnimal(null)} />
+        <AgregarAnimalModal fincaId={lote?.fincaId ?? ''} loteId={loteId} editData={editAnimal} onClose={() => setEditAnimal(null)} />
       )}
       {editGasto && loteId && (
-        <AgregarGastoModal loteId={loteId} editData={editGasto} onClose={() => setEditGasto(null)} />
+        <AgregarGastoModal fincaId={lote?.fincaId ?? ''} loteId={loteId} editData={editGasto} onClose={() => setEditGasto(null)} />
       )}
 
       {/* ── Modales de confirmación de borrado ── */}
