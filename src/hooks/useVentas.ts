@@ -47,6 +47,7 @@ export function useVentas(loteId: string | null) {
 }
 
 interface RegistrarVentaInput {
+  fincaId: string;
   lote: Lote;
   animalesVendidos: ItemVenta[];
   fecha: string;
@@ -74,6 +75,7 @@ export function useRegistrarVenta() {
     const ventaRef = doc(collection(db, 'ventas'));
     batch.set(ventaRef, {
       userId: user.uid,
+      fincaId: input.fincaId,
       loteId: input.lote.id,
       fecha: input.fecha,
       animales: input.animalesVendidos,

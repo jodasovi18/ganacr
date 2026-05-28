@@ -39,6 +39,7 @@ export function useGastos(loteId: string | null) {
 }
 
 interface AgregarGastoInput {
+  fincaId: string;
   loteId: string;
   concepto: string;
   tipo: TipoGasto;

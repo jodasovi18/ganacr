@@ -40,6 +40,7 @@ export function useAnimales(loteId: string | null) {
 }
 
 interface AgregarAnimalInput {
+  fincaId: string;
   loteId: string;
   numeroArete: string;
   raza: string;
@@ -69,6 +70,7 @@ export function useAgregarAnimal() {
     const now = new Date().toISOString();
     const ref = await addDoc(collection(db, 'animales'), {
       userId: user.uid,
+      fincaId: input.fincaId,
       loteId: input.loteId,
       numeroArete: input.numeroArete,
       raza: input.raza,

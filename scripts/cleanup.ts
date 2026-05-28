@@ -1,6 +1,6 @@
 import { db, TEST_USER_ID } from './firebase-admin';
 
-const COLLECTIONS = ['lotes', 'animales', 'gastos', 'pesos', 'ventas'];
+const COLLECTIONS = ['fincas', 'lotes', 'animales', 'gastos', 'pesos', 'ventas'];
 
 async function cleanup() {
   console.log(`\n🧹 Limpiando datos de prueba para userId: ${TEST_USER_ID}\n`);

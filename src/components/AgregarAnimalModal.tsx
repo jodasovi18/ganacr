@@ -3,12 +3,13 @@ import { useAgregarAnimal, useEditarAnimal } from '@/hooks/useAnimales';
 import { Animal } from '@/types';
 
 interface Props {
+  fincaId: string;
   loteId: string;
   onClose: () => void;
   editData?: Animal;
 }
 
-export default function AgregarAnimalModal({ loteId, onClose, editData }: Props) {
+export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData }: Props) {
   const { agregarAnimal } = useAgregarAnimal();
   const { editarAnimal } = useEditarAnimal();
   const isEdit = !!editData;
@@ -45,6 +46,7 @@ export default function AgregarAnimalModal({ loteId, onClose, editData }: Props)
         });
       } else {
         await agregarAnimal({
+          fincaId,
           loteId,
           numeroArete: numeroArete.trim().toUpperCase(),
           raza: raza.trim(),

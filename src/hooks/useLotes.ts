@@ -19,16 +19,17 @@ import { Lote, TipoPropiedad, Socio } from '@/types';
 
 // ─── Listar lotes del usuario ────────────────────────────────────────────────
 
-export function useLotes() {
+export function useLotes(fincaId: string | null) {
   const { user } = useAuth();
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !fincaId) { setLoading(false); return; }
     const q = query(
       collection(db, 'lotes'),
       where('userId', '==', user.uid),
+      where('fincaId', '==', fincaId),
       orderBy('createdAt', 'desc')
     );
     const unsub = onSnapshot(q, (snap) => {
@@ -36,7 +37,7 @@ export function useLotes() {
       setLoading(false);
     });
     return unsub;
-  }, [user]);
+  }, [user, fincaId]);
 
   return { lotes, loading };
 }
@@ -62,6 +63,7 @@ export function useLote(loteId: string | null) {
 // ─── Crear lote ───────────────────────────────────────────────────────────────
 
 interface CrearLoteInput {
+  fincaId: string;
   nombreLote: string;
   fechaCompra: string;
   tipoPropiedad: TipoPropiedad;
@@ -76,6 +78,7 @@ export function useCrearLote() {
     const now = new Date().toISOString();
     const ref = await addDoc(collection(db, 'lotes'), {
       userId: user.uid,
+      fincaId: input.fincaId,
       nombreLote: input.nombreLote,
       fechaCompra: input.fechaCompra,
       tipoPropiedad: input.tipoPropiedad,

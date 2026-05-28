@@ -14,9 +14,18 @@ export interface Socio {
   porcentaje: number; // 0-100
 }
 
+export interface Finca {
+  id: string;
+  userId: string;
+  nombre: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Lote {
   id: string;
   userId: string;
+  fincaId: string;
   nombreLote: string;
   fechaCompra: string; // ISO date string
   tipoPropiedad: TipoPropiedad;
@@ -36,6 +45,7 @@ export interface Lote {
 export interface Animal {
   id: string;
   userId: string;
+  fincaId: string;
   loteId: string;
   numeroArete: string;        // único por usuario
   raza: string;
@@ -54,6 +64,7 @@ export interface Animal {
 export interface Peso {
   id: string;
   userId: string;
+  fincaId: string;
   animalId: string;
   loteId: string;
   peso: number;               // kg
@@ -65,6 +76,7 @@ export interface Peso {
 export interface Gasto {
   id: string;
   userId: string;
+  fincaId: string;
   loteId: string;
   concepto: string;
   tipo: TipoGasto;
@@ -86,6 +98,7 @@ export interface ItemVenta {
 export interface Venta {
   id: string;
   userId: string;
+  fincaId: string;
   loteId: string;
   fecha: string;
   animales: ItemVenta[];
@@ -104,7 +117,7 @@ export interface Usuario {
   id: string;
   email: string;
   nombre: string;
-  nombreFinca?: string;
+  nombreFinca?: string;       // legacy — replaced by Finca collection
   createdAt: string;
 }
 

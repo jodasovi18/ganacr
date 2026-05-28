@@ -3,11 +3,12 @@ import { useCrearLote, useActualizarLote } from '@/hooks/useLotes';
 import { Lote } from '@/types';
 
 interface Props {
+  fincaId: string;
   onClose: () => void;
   editData?: Lote;
 }
 
-export default function CrearLoteModal({ onClose, editData }: Props) {
+export default function CrearLoteModal({ fincaId, onClose, editData }: Props) {
   const { crearLote } = useCrearLote();
   const { actualizarLote } = useActualizarLote();
   const isEdit = !!editData;
@@ -37,6 +38,7 @@ export default function CrearLoteModal({ onClose, editData }: Props) {
         });
       } else {
         await crearLote({
+          fincaId,
           nombreLote: nombre.trim(),
           fechaCompra,
           tipoPropiedad: tipo,

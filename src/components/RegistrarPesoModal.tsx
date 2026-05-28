@@ -3,9 +3,9 @@ import { useRegistrarPeso } from '@/hooks/usePesos';
 import { Animal } from '@/types';
 import { formatKg } from '@/utils/calculadora';
 
-interface Props { animal: Animal; loteId: string; onClose: () => void; }
+interface Props { fincaId: string; animal: Animal; loteId: string; onClose: () => void; }
 
-export default function RegistrarPesoModal({ animal, loteId, onClose }: Props) {
+export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }: Props) {
   const { registrarPeso } = useRegistrarPeso();
   const [peso, setPeso] = useState('');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
@@ -20,7 +20,7 @@ export default function RegistrarPesoModal({ animal, loteId, onClose }: Props) {
     if (!peso || Number(peso) <= 0) { setError('Ingresá un peso válido'); return; }
     setLoading(true);
     try {
-      await registrarPeso({ animalId: animal.id, loteId, peso: Number(peso), fecha, notas });
+      await registrarPeso({ fincaId, animalId: animal.id, loteId, peso: Number(peso), fecha, notas });
       onClose();
     } catch (err) {
       setError('Error: ' + String(err));
