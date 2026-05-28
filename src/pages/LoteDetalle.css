@@ -144,3 +144,30 @@
   min-height: 40px;
   justify-content: center;
 }
+
+/* ─── Header stats — 3 col on mobile ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .detalle-header .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .detalle-header .stat-card {
+    padding: 0.55rem 0.4rem;
+  }
+  .detalle-header .stat-value {
+    font-size: 0.95rem !important;
+  }
+  .detalle-header .stat-label {
+    font-size: 0.62rem !important;
+  }
+  .detalle-titulo {
+    font-size: 1.15rem;
+  }
+  .detalle-acciones {
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  .detalle-acciones .btn {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
