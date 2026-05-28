@@ -48,6 +48,7 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
     const delta = prev ? p.peso - prev.peso : null;
     return { ...p, delta };
   });
+  const tieneNotas = historial.some((h) => h.notas);
 
   if (showRegistrar) {
     return (
@@ -106,12 +107,12 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
                   </div>
                   <div className="peso-stat-label">Total ganado</div>
                 </div>
-                {kgPorDia !== null && (
-                  <div className="peso-stat-card">
-                    <div className="peso-stat-value">{kgPorDia.toFixed(2)}</div>
-                    <div className="peso-stat-label">kg/día</div>
+                <div className="peso-stat-card">
+                  <div className="peso-stat-value">
+                    {kgPorDia !== null ? kgPorDia.toFixed(2) : '—'}
                   </div>
-                )}
+                  <div className="peso-stat-label">kg/día</div>
+                </div>
                 <div className="peso-stat-card">
                   <div className={`peso-stat-value ${vsPromedio >= 0 ? 'positive' : 'negative'}`}>
                     {vsPromedio >= 0 ? '+' : ''}{formatKg(vsPromedio)}
@@ -140,7 +141,7 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
                     <th>Fecha</th>
                     <th>Peso</th>
                     <th>Delta</th>
-                    {historial.some((h) => h.notas) && <th>Notas</th>}
+                    {tieneNotas && <th>Notas</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -155,7 +156,7 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
                           </span>
                         ) : '—'}
                       </td>
-                      {historial.some((hh) => hh.notas) && (
+                      {tieneNotas && (
                         <td style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                           {h.notas || '—'}
                         </td>
