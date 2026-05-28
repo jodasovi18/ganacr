@@ -25,8 +25,6 @@ export default function FincaSelector() {
 
   if (loading || !fincaActiva) return null;
 
-  const hasMultiple = fincas.length > 1;
-
   async function handleCrearFinca(e: React.FormEvent) {
     e.preventDefault();
     if (!nombre.trim()) return;
@@ -50,19 +48,17 @@ export default function FincaSelector() {
     <div className="finca-selector" ref={dropdownRef}>
       {/* Chip — always visible */}
       <button
-        className={`finca-selector-chip${hasMultiple ? ' clickable' : ''}`}
-        onClick={() => hasMultiple && setOpen((o) => !o)}
-        aria-haspopup={hasMultiple ? 'listbox' : undefined}
-        aria-expanded={hasMultiple ? open : undefined}
+        className="finca-selector-chip clickable"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         title={fincaActiva.nombre}
       >
         <span aria-hidden="true">🌾</span>
         <span className="finca-selector-nombre">{fincaActiva.nombre}</span>
-        {hasMultiple && (
-          <span className="finca-selector-arrow" aria-hidden="true">
-            {open ? '▲' : '▼'}
-          </span>
-        )}
+        <span className="finca-selector-arrow" aria-hidden="true">
+          {open ? '▲' : '▼'}
+        </span>
       </button>
 
       {/* Dropdown */}
