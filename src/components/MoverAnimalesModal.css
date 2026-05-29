@@ -45,7 +45,7 @@
 
 .mover-lote-option.selected {
   border-color: var(--color-primary);
-  background: #f0f9f0;
+  background: var(--color-primary-subtle);
 }
 
 .mover-lote-option input[type="radio"] {

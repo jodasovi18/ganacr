@@ -56,8 +56,8 @@ export default function MoverAnimalesModal({
     setSaving(true);
     try {
       await moverAnimales({ animales, loteSrc, loteDst, precioKg: precioKgNum });
-      onSuccess();
       onClose();
+      onSuccess();
     } catch (err) {
       // If Phase 2 failed, the animals moved but peso history may be stale
       const msg = err instanceof Error ? err.message : 'Error al mover los animales';
@@ -153,7 +153,7 @@ export default function MoverAnimalesModal({
               <span className="mover-precio-symbol">₡</span>
               <input
                 type="number"
-                className="input mover-precio-input"
+                className="form-input mover-precio-input"
                 min={1}
                 step={1}
                 placeholder="0"

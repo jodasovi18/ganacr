@@ -3,6 +3,7 @@
   --color-primary: #2d6a4f;
   --color-primary-dark: #1b4332;
   --color-primary-light: #40b87a;
+  --color-primary-subtle: #f0f9f0;   /* light tint for selected states */
   --color-accent: #34d68e;
   --color-bg: #f4fdf6;
   --color-surface: #ffffff;
