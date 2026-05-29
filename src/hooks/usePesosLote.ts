@@ -21,6 +21,7 @@ export function usePesosLote(loteId: string | null) {
     if (!user || !loteId) { setLoading(false); return; }
     const q = query(
       collection(db, 'pesos'),
+      where('userId', '==', user.uid),
       where('loteId', '==', loteId),
       orderBy('fecha', 'desc')
     );
