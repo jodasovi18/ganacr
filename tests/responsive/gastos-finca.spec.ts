@@ -5,6 +5,7 @@ const PASSWORD = process.env.TEST_PASSWORD ?? '';
 
 test.describe('Gastos a nivel de finca', () => {
   test.skip(!EMAIL || !PASSWORD, 'TEST_EMAIL / TEST_PASSWORD not set');
+  test.setTimeout(30_000);
 
   async function login(page: import('@playwright/test').Page) {
     await page.goto('/login');
@@ -30,7 +31,7 @@ test.describe('Gastos a nivel de finca', () => {
     await page.click('button:has-text("+ Nuevo gasto")');
     await expect(page.locator('.gasto-finca-modal')).toBeVisible({ timeout: 8_000 });
     await page.fill('input[placeholder="Ej: Vacunación masiva"]', matchText);
-    await page.fill('input[type="number"]', '150000');
+    await page.locator('.gasto-finca-modal').locator('input[type="number"]').fill('150000');
     await page.click('button:has-text("Registrar gasto")');
     await expect(page.locator('.gasto-finca-modal')).not.toBeVisible({ timeout: 10_000 });
   }
@@ -45,7 +46,7 @@ test.describe('Gastos a nivel de finca', () => {
 
     // Fill form
     await page.fill('input[placeholder="Ej: Vacunación masiva"]', 'Vacunación E2E test');
-    await page.fill('input[type="number"]', '150000');
+    await page.locator('.gasto-finca-modal').locator('input[type="number"]').fill('150000');
     // fecha has a default (today), leave it
 
     // Distribution preview appears when monto > 0 and at least one lote is selected
