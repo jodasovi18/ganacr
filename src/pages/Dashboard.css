@@ -333,3 +333,8 @@
     width: 100%;
   }
 }
+
+.export-error-text {
+  font-size: 0.78rem;
+  color: var(--color-danger);
+}

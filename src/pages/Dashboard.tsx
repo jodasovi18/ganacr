@@ -12,12 +12,16 @@ import { useGastosFinca, useEliminarGastoFinca } from '@/hooks/useGastosFinca';
 import GastoFincaModal from '@/components/GastoFincaModal';
 import GastosFincaTab from '@/components/GastosFincaTab';
 import { Lote, GastoFinca } from '@/types';
+import { Animal, Venta } from '@/types';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/services/firebase';
+import { exportarLotesExcel } from '@/utils/exportExcel';
 import './Dashboard.css';
 
 type DashboardTab = 'lotes' | 'gastosFinca';
 
 export default function Dashboard() {
-  const { userData, logout } = useAuth();
+  const { userData, logout, user } = useAuth();
   const { fincaActiva, necesitaOnboarding } = useFinca();
   const { lotes, loading } = useLotes(fincaActiva?.id ?? null);
   const navigate = useNavigate();
@@ -27,6 +31,8 @@ export default function Dashboard() {
   const [editLote, setEditLote] = useState<Lote | null>(null);
   const [deleteLote, setDeleteLote] = useState<Lote | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [exportando, setExportando] = useState(false);
+  const [exportError, setExportError] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Gastos de Finca
@@ -64,6 +70,46 @@ export default function Dashboard() {
       console.error('[handleEliminarGastoFinca]', err);
     } finally {
       setDeletingGastoFincaId(null);
+    }
+  }
+
+  async function handleExportarExcel() {
+    if (!fincaActiva || !user || lotes.length === 0) return;
+    setExportando(true);
+    setExportError('');
+    try {
+      let timeoutId: ReturnType<typeof setTimeout>;
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('timeout')), 15_000);
+      });
+      const [animalesSnap, ventasSnap] = await Promise.race([
+        Promise.all([
+          getDocs(query(collection(db, 'animales'), where('userId', '==', user.uid), where('fincaId', '==', fincaActiva.id))),
+          getDocs(query(collection(db, 'ventas'),   where('userId', '==', user.uid), where('fincaId', '==', fincaActiva.id))),
+        ]).then(result => { clearTimeout(timeoutId); return result; }),
+        timeout,
+      ]);
+
+      const animalesPorLote = new Map<string, Animal[]>();
+      animalesSnap.docs.forEach(d => {
+        const a = { id: d.id, ...d.data() } as Animal;
+        if (!animalesPorLote.has(a.loteId)) animalesPorLote.set(a.loteId, []);
+        animalesPorLote.get(a.loteId)!.push(a);
+      });
+
+      const ventasPorLote = new Map<string, Venta[]>();
+      ventasSnap.docs.forEach(d => {
+        const v = { id: d.id, ...d.data() } as Venta;
+        if (!ventasPorLote.has(v.loteId)) ventasPorLote.set(v.loteId, []);
+        ventasPorLote.get(v.loteId)!.push(v);
+      });
+
+      exportarLotesExcel(lotes, animalesPorLote, ventasPorLote, fincaActiva.nombre);
+    } catch (err) {
+      console.error('[Dashboard] Error exportando Excel:', err);
+      setExportError('No se pudo exportar. Intentá de nuevo.');
+    } finally {
+      setExportando(false);
     }
   }
 
@@ -150,13 +196,25 @@ export default function Dashboard() {
           <>
             <div className="flex-between mb-2">
               <h2 className="section-title">Mis Lotes</h2>
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowCrear(true)}
-                disabled={!fincaActiva}
-              >
-                + Nuevo Lote
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {exportError && <span className="export-error-text">{exportError}</span>}
+                {lotes.length > 0 && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleExportarExcel}
+                    disabled={exportando || !fincaActiva}
+                  >
+                    {exportando ? '⏳ Exportando...' : '📊 Excel'}
+                  </button>
+                )}
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowCrear(true)}
+                  disabled={!fincaActiva}
+                >
+                  + Nuevo Lote
+                </button>
+              </div>
             </div>
 
             {loading ? (
