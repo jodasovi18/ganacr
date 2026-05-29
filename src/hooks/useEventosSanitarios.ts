@@ -34,7 +34,7 @@ export function useEventosSanitarios(loteId: string | null) {
         setEventos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EventoSanitario)));
         setLoading(false);
       },
-      (_err) => { setLoading(false); }
+      (err) => { console.error('[useEventosSanitarios]', err); setLoading(false); }
     );
     return unsub;
   }, [user, loteId]);
