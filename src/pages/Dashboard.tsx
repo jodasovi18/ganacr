@@ -14,6 +14,8 @@ import GastosFincaTab from '@/components/GastosFincaTab';
 import { Lote, GastoFinca } from '@/types';
 import './Dashboard.css';
 
+type DashboardTab = 'lotes' | 'gastosFinca';
+
 export default function Dashboard() {
   const { userData, logout } = useAuth();
   const { fincaActiva, necesitaOnboarding } = useFinca();
@@ -28,7 +30,6 @@ export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Gastos de Finca
-  type DashboardTab = 'lotes' | 'gastosFinca';
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>('lotes');
   const [showGastoFinca, setShowGastoFinca] = useState(false);
   const [deleteGastoFinca, setDeleteGastoFinca] = useState<GastoFinca | null>(null);

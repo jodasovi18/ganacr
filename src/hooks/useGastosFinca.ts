@@ -184,7 +184,7 @@ export function useEliminarGastoFinca() {
     // N× delete hijos
     snap.docs.forEach((d) => batch.delete(d.ref));
 
-    // N× decrement lote.totalGastos (use snapshot from parent doc for correctness)
+    // N× decrement lote.totalGastos using lotesAplicados passed by caller (RT listener snapshot)
     for (const la of lotesAplicados) {
       batch.update(doc(db, 'lotes', la.loteId), {
         totalGastos: increment(-la.monto),
