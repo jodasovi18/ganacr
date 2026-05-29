@@ -73,7 +73,26 @@ export default function PesosTab({ lote, animales, finca }: Props) {
   }, [animales, ultimoPorAnimal, umbralAmarillo, umbralRojo]);
 
   // ── Lote average chart data ────────────────────────────────────────────────
-  const avgData = useMemo(() => calcularLoteAvgData(pesos), [pesos]);
+  // Synthesize a baseline peso for each active animal using pesoInicial +
+  // fechaCompra so the chart has a starting point even before any weigh-ins.
+  // Real pesos overwrite the baseline when they fall on the same date.
+  const pesosConBaseline = useMemo(() => {
+    const baseline = animales
+      .filter((a) => a.estado === 'activo')
+      .map((a) => ({
+        id:        `__baseline__${a.id}`,
+        userId:    a.userId,
+        fincaId:   a.fincaId,
+        loteId:    a.loteId,
+        animalId:  a.id,
+        peso:      a.pesoInicial,
+        fecha:     lote.fechaCompra,
+        createdAt: lote.fechaCompra,
+      } as import('@/types').Peso));
+    return [...baseline, ...pesos];
+  }, [animales, pesos, lote.fechaCompra]);
+
+  const avgData = useMemo(() => calcularLoteAvgData(pesosConBaseline), [pesosConBaseline]);
 
   // ── Computed lote average (for passing to AnimalPesoModal) ────────────────
   // Derived from animal.pesoActual counters (same source as lote.pesoPromedio),
