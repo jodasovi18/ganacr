@@ -54,7 +54,7 @@
 
 .lote-selector-item.medias.selected {
   border-color: var(--color-warning);
-  background: #fef3c7;
+  background: var(--color-warning-light);
 }
 
 .lote-selector-item.disabled {
