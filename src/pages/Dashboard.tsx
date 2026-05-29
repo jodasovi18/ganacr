@@ -78,14 +78,15 @@ export default function Dashboard() {
     setExportando(true);
     setExportError('');
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 15_000)
-      );
+      let timeoutId: ReturnType<typeof setTimeout>;
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('timeout')), 15_000);
+      });
       const [animalesSnap, ventasSnap] = await Promise.race([
         Promise.all([
           getDocs(query(collection(db, 'animales'), where('userId', '==', user.uid), where('fincaId', '==', fincaActiva.id))),
           getDocs(query(collection(db, 'ventas'),   where('userId', '==', user.uid), where('fincaId', '==', fincaActiva.id))),
-        ]),
+        ]).then(result => { clearTimeout(timeoutId); return result; }),
         timeout,
       ]);
 

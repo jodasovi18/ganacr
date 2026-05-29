@@ -8,9 +8,10 @@ function sanitizarNombreHoja(nombre: string): string {
   return nombre.replace(/[/\\?*[\]]/g, '_').substring(0, 31);
 }
 
-function fechaExcel(isoDate: string): string {
-  // Convert YYYY-MM-DD to DD/MM/YYYY
+function fechaExcel(isoDate: string | undefined | null): string {
+  if (!isoDate || typeof isoDate !== 'string') return '';
   const parts = isoDate.substring(0, 10).split('-');
+  if (parts.length !== 3) return isoDate;
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
