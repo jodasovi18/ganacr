@@ -253,3 +253,35 @@
 .has-select-bar {
   padding-bottom: 70px;
 }
+
+/* ── Historial sanitario en tarjeta de animal ── */
+.animal-card-sanidad {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-primary-subtle);
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.animal-card-sanidad-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.animal-card-sanidad-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding: 0.15rem 0;
+}
+
+.animal-card-sanidad-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

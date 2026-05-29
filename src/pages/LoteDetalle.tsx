@@ -15,9 +15,13 @@ import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
+import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
+import SanidadTab from '@/components/SanidadTab';
+import EventoSanitarioModal from '@/components/EventoSanitarioModal';
+import { EventoSanitario } from '@/types';
 import './LoteDetalle.css';
 
-type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos';
+type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad';
 
 export default function LoteDetalle() {
   const { loteId } = useParams<{ loteId: string }>();
@@ -32,6 +36,14 @@ export default function LoteDetalle() {
   const { eliminarAnimal } = useEliminarAnimal();
   const { eliminarGasto } = useEliminarGasto();
   const { anularVenta } = useAnularVenta();
+
+  const { eventos, loading: loadingEventos } = useEventosSanitarios(loteId ?? null);
+  const { eliminarEvento } = useEliminarEventoSanitario();
+
+  const [showSanidad, setShowSanidad]                     = useState(false);
+  const [sanidadAnimalInicial, setSanidadAnimalInicial]   = useState<string | undefined>(undefined);
+  const [eventoToDelete, setEventoToDelete]               = useState<EventoSanitario | null>(null);
+  const [deletingEventoId, setDeletingEventoId]           = useState<string | null>(null);
 
   const [tab, setTab] = useState<Tab>('animales');
 
@@ -64,6 +76,10 @@ export default function LoteDetalle() {
   const animalesActivos = animales.filter((a) => a.estado === 'activo');
   const animalesFiltrados = animales.filter((a) =>
     a.numeroArete.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  const animalesMap: Record<string, string> = Object.fromEntries(
+    animales.map(a => [a.id, a.numeroArete])
   );
 
   async function handleDeleteAnimal() {
@@ -112,6 +128,17 @@ export default function LoteDetalle() {
       else next.add(animalId);
       return next;
     });
+  }
+
+  async function confirmarEliminarEvento() {
+    if (!eventoToDelete) return;
+    setDeletingEventoId(eventoToDelete.id);
+    try {
+      await eliminarEvento(eventoToDelete);
+    } finally {
+      setDeletingEventoId(null);
+      setEventoToDelete(null);
+    }
   }
 
   function cancelarModo() {
@@ -167,12 +194,13 @@ export default function LoteDetalle() {
       <div className="tabs-sticky">
         <div className="container">
           <div className="tabs mt-2">
-            {(['animales', 'gastos', 'ventas', 'pesos'] as Tab[]).map((t) => (
+            {(['animales', 'gastos', 'ventas', 'pesos', 'sanidad'] as Tab[]).map((t) => (
               <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); cancelarModo(); }}>
                 {t === 'animales' && `🐄 Animales (${animales.length})`}
                 {t === 'gastos' && `💸 Gastos (${gastos.length})`}
                 {t === 'ventas' && `💰 Ventas (${ventas.length})`}
                 {t === 'pesos' && `⚖️ Pesos`}
+                {t === 'sanidad' && `🩺 Sanidad (${eventos.length})`}
               </button>
             ))}
           </div>
@@ -335,6 +363,7 @@ export default function LoteDetalle() {
                                     ↗
                                   </button>
                                 )}
+                                <button className="btn btn-ghost btn-sm" title="Agregar evento sanitario" onClick={(e) => { e.stopPropagation(); setSanidadAnimalInicial(animal.id); setShowSanidad(true); }}>🩺</button>
                                 <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>⚖️</button>
                                 <button className="btn btn-ghost btn-sm" title="Editar" onClick={() => setEditAnimal(animal)}>✏️</button>
                                 <button
@@ -345,6 +374,22 @@ export default function LoteDetalle() {
                                 >🗑️</button>
                               </div>
                             )}
+                            {/* Historial sanitario individual */}
+                            {(() => {
+                              const eventosAnimal = eventos.filter(e => e.animalId === animal.id);
+                              if (eventosAnimal.length === 0) return null;
+                              return (
+                                <div className="animal-card-sanidad">
+                                  <div className="animal-card-sanidad-title">🩺 Historial individual</div>
+                                  {eventosAnimal.slice(0, 3).map(e => (
+                                    <div key={e.id} className="animal-card-sanidad-item">
+                                      <span>{e.tipo === 'vacuna' ? '💉' : e.tipo === 'tratamiento' ? '💊' : e.tipo === 'desparasitante' ? '🔬' : e.tipo === 'vitamina' ? '🌿' : '➕'}</span>
+                                      <span className="animal-card-sanidad-nombre">{e.nombreProducto}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
                       })}
@@ -459,6 +504,18 @@ export default function LoteDetalle() {
               ? <PesosTab lote={lote} animales={animales} finca={fincaActiva} />
               : <p className="tab-empty">Cargando finca...</p>
           )}
+
+          {/* ── Tab Sanidad ── */}
+          {tab === 'sanidad' && (
+            <SanidadTab
+              eventos={eventos}
+              loading={loadingEventos}
+              animalesMap={animalesMap}
+              onNuevo={() => { setSanidadAnimalInicial(undefined); setShowSanidad(true); }}
+              onEliminar={setEventoToDelete}
+              deletingId={deletingEventoId}
+            />
+          )}
         </div>
       </div>
 
@@ -542,6 +599,26 @@ export default function LoteDetalle() {
           loading={deletingId === deleteVenta.id}
           onConfirm={handleAnularVenta}
           onClose={() => setDeleteVenta(null)}
+        />
+      )}
+
+      {showSanidad && lote && fincaActiva && (
+        <EventoSanitarioModal
+          loteId={lote.id}
+          fincaId={fincaActiva.id}
+          animales={animales}
+          animalIdInicial={sanidadAnimalInicial}
+          onClose={() => { setShowSanidad(false); setSanidadAnimalInicial(undefined); }}
+        />
+      )}
+
+      {eventoToDelete && (
+        <ConfirmarBorradoModal
+          titulo={`¿Eliminar el evento "${eventoToDelete.nombreProducto}"?`}
+          descripcion="Se revertirá el gasto del lote."
+          loading={deletingEventoId === eventoToDelete.id}
+          onConfirm={confirmarEliminarEvento}
+          onClose={() => setEventoToDelete(null)}
         />
       )}
     </div>
