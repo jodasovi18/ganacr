@@ -305,20 +305,27 @@ export default function LoteDetalle() {
                     {gastos.map((g) => (
                       <tr key={g.id}>
                         <td>{formatFecha(g.fecha)}</td>
-                        <td>{g.concepto}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            {g.concepto}
+                            {g.gastoFincaId && <span className="badge badge-finca">📌 Finca</span>}
+                          </span>
+                        </td>
                         <td><span className="badge badge-gray">{g.tipo.replace('_', ' ')}</span></td>
                         <td>{g.quienPago || '—'}</td>
                         <td><strong>{formatColones(g.monto)}</strong></td>
                         <td>
-                          <div className="flex gap-1">
-                            <button className="btn btn-ghost btn-sm" title="Editar gasto" onClick={() => setEditGasto(g)}>✏️</button>
-                            <button
-                              className="btn btn-ghost btn-sm"
-                              title="Eliminar gasto"
-                              style={{ color: 'var(--color-danger, #dc3545)' }}
-                              onClick={() => setDeleteGasto(g)}
-                            >🗑️</button>
-                          </div>
+                          {!g.gastoFincaId && (
+                            <div className="flex gap-1">
+                              <button className="btn btn-ghost btn-sm" title="Editar gasto" onClick={() => setEditGasto(g)}>✏️</button>
+                              <button
+                                className="btn btn-ghost btn-sm"
+                                title="Eliminar gasto"
+                                style={{ color: 'var(--color-danger, #dc3545)' }}
+                                onClick={() => setDeleteGasto(g)}
+                              >🗑️</button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
