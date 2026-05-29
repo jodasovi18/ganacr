@@ -84,7 +84,7 @@ export function useAgregarEventoSanitario() {
       costo,
       ...(dosis?.trim()        ? { dosis: dosis.trim() }               : {}),
       ...(quienAplico?.trim()  ? { quienAplico: quienAplico.trim() }   : {}),
-      ...(proximaDosis         ? { proximaDosis }                       : {}),
+      ...(proximaDosis?.trim() ? { proximaDosis: proximaDosis.trim() }  : {}),
       ...(notas?.trim()        ? { notas: notas.trim() }               : {}),
       gastoId: gastoRef.id,
       createdAt: now,
