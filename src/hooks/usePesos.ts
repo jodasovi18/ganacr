@@ -21,6 +21,7 @@ export function usePesos(animalId: string | null) {
     if (!user || !animalId) { setLoading(false); return; }
     const q = query(
       collection(db, 'pesos'),
+      where('userId', '==', user.uid),
       where('animalId', '==', animalId),
       orderBy('fecha', 'desc')
     );
