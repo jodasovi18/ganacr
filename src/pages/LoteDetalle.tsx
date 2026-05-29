@@ -69,17 +69,17 @@ export default function LoteDetalle() {
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
   const [animalesAMover, setAnimalesAMover] = useState<Animal[]>([]);
 
+  const animalesMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(animales.map(a => [a.id, a.numeroArete])),
+    [animales]
+  );
+
   if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
   if (!lote) return <div className="container page-content"><p>Lote no encontrado.</p></div>;
 
   const animalesActivos = animales.filter((a) => a.estado === 'activo');
   const animalesFiltrados = animales.filter((a) =>
     a.numeroArete.toLowerCase().includes(filterText.toLowerCase())
-  );
-
-  const animalesMap = useMemo<Record<string, string>>(
-    () => Object.fromEntries(animales.map(a => [a.id, a.numeroArete])),
-    [animales]
   );
 
   async function handleDeleteAnimal() {
