@@ -15,6 +15,7 @@ import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
+import { exportarLotesExcel } from '@/utils/exportExcel';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
@@ -152,6 +153,13 @@ export default function LoteDetalle() {
     setAnimalesAMover(animalesSeleccionados);
   }
 
+  function handleExportarExcel() {
+    if (!lote || !fincaActiva) return;
+    const animalesPorLote = new Map([[lote.id, animales]]);
+    const ventasPorLote   = new Map([[lote.id, ventas]]);
+    exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
+  }
+
   return (
     <div className={`lote-detalle-page${modoSeleccion && seleccionados.size > 0 ? ' has-select-bar' : ''}`}>
       {/* Header */}
@@ -173,6 +181,11 @@ export default function LoteDetalle() {
               <button className="btn btn-secondary btn-sm" onClick={() => setShowGasto(true)}>+ Gasto</button>
               {animalesActivos.length > 0 && (
                 <button className="btn btn-secondary btn-sm" onClick={() => setShowVenta(true)}>💰 Vender</button>
+              )}
+              {animales.length > 0 && (
+                <button className="btn btn-secondary btn-sm" onClick={handleExportarExcel}>
+                  📊 Excel
+                </button>
               )}
             </div>
           </div>
