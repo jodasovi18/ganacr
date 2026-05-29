@@ -5,6 +5,7 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 // ─── CONFIGURACIÓN ──────────────────────────────────────────────────────────
 // Reemplazá estos valores con los de tu proyecto en Firebase Console
@@ -20,6 +21,14 @@ const firebaseConfig = {
 // ────────────────────────────────────────────────────────────────────────────
 
 const app = initializeApp(firebaseConfig);
+
+// App Check: solo en producción para no interferir con el desarrollo local
+if (import.meta.env.PROD) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LdnAgMtAAAAADztLYYhmA72onGs_Ia-bwCG9G-D'),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 export const auth = getAuth(app);
 
