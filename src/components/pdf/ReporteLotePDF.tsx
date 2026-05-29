@@ -207,7 +207,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
 
         <View style={s.footer} fixed>
           <Text style={s.footerText}>GanaCR — Sistema de Gestión Ganadera</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `Página ${pageNumber} / ${totalPages}`} />
+          <Text style={s.footerText} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `Página ${pageNumber} / ${totalPages}`} />
         </View>
 
       </Page>
