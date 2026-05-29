@@ -208,3 +208,128 @@
     max-width: 80px;
   }
 }
+
+/* ─── Dashboard Tabs ──────────────────────────────────────────────────────── */
+
+.dashboard-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.25rem;
+}
+
+.dashboard-tab {
+  padding: 0.55rem 1.1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.dashboard-tab:hover {
+  color: var(--color-primary);
+}
+
+.dashboard-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ─── GastosFincaTab ──────────────────────────────────────────────────────── */
+
+.gastos-finca-tab-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.gastos-finca-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gasto-finca-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-left: 3px solid var(--color-primary-light);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  box-shadow: var(--shadow);
+}
+
+.gasto-finca-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.gasto-finca-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.gasto-finca-concepto {
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.gasto-finca-card-meta {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.gasto-finca-lotes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.gasto-finca-lote-chip {
+  font-size: 0.72rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 0.15rem 0.55rem;
+  color: var(--color-text-muted);
+}
+
+.gasto-finca-card-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.gasto-finca-total {
+  font-size: 1rem;
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .gasto-finca-card {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .gasto-finca-card-side {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
