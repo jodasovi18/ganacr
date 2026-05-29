@@ -27,6 +27,9 @@ export function usePesos(animalId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setPesos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peso)));
       setLoading(false);
+    }, (error) => {
+      console.error('[usePesos] onSnapshot error:', error);
+      setLoading(false);
     });
     return unsub;
   }, [user, animalId]);
