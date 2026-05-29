@@ -200,8 +200,8 @@
   border-color: var(--color-primary);
 }
 
-.animal-card--seleccionado {
-  border-color: var(--color-primary) !important;
+.animal-card.animal-card--seleccionado {
+  border-color: var(--color-primary);
   background: var(--color-primary-subtle);
 }
 
@@ -247,4 +247,9 @@
 .mover-select-bar .btn-ghost:hover {
   background: rgba(255,255,255,0.12);
   color: white;
+}
+
+/* Add bottom padding when fixed select bar is visible */
+.has-select-bar {
+  padding-bottom: 70px;
 }

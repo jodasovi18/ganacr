@@ -124,7 +124,7 @@ export default function LoteDetalle() {
   }
 
   return (
-    <div className="lote-detalle-page">
+    <div className={`lote-detalle-page${modoSeleccion && seleccionados.size > 0 ? ' has-select-bar' : ''}`}>
       {/* Header */}
       <header className="detalle-header">
         <div className="container">
@@ -168,7 +168,7 @@ export default function LoteDetalle() {
         <div className="container">
           <div className="tabs mt-2">
             {(['animales', 'gastos', 'ventas', 'pesos'] as Tab[]).map((t) => (
-              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); }}>
+              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); cancelarModo(); }}>
                 {t === 'animales' && `🐄 Animales (${animales.length})`}
                 {t === 'gastos' && `💸 Gastos (${gastos.length})`}
                 {t === 'ventas' && `💰 Ventas (${ventas.length})`}
