@@ -22,6 +22,14 @@ function distribuir(
 ): number[] {
   if (lotes.length === 0) return [];
   const totalActivos = lotes.reduce((s, l) => s + l.animalesActivos, 0);
+  if (totalActivos === 0) {
+    const equal = Math.round(montoTotal / lotes.length);
+    return lotes.map((_, i) =>
+      i === lotes.length - 1
+        ? montoTotal - equal * (lotes.length - 1)
+        : equal
+    );
+  }
   return lotes.map((l, i) => {
     if (i === lotes.length - 1) {
       // Last lote absorbs rounding remainder
@@ -49,10 +57,14 @@ export function useGastosFinca(fincaId: string | null) {
       where('fincaId', '==', fincaId),
       orderBy('fecha', 'desc')
     );
-    const unsub = onSnapshot(q, (snap) => {
-      setGastosFinca(snap.docs.map((d) => ({ id: d.id, ...d.data() } as GastoFinca)));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setGastosFinca(snap.docs.map((d) => ({ id: d.id, ...d.data() } as GastoFinca)));
+        setLoading(false);
+      },
+      (_err) => { setLoading(false); }
+    );
     return unsub;
   }, [user, fincaId]);
 
