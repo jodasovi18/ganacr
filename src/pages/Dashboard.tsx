@@ -16,6 +16,8 @@ import { Animal, Venta } from '@/types';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { exportarLotesExcel } from '@/utils/exportExcel';
+import { Gasto } from '@/types';
+import { exportarLotePDF } from '@/utils/exportPDF';
 import './Dashboard.css';
 
 type DashboardTab = 'lotes' | 'gastosFinca';
@@ -33,6 +35,9 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exportando, setExportando] = useState(false);
   const [exportError, setExportError] = useState('');
+  const [pdfDropdownOpen, setPdfDropdownOpen] = useState(false);
+  const [generandoPDF, setGenerandoPDF]       = useState(false);
+  const [pdfError, setPdfError]               = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Gastos de Finca
@@ -110,6 +115,40 @@ export default function Dashboard() {
       setExportError('No se pudo exportar. Intentá de nuevo.');
     } finally {
       setExportando(false);
+    }
+  }
+
+  async function handleGenerarPDF(lote: Lote) {
+    if (!user || !fincaActiva) return;
+    setPdfDropdownOpen(false);
+    setGenerandoPDF(true);
+    setPdfError('');
+    try {
+      let timeoutId: ReturnType<typeof setTimeout>;
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('timeout')), 15_000);
+      });
+      const [animalesSnap, ventasSnap, gastosSnap] = await Promise.race([
+        Promise.all([
+          getDocs(query(collection(db, 'animales'), where('userId', '==', user.uid), where('loteId', '==', lote.id))),
+          getDocs(query(collection(db, 'ventas'),   where('userId', '==', user.uid), where('loteId', '==', lote.id))),
+          getDocs(query(collection(db, 'gastos'),   where('userId', '==', user.uid), where('loteId', '==', lote.id))),
+        ]).then(result => { clearTimeout(timeoutId!); return result; }),
+        timeout,
+      ]);
+      await exportarLotePDF({
+        lote,
+        animales: animalesSnap.docs.map(d => ({ id: d.id, ...d.data() } as Animal)),
+        ventas:   ventasSnap.docs.map(d  => ({ id: d.id, ...d.data() } as Venta)),
+        gastos:   gastosSnap.docs.map(d  => ({ id: d.id, ...d.data() } as Gasto)),
+        nombreFinca: fincaActiva.nombre,
+        fechaGenerado: new Date().toISOString().substring(0, 10),
+      });
+    } catch (err) {
+      console.error('[Dashboard] Error generando PDF:', err);
+      setPdfError('No se pudo generar el PDF. Intentá de nuevo.');
+    } finally {
+      setGenerandoPDF(false);
     }
   }
 
@@ -197,7 +236,9 @@ export default function Dashboard() {
             <div className="flex-between mb-2">
               <h2 className="section-title">Mis Lotes</h2>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                {exportError && <span className="export-error-text">{exportError}</span>}
+                {(exportError || pdfError) && (
+                  <span className="export-error-text">{exportError || pdfError}</span>
+                )}
                 {lotes.length > 0 && (
                   <button
                     className="btn btn-secondary btn-sm"
@@ -206,6 +247,33 @@ export default function Dashboard() {
                   >
                     {exportando ? '⏳ Exportando...' : '📊 Excel'}
                   </button>
+                )}
+                {lotes.length > 0 && (
+                  <div className="pdf-dropdown-wrap">
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setPdfDropdownOpen(o => !o)}
+                      disabled={generandoPDF || !fincaActiva}
+                    >
+                      {generandoPDF ? '⏳ Generando...' : '📄 PDF'}
+                    </button>
+                    {pdfDropdownOpen && (
+                      <>
+                        <div className="pdf-dropdown-overlay" onClick={() => setPdfDropdownOpen(false)} />
+                        <div className="pdf-dropdown">
+                          {lotes.map(l => (
+                            <button
+                              key={l.id}
+                              className="pdf-dropdown-item"
+                              onClick={() => handleGenerarPDF(l)}
+                            >
+                              {l.nombreLote}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 )}
                 <button
                   className="btn btn-primary"
