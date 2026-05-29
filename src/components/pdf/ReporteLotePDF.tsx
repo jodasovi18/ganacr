@@ -63,11 +63,13 @@ function fmtDate(iso?: string | null): string {
 }
 
 function fmtCRC(n: number): string {
-  return '₡' + Math.round(n).toLocaleString('es-CR');
+  const safe = Number.isFinite(n) ? n : 0;
+  return '₡' + Math.round(safe).toLocaleString('es-CR');
 }
 
 function fmtKg(n: number): string {
-  return n.toFixed(1) + ' kg';
+  const safe = Number.isFinite(n) ? n : 0;
+  return safe.toFixed(1) + ' kg';
 }
 
 const TIPO_LABEL: Record<string, string> = {
