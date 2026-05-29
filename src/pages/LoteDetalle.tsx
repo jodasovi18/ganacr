@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLote } from '@/hooks/useLotes';
 import { useAnimales, useEliminarAnimal } from '@/hooks/useAnimales';
@@ -12,13 +12,12 @@ import VenderAnimalesModal from '@/components/VenderAnimalesModal';
 import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
 import { useFinca } from '@/contexts/FincaContext';
 import PesosTab from '@/components/PesosTab';
-import { Animal, Gasto, Venta } from '@/types';
+import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
-import { EventoSanitario } from '@/types';
 import './LoteDetalle.css';
 
 type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad';
@@ -78,8 +77,9 @@ export default function LoteDetalle() {
     a.numeroArete.toLowerCase().includes(filterText.toLowerCase())
   );
 
-  const animalesMap: Record<string, string> = Object.fromEntries(
-    animales.map(a => [a.id, a.numeroArete])
+  const animalesMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(animales.map(a => [a.id, a.numeroArete])),
+    [animales]
   );
 
   async function handleDeleteAnimal() {
@@ -135,6 +135,8 @@ export default function LoteDetalle() {
     setDeletingEventoId(eventoToDelete.id);
     try {
       await eliminarEvento(eventoToDelete);
+    } catch (err) {
+      console.error('[LoteDetalle] Error eliminando evento sanitario:', err);
     } finally {
       setDeletingEventoId(null);
       setEventoToDelete(null);
