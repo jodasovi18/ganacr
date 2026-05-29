@@ -84,6 +84,26 @@ export interface Gasto {
   fecha: string;
   quienPago?: string;
   notas?: string;
+  gastoFincaId?: string;      // si existe → vino de distribución de finca
+  createdAt: string;
+}
+
+export interface GastoFinca {
+  id: string;
+  userId: string;
+  fincaId: string;
+  concepto: string;
+  tipo: TipoGasto;
+  montoTotal: number;         // ₡ total original sin distribuir
+  fecha: string;
+  quienPago?: string;
+  notas?: string;
+  lotesAplicados: Array<{
+    loteId: string;
+    nombreLote: string;
+    animalesActivos: number;  // snapshot al momento de creación
+    monto: number;            // fracción asignada
+  }>;
   createdAt: string;
 }
 
