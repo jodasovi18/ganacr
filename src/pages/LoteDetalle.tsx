@@ -16,6 +16,7 @@ import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
 import { exportarLotesExcel } from '@/utils/exportExcel';
+import { exportarLotePDF } from '@/utils/exportPDF';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
@@ -160,6 +161,22 @@ export default function LoteDetalle() {
     exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
   }
 
+  async function handleGenerarPDF() {
+    if (!lote || !fincaActiva) return;
+    try {
+      await exportarLotePDF({
+        lote,
+        animales,
+        ventas,
+        gastos,
+        nombreFinca: fincaActiva.nombre,
+        fechaGenerado: new Date().toISOString().substring(0, 10),
+      });
+    } catch (err) {
+      console.error('[LoteDetalle] Error generando PDF:', err);
+    }
+  }
+
   return (
     <div className={`lote-detalle-page${modoSeleccion && seleccionados.size > 0 ? ' has-select-bar' : ''}`}>
       {/* Header */}
@@ -185,6 +202,11 @@ export default function LoteDetalle() {
               {animales.length > 0 && (
                 <button className="btn btn-secondary btn-sm" onClick={handleExportarExcel}>
                   📊 Excel
+                </button>
+              )}
+              {animales.length > 0 && (
+                <button className="btn btn-secondary btn-sm" onClick={handleGenerarPDF}>
+                  📄 PDF
                 </button>
               )}
             </div>
