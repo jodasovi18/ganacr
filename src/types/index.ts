@@ -9,6 +9,31 @@ export type TipoGasto =
   | 'transporte'
   | 'otro';
 
+export type TipoEventoSanitario =
+  | 'vacuna'
+  | 'tratamiento'
+  | 'desparasitante'
+  | 'vitamina'
+  | 'otro';
+
+export interface EventoSanitario {
+  id: string;
+  userId: string;
+  fincaId: string;
+  loteId: string;
+  animalId?: string;       // undefined = aplica al lote completo
+  nombreProducto: string;
+  tipo: TipoEventoSanitario;
+  fecha: string;           // ISO date
+  dosis?: string;
+  costo: number;           // ₡ total del evento
+  quienAplico?: string;
+  proximaDosis?: string;   // ISO date
+  notas?: string;
+  gastoId: string;         // referencia al Gasto auto-creado
+  createdAt: string;
+}
+
 export interface Socio {
   nombre: string;
   porcentaje: number; // 0-100
@@ -88,6 +113,7 @@ export interface Gasto {
   quienPago?: string;
   notas?: string;
   gastoFincaId?: string;      // si existe → vino de distribución de finca
+  eventoSanitarioId?: string;  // si existe → vino de un evento sanitario
   createdAt: string;
 }
 
