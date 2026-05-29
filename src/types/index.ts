@@ -72,6 +72,7 @@ export interface Peso {
   peso: number;               // kg
   fecha: string;
   notas?: string;
+  importado?: boolean;        // true si fue migrado desde otra finca
   createdAt: string;
 }
 
