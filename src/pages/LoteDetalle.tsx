@@ -13,6 +13,8 @@ import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
 import { useFinca } from '@/contexts/FincaContext';
 import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta } from '@/types';
+import { useAllLotes } from '@/hooks/useLotes';
+import MoverAnimalesModal from '@/components/MoverAnimalesModal';
 import './LoteDetalle.css';
 
 type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos';
@@ -24,7 +26,8 @@ export default function LoteDetalle() {
   const { gastos } = useGastos(loteId ?? null);
   const { ventas } = useVentas(loteId ?? null);
   const navigate = useNavigate();
-  const { fincaActiva } = useFinca();
+  const { fincaActiva, fincas } = useFinca();
+  const { lotes: todosLosLotes } = useAllLotes();
 
   const { eliminarAnimal } = useEliminarAnimal();
   const { eliminarGasto } = useEliminarGasto();
@@ -49,6 +52,11 @@ export default function LoteDetalle() {
   const [deleteVenta, setDeleteVenta] = useState<Venta | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filterText, setFilterText] = useState('');
+
+  // Mover animales — selection mode
+  const [modoSeleccion, setModoSeleccion] = useState(false);
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
+  const [animalesAMover, setAnimalesAMover] = useState<Animal[]>([]);
 
   if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
   if (!lote) return <div className="container page-content"><p>Lote no encontrado.</p></div>;
@@ -95,6 +103,24 @@ export default function LoteDetalle() {
     } finally {
       setDeletingId(null);
     }
+  }
+
+  function toggleSeleccion(animalId: string) {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(animalId)) next.delete(animalId);
+      else next.add(animalId);
+      return next;
+    });
+  }
+
+  function cancelarModo() {
+    setModoSeleccion(false);
+    setSeleccionados(new Set());
+  }
+
+  function abrirMoverModal(animalesSeleccionados: Animal[]) {
+    setAnimalesAMover(animalesSeleccionados);
   }
 
   return (
@@ -166,8 +192,16 @@ export default function LoteDetalle() {
               </div>
             ) : (
               <>
-                {/* Arete search */}
+                {/* Arete search + selection toggle */}
                 <div className="arete-search-wrap">
+                  {animalesActivos.length > 0 && (
+                    <button
+                      className="btn btn-ghost btn-sm mover-seleccionar-btn"
+                      onClick={() => modoSeleccion ? cancelarModo() : setModoSeleccion(true)}
+                    >
+                      {modoSeleccion ? 'Cancelar selección' : 'Seleccionar'}
+                    </button>
+                  )}
                   <input
                     type="search"
                     className="form-input arete-search"
@@ -190,6 +224,7 @@ export default function LoteDetalle() {
                       <table>
                         <thead>
                           <tr>
+                            {modoSeleccion && <th style={{ width: '2rem' }}></th>}
                             <th>Arete</th>
                             <th>Raza</th>
                             <th>Peso inicial</th>
@@ -205,6 +240,18 @@ export default function LoteDetalle() {
                             const ganancia = animal.pesoActual - animal.pesoInicial;
                             return (
                               <tr key={animal.id}>
+                                {modoSeleccion && (
+                                  <td>
+                                    {animal.estado === 'activo' && (
+                                      <input
+                                        type="checkbox"
+                                        checked={seleccionados.has(animal.id)}
+                                        onChange={() => toggleSeleccion(animal.id)}
+                                        style={{ cursor: 'pointer' }}
+                                      />
+                                    )}
+                                  </td>
+                                )}
                                 <td><strong>{animal.numeroArete}</strong></td>
                                 <td>{animal.raza}</td>
                                 <td>{formatKg(animal.pesoInicial)}</td>
@@ -222,6 +269,11 @@ export default function LoteDetalle() {
                                   <div className="flex gap-1">
                                     {animal.estado === 'activo' && (
                                       <>
+                                        {!modoSeleccion && (
+                                          <button className="btn btn-ghost btn-sm" title="Mover a otro lote" onClick={() => abrirMoverModal([animal])}>
+                                            ↗
+                                          </button>
+                                        )}
                                         <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
                                           ⚖️
                                         </button>
@@ -252,7 +304,11 @@ export default function LoteDetalle() {
                       {animalesFiltrados.map((animal) => {
                         const ganancia = animal.pesoActual - animal.pesoInicial;
                         return (
-                          <div key={animal.id} className="animal-card">
+                          <div
+                            key={animal.id}
+                            className={`animal-card${modoSeleccion && animal.estado === 'activo' ? ' animal-card--seleccionable' : ''}${seleccionados.has(animal.id) ? ' animal-card--seleccionado' : ''}`}
+                            onClick={modoSeleccion && animal.estado === 'activo' ? () => toggleSeleccion(animal.id) : undefined}
+                          >
                             <div className="animal-card-header">
                               <span className="animal-card-arete">{animal.numeroArete}</span>
                               <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
@@ -270,6 +326,15 @@ export default function LoteDetalle() {
                             </div>
                             {animal.estado === 'activo' && (
                               <div className="animal-card-actions">
+                                {!modoSeleccion && (
+                                  <button
+                                    className="btn btn-secondary btn-sm"
+                                    title="Mover a otro lote"
+                                    onClick={(e) => { e.stopPropagation(); abrirMoverModal([animal]); }}
+                                  >
+                                    ↗
+                                  </button>
+                                )}
                                 <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>⚖️</button>
                                 <button className="btn btn-ghost btn-sm" title="Editar" onClick={() => setEditAnimal(animal)}>✏️</button>
                                 <button
@@ -389,6 +454,41 @@ export default function LoteDetalle() {
           )}
         </div>
       </div>
+
+      {/* ── Barra multi-select ── */}
+      {modoSeleccion && seleccionados.size > 0 && (
+        <div className="mover-select-bar">
+          <span className="mover-select-count">
+            {seleccionados.size} animal{seleccionados.size !== 1 ? 'es' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+          </span>
+          <div className="mover-select-actions">
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                const sel = animalesActivos.filter((a) => seleccionados.has(a.id));
+                abrirMoverModal(sel);
+              }}
+            >
+              Mover
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={cancelarModo}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal mover animales ── */}
+      {animalesAMover.length > 0 && lote && (
+        <MoverAnimalesModal
+          animales={animalesAMover}
+          loteSrc={lote}
+          todosLosLotes={todosLosLotes}
+          fincas={fincas}
+          onClose={() => setAnimalesAMover([])}
+          onSuccess={cancelarModo}
+        />
+      )}
 
       {/* ── Modales de creación ── */}
       {showAnimal && loteId && <AgregarAnimalModal fincaId={lote?.fincaId ?? ''} loteId={loteId} onClose={() => setShowAnimal(false)} />}
