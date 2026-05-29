@@ -19,6 +19,13 @@ export interface MoverAnimalesInput {
   precioKg: number;     // ₡/kg > 0
 }
 
+/**
+ * Hook para mover animales activos entre lotes (misma finca o fincas distintas).
+ * Escribe en dos fases: Fase 1 actualiza animales y contadores de lotes (atómica
+ * por chunk); Fase 2 migra el historial de pesos al lote destino.
+ * Si la Fase 2 falla, la Fase 1 ya es irrevocable — el animal estará en el nuevo
+ * lote y la operación puede reintentarse desde allí.
+ */
 export function useMoverAnimales() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -28,19 +35,22 @@ export function useMoverAnimales() {
     if (!user) throw new Error('No autenticado');
     const { animales, loteSrc, loteDst, precioKg } = input;
 
-    // Input validation
-    if (animales.length === 0) throw new Error('No hay animales seleccionados');
-    if (precioKg <= 0) throw new Error('El precio por kg debe ser mayor que cero');
-
     setLoading(true);
     setError(null);
     try {
+      // Validation (moved inside try so errors populate hook.error)
+      if (animales.length === 0) throw new Error('No hay animales seleccionados');
+      if (precioKg <= 0) throw new Error('El precio por kg debe ser mayor que cero');
+
       const isCrossFinca = loteSrc.fincaId !== loteDst.fincaId;
       const now = new Date().toISOString();
       let totalPrecioViejoSrc = 0;
       let totalPrecioNuevoDst = 0;
 
-      // ── Fase 1: animales — chunked en lotes de 498 (límite Firestore: 500 ops/batch) ──
+      // Nota: Firestore limita 500 ops/batch → los animales se escriben en chunks de 498.
+      // Si el proceso falla a mitad, la Fase 1 no es atómica. En la práctica, las
+      // operaciones ganaderas mueven < 100 animales, por lo que esto ocurre en un solo
+      // batch y la atomicidad se preserva.
       for (let i = 0; i < animales.length; i += 498) {
         const animalChunk = animales.slice(i, i + 498);
         const animalBatch = writeBatch(db);
@@ -90,10 +100,10 @@ export function useMoverAnimales() {
         );
         // Filter client-side to avoid composite index requirement
         const relevantDocs = snap.docs.filter((d) => d.data().loteId === loteSrc.id);
-        // Write in batches of 500 (Firestore limit)
-        for (let j = 0; j < relevantDocs.length; j += 500) {
+        // Write in batches of 498
+        for (let j = 0; j < relevantDocs.length; j += 498) {
           const wb = writeBatch(db);
-          relevantDocs.slice(j, j + 500).forEach((d) =>
+          relevantDocs.slice(j, j + 498).forEach((d) =>
             wb.update(d.ref, {
               loteId: loteDst.id,
               updatedAt: now,
