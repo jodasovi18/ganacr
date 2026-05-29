@@ -169,3 +169,27 @@ export function useEliminarLoteConCascada() {
   }
   return { eliminarLoteConCascada };
 }
+
+// ─── Todos los lotes del usuario (todas las fincas) ───────────────────────
+
+export function useAllLotes() {
+  const { user } = useAuth();
+  const [lotes, setLotes] = useState<Lote[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) { setLoading(false); return; }
+    const q = query(
+      collection(db, 'lotes'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setLotes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lote)));
+      setLoading(false);
+    });
+    return unsub;
+  }, [user]);
+
+  return { lotes, loading };
+}

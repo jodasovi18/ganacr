@@ -173,3 +173,83 @@
     padding: 0.4rem 0.8rem;
   }
 }
+
+/* ─── Mover animales ─────────────────────────────────────────────────────── */
+
+.mover-seleccionar-btn {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.7rem;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mover-seleccionar-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.animal-card--seleccionable {
+  cursor: pointer;
+}
+
+.animal-card--seleccionable:hover {
+  border-color: var(--color-primary);
+}
+
+.animal-card.animal-card--seleccionado {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.mover-select-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--color-primary-dark);
+  color: white;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 200;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+}
+
+.mover-select-count {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mover-select-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Give mover bar buttons white text on dark background */
+.mover-select-bar .btn-primary {
+  background: white;
+  color: var(--color-primary-dark);
+}
+
+.mover-select-bar .btn-primary:hover {
+  background: #f0f0f0;
+}
+
+.mover-select-bar .btn-ghost {
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.mover-select-bar .btn-ghost:hover {
+  background: rgba(255,255,255,0.12);
+  color: white;
+}
+
+/* Add bottom padding when fixed select bar is visible */
+.has-select-bar {
+  padding-bottom: 70px;
+}
