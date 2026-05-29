@@ -88,6 +88,13 @@ export interface Gasto {
   createdAt: string;
 }
 
+export interface LoteAplicado {
+  loteId: string;
+  nombreLote: string;
+  animalesActivos: number;    // snapshot al momento de creación
+  monto: number;              // fracción asignada
+}
+
 export interface GastoFinca {
   id: string;
   userId: string;
@@ -98,12 +105,7 @@ export interface GastoFinca {
   fecha: string;
   quienPago?: string;
   notas?: string;
-  lotesAplicados: Array<{
-    loteId: string;
-    nombreLote: string;
-    animalesActivos: number;  // snapshot al momento de creación
-    monto: number;            // fracción asignada
-  }>;
+  lotesAplicados: LoteAplicado[];
   createdAt: string;
 }
 
