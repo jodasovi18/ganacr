@@ -31,6 +31,9 @@ export function useGastos(loteId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setGastos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Gasto)));
       setLoading(false);
+    }, (error) => {
+      console.error('[useGastos] onSnapshot error:', error);
+      setLoading(false);
     });
     return unsub;
   }, [user, loteId]);

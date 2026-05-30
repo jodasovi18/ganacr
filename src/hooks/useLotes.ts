@@ -35,6 +35,9 @@ export function useLotes(fincaId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setLotes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lote)));
       setLoading(false);
+    }, (error) => {
+      console.error('[useLotes] onSnapshot error:', error);
+      setLoading(false);
     });
     return unsub;
   }, [user, fincaId]);
@@ -52,6 +55,9 @@ export function useLote(loteId: string | null) {
     if (!loteId) { setLoading(false); return; }
     const unsub = onSnapshot(doc(db, 'lotes', loteId), (snap) => {
       setLote(snap.exists() ? ({ id: snap.id, ...snap.data() } as Lote) : null);
+      setLoading(false);
+    }, (error) => {
+      console.error('[useLote] onSnapshot error:', error);
       setLoading(false);
     });
     return unsub;
@@ -186,6 +192,9 @@ export function useAllLotes() {
     );
     const unsub = onSnapshot(q, (snap) => {
       setLotes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lote)));
+      setLoading(false);
+    }, (error) => {
+      console.error('[useAllLotes] onSnapshot error:', error);
       setLoading(false);
     });
     return unsub;

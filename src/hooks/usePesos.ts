@@ -21,11 +21,15 @@ export function usePesos(animalId: string | null) {
     if (!user || !animalId) { setLoading(false); return; }
     const q = query(
       collection(db, 'pesos'),
+      where('userId', '==', user.uid),
       where('animalId', '==', animalId),
       orderBy('fecha', 'desc')
     );
     const unsub = onSnapshot(q, (snap) => {
       setPesos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peso)));
+      setLoading(false);
+    }, (error) => {
+      console.error('[usePesos] onSnapshot error:', error);
       setLoading(false);
     });
     return unsub;

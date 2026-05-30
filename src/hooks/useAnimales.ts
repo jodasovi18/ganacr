@@ -32,6 +32,9 @@ export function useAnimales(loteId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setAnimales(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Animal)));
       setLoading(false);
+    }, (error) => {
+      console.error('[useAnimales] onSnapshot error:', error);
+      setLoading(false);
     });
     return unsub;
   }, [user, loteId]);

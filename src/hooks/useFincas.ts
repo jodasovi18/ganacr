@@ -33,6 +33,9 @@ export function useFincas() {
     const unsub = onSnapshot(q, (snap) => {
       setFincas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Finca)));
       setLoading(false);
+    }, (error) => {
+      console.error('[useFincas] onSnapshot error:', error);
+      setLoading(false);
     });
     return unsub;
   }, [user]);
