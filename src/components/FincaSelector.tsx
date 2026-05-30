@@ -1,16 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useFinca } from '@/contexts/FincaContext';
 import { useCrearFinca, useActualizarFinca } from '@/hooks/useFincas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown, Plus } from 'lucide-react';
 
 export default function FincaSelector() {
   const { fincas, fincaActiva, setFincaActiva, loading } = useFinca();
   const { crearFinca } = useCrearFinca();
   const { actualizarUmbrales } = useActualizarFinca();
-  const [open, setOpen] = useState(false);
   const [showNueva, setShowNueva] = useState(false);
   const [nombre, setNombre] = useState('');
   const [saving, setSaving] = useState(false);
@@ -24,24 +25,11 @@ export default function FincaSelector() {
   );
   const [savingUmbrales, setSavingUmbrales] = useState(false);
   const [umbralError, setUmbralError] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Sync threshold state when active finca changes (prevents stale values on finca switch)
   useEffect(() => {
     setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
     setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
   }, [fincaActiva?.id]);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
 
   if (loading || !fincaActiva) return null;
 
@@ -56,7 +44,6 @@ export default function FincaSelector() {
       setFincaActiva({ id: newId, nombre: nombre.trim(), userId: fincaActiva!.userId, createdAt: '', updatedAt: '' });
       setShowNueva(false);
       setNombre('');
-      setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear la finca');
     } finally {
@@ -84,65 +71,46 @@ export default function FincaSelector() {
   }
 
   return (
-    <div className="relative flex items-center gap-1" ref={dropdownRef}>
-      {/* Chip — always visible */}
-      <button
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[hsl(var(--border))] bg-white hover:bg-[hsl(var(--muted))] text-sm font-medium text-[hsl(var(--foreground))] max-w-[180px] transition-colors"
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        title={fincaActiva.nombre}
-      >
-        <span aria-hidden="true">🌾</span>
-        <span className="truncate">{fincaActiva.nombre}</span>
-        <span className="text-[hsl(var(--muted-foreground))] text-xs" aria-hidden="true">
-          {open ? '▲' : '▼'}
-        </span>
-      </button>
-
-      {/* Ajustes button — only visible when dropdown is closed */}
-      {!open && (
-        <button
-          className="p-1.5 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition-colors"
-          title="Ajustes de la finca"
-          onClick={() => {
-            setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
-            setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
-            setShowAjustes(true);
-          }}
-        >
-          ⚙️
-        </button>
-      )}
-
-      {/* Dropdown */}
-      {open && (
-        <div
-          className="absolute top-full left-0 mt-1 z-50 min-w-[180px] bg-white border border-[hsl(var(--border))] rounded-md shadow-md py-1"
-          role="listbox"
-        >
+    <div className="flex items-center gap-1">
+      {/* Dropdown via shadcn DropdownMenu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="max-w-[200px] text-sm gap-1" title={fincaActiva.nombre}>
+            <span aria-hidden="true">🌾</span>
+            <span className="truncate">{fincaActiva.nombre}</span>
+            <ChevronDown size={14} className="shrink-0" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
           {fincas.map((f) => (
-            <button
+            <DropdownMenuItem
               key={f.id}
-              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-[hsl(var(--muted))] transition-colors ${f.id === fincaActiva.id ? 'font-semibold text-[hsl(var(--primary))]' : 'text-[hsl(var(--foreground))]'}`}
-              role="option"
-              aria-selected={f.id === fincaActiva.id}
-              onClick={() => { setFincaActiva(f); setOpen(false); }}
+              onClick={() => setFincaActiva(f)}
+              className={f.id === fincaActiva.id ? 'font-semibold' : ''}
             >
-              {f.id === fincaActiva.id && <span className="text-[hsl(var(--primary))]">✓</span>}
+              {f.id === fincaActiva.id && <span className="text-[hsl(var(--primary))] mr-1">✓</span>}
               {f.nombre}
-            </button>
+            </DropdownMenuItem>
           ))}
-          <div className="border-t border-[hsl(var(--border))] mt-1 pt-1">
-            <button
-              className="w-full text-left px-3 py-2 text-sm text-[hsl(var(--primary))] font-medium hover:bg-[hsl(var(--muted))] transition-colors"
-              onClick={() => { setShowNueva(true); setOpen(false); }}
-            >
-              ＋ Nueva finca
-            </button>
-          </div>
-        </div>
-      )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setShowNueva(true)}>
+            <Plus size={14} className="mr-2" /> Nueva finca
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Ajustes button */}
+      <button
+        className="p-1.5 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition-colors"
+        title="Ajustes de la finca"
+        onClick={() => {
+          setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
+          setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
+          setShowAjustes(true);
+        }}
+      >
+        ⚙️
+      </button>
 
       {/* Nueva finca modal */}
       <Dialog open={showNueva} onOpenChange={(o) => { if (!o) setShowNueva(false); }}>

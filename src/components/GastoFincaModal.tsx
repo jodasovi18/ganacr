@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Props {
   fincaId: string;
@@ -111,16 +112,16 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="gf-tipo">Tipo</Label>
-              <select
-                id="gf-tipo"
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value as TipoGasto)}
-                className="w-full h-9 rounded-md border border-[hsl(var(--border))] bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))]"
-              >
-                {TIPOS.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
+              <Select value={tipo} onValueChange={(v) => setTipo(v as TipoGasto)}>
+                <SelectTrigger id="gf-tipo">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPOS.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="gf-monto">Monto total (₡) *</Label>
