@@ -1,4 +1,15 @@
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+import { Document, Font, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf' },
+    {
+      src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf',
+      fontWeight: 'bold',
+    },
+  ],
+});
 import { Animal, Gasto, Lote, Venta } from '@/types';
 
 const C = {
@@ -14,18 +25,18 @@ const C = {
 };
 
 const s = StyleSheet.create({
-  page:             { fontFamily: 'Helvetica', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
+  page:             { fontFamily: 'Roboto', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
   header:           { backgroundColor: C.primary, padding: 14, marginBottom: 16, borderRadius: 4 },
-  headerBrand:      { fontSize: 15, color: C.white, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
+  headerBrand:      { fontSize: 15, color: C.white, fontWeight: 'bold', marginBottom: 3 },
   headerFinca:      { fontSize: 9, color: C.accent, marginBottom: 1 },
-  headerLote:       { fontSize: 11, color: C.white, fontFamily: 'Helvetica-Bold', marginBottom: 1 },
+  headerLote:       { fontSize: 11, color: C.white, fontWeight: 'bold', marginBottom: 1 },
   headerFecha:      { fontSize: 8, color: '#a7d4bc' },
   section:          { marginBottom: 14 },
   sectionBar:       { backgroundColor: C.primaryMid, paddingHorizontal: 8, paddingVertical: 5, marginBottom: 0 },
-  sectionTitle:     { fontSize: 9, color: C.white, fontFamily: 'Helvetica-Bold' },
+  sectionTitle:     { fontSize: 9, color: C.white, fontWeight: 'bold' },
   infoBlock:        { padding: '8 0', borderBottomWidth: 0.5, borderBottomColor: C.border, marginBottom: 8 },
   infoRow:          { flexDirection: 'row', marginBottom: 3 },
-  infoLabel:        { width: 110, fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.muted },
+  infoLabel:        { width: 110, fontSize: 8, fontWeight: 'bold', color: C.muted },
   infoValue:        { flex: 1, fontSize: 8, color: C.text },
   summaryRow:       { flexDirection: 'row', marginTop: 6, marginBottom: 2 },
   summaryCard:      { flex: 1, marginRight: 5, backgroundColor: C.primaryLight, borderWidth: 0.5, borderColor: C.border, borderRadius: 3, padding: 7 },
@@ -33,12 +44,12 @@ const s = StyleSheet.create({
   summaryCardHl:    { flex: 1, marginRight: 0, backgroundColor: C.primary, borderRadius: 3, padding: 7 },
   summaryLabel:     { fontSize: 7, color: C.muted, marginBottom: 3 },
   summaryLabelHl:   { fontSize: 7, color: '#a7d4bc', marginBottom: 3 },
-  summaryValue:     { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.primary },
-  summaryValueHl:   { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.white },
+  summaryValue:     { fontSize: 10, fontWeight: 'bold', color: C.primary },
+  summaryValueHl:   { fontSize: 10, fontWeight: 'bold', color: C.white },
   tableHeader:      { flexDirection: 'row', backgroundColor: C.primaryMid, paddingVertical: 5, paddingHorizontal: 4 },
   tableRow:         { flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 4, borderBottomWidth: 0.3, borderBottomColor: C.border },
   tableRowAlt:      { backgroundColor: C.altRow },
-  cellH:            { fontSize: 7, color: C.white, fontFamily: 'Helvetica-Bold' },
+  cellH:            { fontSize: 7, color: C.white, fontWeight: 'bold' },
   cell:             { fontSize: 7, color: C.text },
   emptyRow:         { paddingVertical: 6, paddingHorizontal: 4 },
   emptyText:        { fontSize: 8, color: C.muted, fontStyle: 'italic' },
