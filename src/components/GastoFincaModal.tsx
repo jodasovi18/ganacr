@@ -2,7 +2,10 @@ import { useState, FormEvent } from 'react';
 import { useAgregarGastoFinca } from '@/hooks/useGastosFinca';
 import { formatColones } from '@/utils/calculadora';
 import { Lote, TipoGasto } from '@/types';
-import './GastoFincaModal.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   fincaId: string;
@@ -86,17 +89,17 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal gasto-finca-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>💸 Nuevo gasto de finca</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
-        </div>
-        <form onSubmit={handleSubmit} className="modal-body">
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>💸 Nuevo gasto de finca</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
 
-          <div className="form-group">
-            <label>Concepto *</label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="gf-concepto">Concepto *</Label>
+            <Input
+              id="gf-concepto"
               type="text"
               value={concepto}
               onChange={(e) => setConcepto(e.target.value)}
@@ -105,18 +108,24 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Tipo</label>
-              <select value={tipo} onChange={(e) => setTipo(e.target.value as TipoGasto)}>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="gf-tipo">Tipo</Label>
+              <select
+                id="gf-tipo"
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value as TipoGasto)}
+                className="w-full h-9 rounded-md border border-[hsl(var(--border))] bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))]"
+              >
                 {TIPOS.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Monto total (₡) *</label>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="gf-monto">Monto total (₡) *</Label>
+              <Input
+                id="gf-monto"
                 type="number"
                 value={montoRaw}
                 onChange={(e) => setMontoRaw(e.target.value)}
@@ -127,19 +136,21 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Fecha *</label>
-              <input
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="gf-fecha">Fecha *</Label>
+              <Input
+                id="gf-fecha"
                 type="date"
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
                 required
               />
             </div>
-            <div className="form-group">
-              <label>Quién pagó</label>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="gf-quien">Quién pagó</Label>
+              <Input
+                id="gf-quien"
                 type="text"
                 value={quienPago}
                 onChange={(e) => setQuienPago(e.target.value)}
@@ -148,81 +159,79 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
             </div>
           </div>
 
-          <div className="lotes-selector-label">Aplicar a lotes</div>
-          <div className="lotes-selector">
+          <div>
+            <p className="text-sm font-medium text-[hsl(var(--foreground))] mb-2">Aplicar a lotes</p>
             {lotes.length === 0 ? (
-              <p className="lotes-selector-empty">
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 Esta finca no tiene lotes. Creá un lote primero.
               </p>
             ) : (
-              lotes.map((lote) => {
-                const disabled   = lote.animalesActivos === 0;
-                const checked    = seleccionados.has(lote.id);
-                const esMedias   = lote.tipoPropiedad === 'medias';
-                const estimado   = montoPara(lote);
-                return (
-                  <label
-                    key={lote.id}
-                    className={[
-                      'lote-selector-item',
-                      checked  ? 'selected' : '',
-                      disabled ? 'disabled' : '',
-                      esMedias ? 'medias'   : '',
-                    ].filter(Boolean).join(' ')}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      disabled={disabled}
-                      onChange={() => { if (!disabled) toggleLote(lote.id); }}
-                    />
-                    <span className="lote-selector-nombre">
-                      {esMedias && '🤝 '}
-                      {lote.nombreLote}
-                      {esMedias && (
-                        <span className="lote-selector-medias-hint">
-                          {' '}(a medias — seleccioná explícitamente)
-                        </span>
-                      )}
-                    </span>
-                    <span className="lote-selector-activos">
-                      {disabled ? '0 act.' : `${lote.animalesActivos} act.`}
-                    </span>
-                    <span className="lote-selector-monto">
-                      {disabled || estimado === null
-                        ? '—'
-                        : `≈ ${formatColones(estimado)}`}
-                    </span>
-                  </label>
-                );
-              })
+              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                {lotes.map((lote) => {
+                  const disabled   = lote.animalesActivos === 0;
+                  const checked    = seleccionados.has(lote.id);
+                  const esMedias   = lote.tipoPropiedad === 'medias';
+                  const estimado   = montoPara(lote);
+                  return (
+                    <label
+                      key={lote.id}
+                      className={[
+                        'flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer transition-colors',
+                        checked && !disabled
+                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.05)]'
+                          : 'border-[hsl(var(--border))]',
+                        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[hsl(var(--muted))]',
+                      ].filter(Boolean).join(' ')}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disabled}
+                        onChange={() => { if (!disabled) toggleLote(lote.id); }}
+                        className="accent-[hsl(var(--primary))]"
+                      />
+                      <span className="flex-1 truncate">
+                        {esMedias && '🤝 '}
+                        {lote.nombreLote}
+                        {esMedias && (
+                          <span className="text-[hsl(var(--muted-foreground))] text-xs ml-1">
+                            (a medias — seleccioná explícitamente)
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-[hsl(var(--muted-foreground))] text-xs shrink-0">
+                        {disabled ? '0 act.' : `${lote.animalesActivos} act.`}
+                      </span>
+                      <span className="text-xs font-medium shrink-0 w-24 text-right">
+                        {disabled || estimado === null ? '—' : `≈ ${formatColones(estimado)}`}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
             )}
           </div>
 
           {lotesEnDistribucion.length > 0 && monto > 0 && (
-            <div className="distribucion-resumen">
-              Total: <strong>{formatColones(monto)}</strong>
+            <div className="text-sm text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted))] rounded-md px-3 py-2">
+              Total: <strong className="text-[hsl(var(--foreground))]">{formatColones(monto)}</strong>
               {' · '}{lotesEnDistribucion.length} lote{lotesEnDistribucion.length !== 1 ? 's' : ''}
               {' · '}{totalActivos} animales activos
             </div>
           )}
 
-          {error && <p className="form-error">{error}</p>}
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={!canSubmit || loading}
-            >
+            </Button>
+            <Button type="submit" disabled={!canSubmit || loading}>
               {loading ? 'Registrando...' : 'Registrar gasto'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

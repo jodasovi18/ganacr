@@ -3,6 +3,10 @@ import { useCrearFinca } from '@/hooks/useFincas';
 import { useFinca } from '@/contexts/FincaContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Finca } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function OnboardingFinca() {
   const { userData } = useAuth();
@@ -33,20 +37,22 @@ export default function OnboardingFinca() {
   }
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 200 }}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div style={{ textAlign: 'center', padding: '0.5rem 0 1rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem' }}>🌾</div>
-          <h2 style={{ margin: 0 }}>Nombrá tu finca</h2>
-          <p className="text-muted" style={{ marginTop: '0.3rem', fontSize: '0.88rem' }}>
+    <Dialog open modal>
+      <DialogContent className="max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogHeader>
+          <div className="text-center pb-1">
+            <div className="text-5xl mb-2">🌾</div>
+          </div>
+          <DialogTitle className="text-center">Nombrá tu finca</DialogTitle>
+          <DialogDescription className="text-center">
             Podés cambiar este nombre después desde la barra superior.
-          </p>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Nombre de la finca</label>
-            <input
-              className="input"
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="onboarding-finca-nombre">Nombre de la finca</Label>
+            <Input
+              id="onboarding-finca-nombre"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej: Finca La Esperanza"
@@ -56,22 +62,21 @@ export default function OnboardingFinca() {
               disabled={saving}
             />
             {defaultNombre && (
-              <span className="form-hint">Pre-llenado desde tu perfil — editalo si querés</span>
+              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                Pre-llenado desde tu perfil — editalo si querés
+              </p>
             )}
           </div>
-          {error && <p className="form-error">{error}</p>}
-          <div className="modal-actions" style={{ marginTop: '1.25rem' }}>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
-              disabled={saving || !nombre.trim()}
-            >
-              {saving ? 'Creando finca y migrando datos…' : 'Crear finca y continuar'}
-            </button>
-          </div>
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={saving || !nombre.trim()}
+          >
+            {saving ? 'Creando finca y migrando datos…' : 'Crear finca y continuar'}
+          </Button>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

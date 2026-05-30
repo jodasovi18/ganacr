@@ -18,7 +18,12 @@ import { db } from '@/services/firebase';
 import { exportarLotesExcel } from '@/utils/exportExcel';
 import { Gasto } from '@/types';
 import { exportarLotePDF } from '@/utils/exportPDF';
-import './Dashboard.css';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreVertical, Plus, FileSpreadsheet, FileText, Trash2, Pencil, Eye } from 'lucide-react';
 
 type DashboardTab = 'lotes' | 'gastosFinca';
 
@@ -35,7 +40,6 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exportando, setExportando] = useState(false);
   const [exportError, setExportError] = useState('');
-  const [pdfDropdownOpen, setPdfDropdownOpen] = useState(false);
   const [generandoPDF, setGenerandoPDF]       = useState(false);
   const [pdfError, setPdfError]               = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -80,7 +84,6 @@ export default function Dashboard() {
 
   async function handleGenerarPDF(lote: Lote) {
     if (!user || !fincaActiva) return;
-    setPdfDropdownOpen(false);
     setGenerandoPDF(true);
     setPdfError('');
     try {
@@ -154,218 +157,179 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-page">
-      {/* Onboarding modal — shown only when user has no fincas */}
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       {necesitaOnboarding && <OnboardingFinca />}
 
       {/* Navbar */}
-      <header className="navbar">
-        <div className="container flex-between">
-          <div className="navbar-brand">
-            <span>🐄</span>
-            <span className="navbar-title">GanaCR</span>
+      <header className="bg-white border-b border-[hsl(var(--border))] sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 font-extrabold text-[hsl(var(--primary))] text-lg shrink-0">
+            🐄 <span className="hidden sm:inline">GanaCR</span>
           </div>
-          <FincaSelector />
-          <div className="navbar-right">
-            <span className="navbar-user">{userData?.nombre}</span>
-            <button className="btn btn-ghost btn-sm" onClick={logout}>Salir</button>
+          <div className="flex-1 max-w-xs">
+            <FincaSelector />
+          </div>
+          <div className="hidden sm:flex items-center gap-3">
+            <span className="text-sm text-[hsl(var(--muted-foreground))]">{userData?.nombre}</span>
+            <Button variant="outline" size="sm" onClick={logout}>Salir</Button>
           </div>
           <button
-            className="navbar-hamburger"
+            className="sm:hidden p-2 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-            aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
           >
             {menuOpen ? '✕' : '☰'}
           </button>
         </div>
         {menuOpen && (
-          <div className="navbar-mobile-menu">
-            <span className="navbar-user">{userData?.nombre}</span>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => { logout(); setMenuOpen(false); }}
-            >
-              Salir
-            </button>
+          <div className="sm:hidden bg-white border-t border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between">
+            <span className="text-sm text-[hsl(var(--muted-foreground))]">{userData?.nombre}</span>
+            <Button variant="outline" size="sm" onClick={() => { logout(); setMenuOpen(false); }}>Salir</Button>
           </div>
         )}
       </header>
 
-      <main className="container page-content">
-        {/* Resumen global */}
-        <div className="stats-grid mb-3">
-          <div className="stat-card">
-            <div className="stat-value">{lotes.length}</div>
-            <div className="stat-label">Lotes activos</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{totalAnimales}</div>
-            <div className="stat-label">Animales activos</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{formatColones(totalInvertido)}</div>
-            <div className="stat-label">Total invertido</div>
-          </div>
-          <div className="stat-card">
-            <div className={`stat-value ${totalUtilidad >= 0 ? 'text-success' : 'text-danger'}`}>
-              {formatColones(totalUtilidad)}
-            </div>
-            <div className="stat-label">Utilidad total</div>
-          </div>
+      <main className="max-w-5xl mx-auto px-4 py-6 pb-16">
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <Card>
+            <CardContent className="pt-4 pb-3 text-center">
+              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{lotes.length}</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Lotes</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4 pb-3 text-center">
+              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{totalAnimales}</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Animales</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4 pb-3 text-center">
+              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{formatColones(totalInvertido)}</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Invertido</p>
+            </CardContent>
+          </Card>
+          <Card className={totalUtilidad >= 0 ? 'bg-[hsl(var(--success-light))] border-[hsl(142_71%_45%/0.3)]' : ''}>
+            <CardContent className="pt-4 pb-3 text-center">
+              <p className={`text-2xl font-extrabold ${totalUtilidad >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+                {formatColones(totalUtilidad)}
+              </p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Utilidad</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* ── Tabs ── */}
-        <div className="dashboard-tabs">
-          <button
-            className={`dashboard-tab${dashboardTab === 'lotes' ? ' active' : ''}`}
-            onClick={() => setDashboardTab('lotes')}
-          >
-            🐄 Lotes ({lotes.length})
-          </button>
-          <button
-            className={`dashboard-tab${dashboardTab === 'gastosFinca' ? ' active' : ''}`}
-            onClick={() => setDashboardTab('gastosFinca')}
-          >
-            💸 Gastos de Finca ({gastosFinca.length})
-          </button>
-        </div>
+        {exportError && <p className="text-sm text-[hsl(var(--destructive))] mb-3">{exportError}</p>}
+        {pdfError && <p className="text-sm text-[hsl(var(--destructive))] mb-3">{pdfError}</p>}
 
-        {/* ── Tab: Lotes ── */}
-        {dashboardTab === 'lotes' && (
-          <>
-            <div className="flex-between mb-2">
-              <h2 className="section-title">Mis Lotes</h2>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                {(exportError || pdfError) && (
-                  <span className="export-error-text">{exportError || pdfError}</span>
-                )}
-                {lotes.length > 0 && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={handleExportarExcel}
-                    disabled={exportando || !fincaActiva}
-                  >
-                    {exportando ? '⏳ Exportando...' : '📊 Excel'}
-                  </button>
-                )}
-                {lotes.length > 0 && (
-                  <div className="pdf-dropdown-wrap">
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => setPdfDropdownOpen(o => !o)}
-                      disabled={generandoPDF || !fincaActiva}
-                    >
-                      {generandoPDF ? '⏳ Generando...' : '📄 PDF'}
-                    </button>
-                    {pdfDropdownOpen && (
-                      <>
-                        <div className="pdf-dropdown-overlay" onClick={() => setPdfDropdownOpen(false)} />
-                        <div className="pdf-dropdown">
-                          {lotes.map(l => (
-                            <button
-                              key={l.id}
-                              className="pdf-dropdown-item"
-                              onClick={() => handleGenerarPDF(l)}
-                            >
-                              {l.nombreLote}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setShowCrear(true)}
-                  disabled={!fincaActiva}
-                >
-                  + Nuevo Lote
-                </button>
-              </div>
+        {/* Tabs */}
+        <Tabs value={dashboardTab} onValueChange={(v) => setDashboardTab(v as DashboardTab)}>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <TabsList>
+              <TabsTrigger value="lotes">Lotes</TabsTrigger>
+              <TabsTrigger value="gastosFinca">Gastos de Finca</TabsTrigger>
+            </TabsList>
+            <div className="flex gap-2">
+              {dashboardTab === 'lotes' && (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleExportarExcel} disabled={exportando || lotes.length === 0}>
+                    <FileSpreadsheet size={14} className="mr-1" />
+                    {exportando ? 'Exportando...' : 'Excel'}
+                  </Button>
+                  <Button size="sm" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>
+                    <Plus size={14} className="mr-1" /> Nuevo lote
+                  </Button>
+                </>
+              )}
+              {dashboardTab === 'gastosFinca' && (
+                <Button size="sm" onClick={() => setShowGastoFinca(true)}>
+                  <Plus size={14} className="mr-1" /> Nuevo gasto
+                </Button>
+              )}
             </div>
+          </div>
 
+          <TabsContent value="lotes">
             {loading ? (
-              <div className="loading-container"><div className="loading-spinner" /><span>Cargando...</span></div>
+              <p className="text-center text-[hsl(var(--muted-foreground))] py-12">Cargando lotes...</p>
             ) : lotes.length === 0 ? (
-              <div className="empty-state">
-                <div className="emoji">🐄</div>
-                <h3>Aún no tenés lotes</h3>
-                <p>Creá tu primer lote para empezar a registrar tu ganado</p>
-                <button className="btn btn-primary" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>
-                  Crear primer lote
-                </button>
+              <div className="text-center py-16">
+                <p className="text-4xl mb-3">🐄</p>
+                <p className="text-[hsl(var(--muted-foreground))]">No tenés lotes todavía.</p>
+                <Button className="mt-4" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>Crear primer lote</Button>
               </div>
             ) : (
-              <div className="lotes-grid">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {lotes.map((lote) => (
-                  <div
-                    key={lote.id}
-                    className="lote-card"
-                    onClick={() => navigate(`/lote/${lote.id}`)}
-                  >
-                    <div className="lote-card-header">
-                      <h3>{lote.nombreLote}</h3>
-                      <div className="flex gap-1" style={{ alignItems: 'center' }}>
-                        {lote.tipoPropiedad === 'medias' && lote.socio && (
-                          <span className="badge badge-yellow">🤝 {lote.socio.nombre}</span>
-                        )}
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          title="Editar lote"
-                          onClick={(e) => { e.stopPropagation(); setEditLote(lote); }}
-                        >✏️</button>
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          title="Eliminar lote"
-                          style={{ color: 'var(--color-danger, #dc3545)' }}
-                          onClick={(e) => { e.stopPropagation(); setDeleteLote(lote); }}
-                        >🗑️</button>
+                  <Card key={lote.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/lote/${lote.id}`)}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-[hsl(var(--foreground))] truncate">{lote.nombreLote}</h3>
+                            {lote.tipoPropiedad === 'medias' && (
+                              <Badge variant="secondary" className="text-xs shrink-0">
+                                {lote.socio ? `🤝 ${lote.socio.nombre}` : 'A medias'}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                            {lote.animalesActivos} activos · {lote.animalesVendidos} vendidos · {formatColones(lote.totalInvertido)}
+                          </p>
+                          {lote.utilidadTotal !== 0 && (
+                            <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+                              Utilidad: {formatColones(lote.utilidadTotal)}
+                            </p>
+                          )}
+                          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Compra: {formatFecha(lote.fechaCompra)}</p>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/lote/${lote.id}`); }}>
+                              <Eye size={14} className="mr-2" /> Ver lote
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditLote(lote); }}>
+                              <Pencil size={14} className="mr-2" /> Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleGenerarPDF(lote); }} disabled={generandoPDF}>
+                              <FileText size={14} className="mr-2" /> {generandoPDF ? 'Generando...' : 'PDF Lote'}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-[hsl(var(--destructive))] focus:text-[hsl(var(--destructive))]"
+                              onClick={(e) => { e.stopPropagation(); setDeleteLote(lote); }}
+                            >
+                              <Trash2 size={14} className="mr-2" /> Eliminar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    </div>
-                    <div className="lote-card-stats">
-                      <div>
-                        <span className="lote-stat-val">{lote.animalesActivos}</span>
-                        <span className="lote-stat-lab">activos</span>
-                      </div>
-                      <div>
-                        <span className="lote-stat-val">{lote.animalesVendidos}</span>
-                        <span className="lote-stat-lab">vendidos</span>
-                      </div>
-                      <div>
-                        <span className="lote-stat-val">{formatColones(lote.totalInvertido)}</span>
-                        <span className="lote-stat-lab">invertido</span>
-                      </div>
-                    </div>
-                    <div className="lote-card-footer">
-                      <span className="text-muted" style={{ fontSize: '0.8rem' }}>
-                        Compra: {formatFecha(lote.fechaCompra)}
-                      </span>
-                      <span className={`lote-utilidad ${lote.utilidadTotal >= 0 ? 'pos' : 'neg'}`}>
-                        {lote.utilidadTotal >= 0 ? '▲' : '▼'} {formatColones(Math.abs(lote.utilidadTotal))}
-                      </span>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
-          </>
-        )}
+          </TabsContent>
 
-        {/* ── Tab: Gastos de Finca ── */}
-        {dashboardTab === 'gastosFinca' && (
-          <GastosFincaTab
-            gastosFinca={gastosFinca}
-            loading={gastosFincaLoading}
-            onNuevo={() => setShowGastoFinca(true)}
-            onEliminar={setDeleteGastoFinca}
-            deletingId={deletingGastoFincaId}
-          />
-        )}
+          <TabsContent value="gastosFinca">
+            <GastosFincaTab
+              gastosFinca={gastosFinca}
+              loading={gastosFincaLoading}
+              onNuevo={() => setShowGastoFinca(true)}
+              onEliminar={setDeleteGastoFinca}
+              deletingId={deletingGastoFincaId}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
 
-      {/* ── Modales ── */}
+      {/* Modales */}
       {showCrear && fincaActiva && (
         <CrearLoteModal fincaId={fincaActiva.id} onClose={() => setShowCrear(false)} />
       )}
