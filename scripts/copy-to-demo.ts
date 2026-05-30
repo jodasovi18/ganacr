@@ -109,17 +109,30 @@ async function main() {
     readCollection('gastos',           SOURCE_USER_ID),
     readCollection('gastosFinca',      SOURCE_USER_ID),
     readCollection('ventas',           SOURCE_USER_ID),
-    readCollection('eventossanitarios',SOURCE_USER_ID),
+    readCollection('eventosSanitarios',SOURCE_USER_ID),
   ]);
 
-  console.log(`  - Fincas:             ${fincaDocs.length}`);
-  console.log(`  - Lotes:              ${loteDocs.length}`);
-  console.log(`  - Animales:           ${animalDocs.length}`);
-  console.log(`  - Pesos:              ${pesoDocs.length}`);
-  console.log(`  - Gastos (lote):      ${gastoDocs.length}`);
-  console.log(`  - Gastos (finca):     ${gastoFincaDocs.length}`);
-  console.log(`  - Ventas:             ${ventaDocs.length}`);
-  console.log(`  - Eventos sanitarios: ${eventoDocs.length}`);
+  const counts = {
+    fincas: fincaDocs.length, lotes: loteDocs.length, animales: animalDocs.length,
+    pesos: pesoDocs.length, gastos: gastoDocs.length, gastosFinca: gastoFincaDocs.length,
+    ventas: ventaDocs.length, eventosSanitarios: eventoDocs.length,
+  };
+  console.log(`  - Fincas:             ${counts.fincas}`);
+  console.log(`  - Lotes:              ${counts.lotes}`);
+  console.log(`  - Animales:           ${counts.animales}`);
+  console.log(`  - Pesos:              ${counts.pesos}`);
+  console.log(`  - Gastos (lote):      ${counts.gastos}`);
+  console.log(`  - Gastos (finca):     ${counts.gastosFinca}`);
+  console.log(`  - Ventas:             ${counts.ventas}`);
+  console.log(`  - Eventos sanitarios: ${counts.eventosSanitarios}`);
+
+  // Abortar si no se encontró nada — probablemente el SOURCE_USER_ID es incorrecto
+  const totalSource = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (totalSource === 0) {
+    console.error('\n❌  No se encontraron documentos para SOURCE_USER_ID:', SOURCE_USER_ID);
+    console.error('    Verificá que el UID en .env coincide exactamente con el userId en Firestore.');
+    process.exit(1);
+  }
 
   const total = fincaDocs.length + loteDocs.length + animalDocs.length +
                 pesoDocs.length + gastoDocs.length + gastoFincaDocs.length +
@@ -279,7 +292,7 @@ async function main() {
   for (const d of eventoDocs) {
     const src = d.data() as Record<string, unknown>;
     toWrite.push({
-      collection: 'eventossanitarios',
+      collection: 'eventosSanitarios',
       id: newId(),
       data: {
         ...src,
