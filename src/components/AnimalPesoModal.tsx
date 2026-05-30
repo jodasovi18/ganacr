@@ -68,16 +68,16 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
           <DialogTitle className="text-base">
             {animal.numeroArete} — {animal.raza}
           </DialogTitle>
-          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Lote {lote.nombreLote}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Lote {lote.nombreLote}</p>
         </DialogHeader>
 
         {loading ? (
           <div className="flex justify-center items-center min-h-[120px]">
-            <div className="w-6 h-6 border-2 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : pesos.length === 0 ? (
           <div className="text-center py-8 space-y-3">
-            <p className="text-[hsl(var(--muted-foreground))] text-sm">Este animal aún no tiene pesajes registrados.</p>
+            <p className="text-muted-foreground text-sm">Este animal aún no tiene pesajes registrados.</p>
             <Button onClick={() => setShowRegistrar(true)}>+ Registrar primer peso</Button>
           </div>
         ) : (
@@ -86,22 +86,22 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: 'Peso actual', value: formatKg(pesoActual), color: '' },
-                { label: 'Total ganado', value: `${kgGanados >= 0 ? '+' : ''}${formatKg(kgGanados)}`, color: kgGanados >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]' },
+                { label: 'Total ganado', value: `${kgGanados >= 0 ? '+' : ''}${formatKg(kgGanados)}`, color: kgGanados >= 0 ? 'text-success' : 'text-destructive' },
                 { label: 'kg/día', value: kgPorDia !== null ? kgPorDia.toFixed(2) : '—', color: '' },
-                { label: 'vs. prom. lote', value: `${vsPromedio >= 0 ? '+' : ''}${formatKg(vsPromedio)}`, color: vsPromedio >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]' },
+                { label: 'vs. prom. lote', value: `${vsPromedio >= 0 ? '+' : ''}${formatKg(vsPromedio)}`, color: vsPromedio >= 0 ? 'text-success' : 'text-destructive' },
               ].map((stat) => (
-                <div key={stat.label} className="rounded-lg border border-[hsl(var(--border))] p-3 text-center">
+                <div key={stat.label} className="rounded-lg border border-border p-3 text-center">
                   <div className={`font-bold text-lg ${stat.color}`}>{stat.value}</div>
-                  <div className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{stat.label}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
                 </div>
               ))}
             </div>
 
             {/* ── Chart ── */}
-            <div className="rounded-lg border border-[hsl(var(--border))] p-3">
+            <div className="rounded-lg border border-border p-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Evolución de peso</span>
-                <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                <span className="text-xs text-muted-foreground">
                   {pesos.length} pesaje{pesos.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -111,9 +111,9 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
             {/* ── Historial ── */}
             <div>
               <p className="text-sm font-medium mb-2">Historial</p>
-              <div className="overflow-x-auto rounded-lg border border-[hsl(var(--border))]">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
-                  <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                  <thead className="bg-muted text-muted-foreground">
                     <tr>
                       <th className="px-3 py-2 text-left">Fecha</th>
                       <th className="px-3 py-2 text-left">Peso</th>
@@ -128,13 +128,13 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
                         <td className="px-3 py-2"><strong>{formatKg(h.peso)}</strong></td>
                         <td className="px-3 py-2">
                           {h.delta !== null ? (
-                            <span className={h.delta >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>
+                            <span className={h.delta >= 0 ? 'text-success' : 'text-destructive'}>
                               {h.delta >= 0 ? '+' : ''}{formatKg(h.delta)}
                             </span>
                           ) : '—'}
                         </td>
                         {tieneNotas && (
-                          <td className="px-3 py-2 text-xs text-[hsl(var(--muted-foreground))]">
+                          <td className="px-3 py-2 text-xs text-muted-foreground">
                             {h.notas || '—'}
                           </td>
                         )}

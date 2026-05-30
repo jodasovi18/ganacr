@@ -88,7 +88,7 @@ export default function FincaSelector() {
               onClick={() => setFincaActiva(f)}
               className={f.id === fincaActiva.id ? 'font-semibold' : ''}
             >
-              {f.id === fincaActiva.id && <span className="text-[hsl(var(--primary))] mr-1">✓</span>}
+              {f.id === fincaActiva.id && <span className="text-primary mr-1">✓</span>}
               {f.nombre}
             </DropdownMenuItem>
           ))}
@@ -101,7 +101,7 @@ export default function FincaSelector() {
 
       {/* Ajustes button */}
       <button
-        className="p-1.5 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition-colors"
+        className="p-1.5 rounded-md text-muted-foreground hover:bg-muted transition-colors"
         title="Ajustes de la finca"
         onClick={() => {
           setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
@@ -131,7 +131,7 @@ export default function FincaSelector() {
                 maxLength={60}
               />
             </div>
-            {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="ghost" onClick={() => setShowNueva(false)}>
                 Cancelar
@@ -151,7 +151,7 @@ export default function FincaSelector() {
             <DialogTitle>Ajustes de pesaje — {fincaActiva?.nombre}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleGuardarUmbrales} className="space-y-4">
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+            <p className="text-xs text-muted-foreground">
               Configurá cuántos días sin pesar activan cada alerta en la tab Pesos.
             </p>
             <div className="space-y-1.5">
@@ -178,7 +178,7 @@ export default function FincaSelector() {
                 required
               />
             </div>
-            {umbralError && <p className="text-sm text-[hsl(var(--destructive))]">{umbralError}</p>}
+            {umbralError && <p className="text-sm text-destructive">{umbralError}</p>}
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="ghost" onClick={() => setShowAjustes(false)}>
                 Cancelar

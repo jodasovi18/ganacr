@@ -156,24 +156,24 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))]">
+    <div className="min-h-screen bg-background">
       {necesitaOnboarding && <OnboardingFinca />}
 
       {/* Navbar */}
-      <header className="bg-white border-b border-[hsl(var(--border))] sticky top-0 z-10">
+      <header className="bg-white border-b border-border sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 font-extrabold text-[hsl(var(--primary))] text-lg shrink-0">
+          <div className="flex items-center gap-2 font-extrabold text-primary text-lg shrink-0">
             🐄 <span className="hidden sm:inline">GanaCR</span>
           </div>
           <div className="flex-1 max-w-xs">
             <FincaSelector />
           </div>
           <div className="hidden sm:flex items-center gap-3">
-            <span className="text-sm text-[hsl(var(--muted-foreground))]">{userData?.nombre}</span>
+            <span className="text-sm text-muted-foreground">{userData?.nombre}</span>
             <Button variant="outline" size="sm" onClick={logout}>Salir</Button>
           </div>
           <button
-            className="sm:hidden p-2 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+            className="sm:hidden p-2 rounded-md text-muted-foreground hover:bg-muted"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
             onClick={() => setMenuOpen((o) => !o)}
           >
@@ -181,8 +181,8 @@ export default function Dashboard() {
           </button>
         </div>
         {menuOpen && (
-          <div className="sm:hidden bg-white border-t border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between">
-            <span className="text-sm text-[hsl(var(--muted-foreground))]">{userData?.nombre}</span>
+          <div className="sm:hidden bg-white border-t border-border px-4 py-3 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">{userData?.nombre}</span>
             <Button variant="outline" size="sm" onClick={() => { logout(); setMenuOpen(false); }}>Salir</Button>
           </div>
         )}
@@ -193,34 +193,34 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{lotes.length}</p>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Lotes</p>
+              <p className="text-2xl font-extrabold text-foreground">{lotes.length}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Lotes</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{totalAnimales}</p>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Animales</p>
+              <p className="text-2xl font-extrabold text-foreground">{totalAnimales}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Animales</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-[hsl(var(--foreground))]">{formatColones(totalInvertido)}</p>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Invertido</p>
+              <p className="text-2xl font-extrabold text-foreground">{formatColones(totalInvertido)}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Invertido</p>
             </CardContent>
           </Card>
-          <Card className={totalUtilidad >= 0 ? 'bg-[hsl(var(--success-light))] border-[hsl(142_71%_45%/0.3)]' : ''}>
+          <Card className={totalUtilidad >= 0 ? 'bg-success-light border-[hsl(142_71%_45%/0.3)]' : ''}>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className={`text-2xl font-extrabold ${totalUtilidad >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+              <p className={`text-2xl font-extrabold ${totalUtilidad >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatColones(totalUtilidad)}
               </p>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wide mt-0.5">Utilidad</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Utilidad</p>
             </CardContent>
           </Card>
         </div>
 
-        {exportError && <p className="text-sm text-[hsl(var(--destructive))] mb-3">{exportError}</p>}
-        {pdfError && <p className="text-sm text-[hsl(var(--destructive))] mb-3">{pdfError}</p>}
+        {exportError && <p className="text-sm text-destructive mb-3">{exportError}</p>}
+        {pdfError && <p className="text-sm text-destructive mb-3">{pdfError}</p>}
 
         {/* Tabs */}
         <Tabs value={dashboardTab} onValueChange={(v) => setDashboardTab(v as DashboardTab)}>
@@ -251,11 +251,11 @@ export default function Dashboard() {
 
           <TabsContent value="lotes">
             {loading ? (
-              <p className="text-center text-[hsl(var(--muted-foreground))] py-12">Cargando lotes...</p>
+              <p className="text-center text-muted-foreground py-12">Cargando lotes...</p>
             ) : lotes.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-4xl mb-3">🐄</p>
-                <p className="text-[hsl(var(--muted-foreground))]">No tenés lotes todavía.</p>
+                <p className="text-muted-foreground">No tenés lotes todavía.</p>
                 <Button className="mt-4" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>Crear primer lote</Button>
               </div>
             ) : (
@@ -266,22 +266,22 @@ export default function Dashboard() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-[hsl(var(--foreground))] truncate">{lote.nombreLote}</h3>
+                            <h3 className="font-bold text-foreground truncate">{lote.nombreLote}</h3>
                             {lote.tipoPropiedad === 'medias' && (
                               <Badge variant="secondary" className="text-xs shrink-0">
                                 {lote.socio ? `🤝 ${lote.socio.nombre}` : 'A medias'}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                          <p className="text-sm text-muted-foreground">
                             {lote.animalesActivos} activos · {lote.animalesVendidos} vendidos · {formatColones(lote.totalInvertido)}
                           </p>
                           {lote.utilidadTotal !== 0 && (
-                            <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+                            <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive'}`}>
                               Utilidad: {formatColones(lote.utilidadTotal)}
                             </p>
                           )}
-                          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Compra: {formatFecha(lote.fechaCompra)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Compra: {formatFecha(lote.fechaCompra)}</p>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -301,7 +301,7 @@ export default function Dashboard() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              className="text-[hsl(var(--destructive))] focus:text-[hsl(var(--destructive))]"
+                              className="text-destructive focus:text-destructive"
                               onClick={(e) => { e.stopPropagation(); setDeleteLote(lote); }}
                             >
                               <Trash2 size={14} className="mr-2" /> Eliminar

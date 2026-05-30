@@ -45,24 +45,24 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-[hsl(var(--primary))] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
+          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
             🐄
           </div>
-          <h1 className="text-2xl font-extrabold text-[hsl(var(--foreground))]">GanaCR</h1>
-          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Sistema de Gestión Ganadera</p>
+          <h1 className="text-2xl font-extrabold text-foreground">GanaCR</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sistema de Gestión Ganadera</p>
         </div>
 
-        <div className="flex mb-4 bg-[hsl(var(--muted))] rounded-lg p-1">
+        <div className="flex mb-4 bg-muted rounded-lg p-1">
           <button
             type="button"
             onClick={() => setModo('login')}
             className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-colors ${
               modo === 'login'
-                ? 'bg-white text-[hsl(var(--foreground))] shadow-sm'
-                : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
+                ? 'bg-white text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Ingresar
@@ -72,8 +72,8 @@ export default function Login() {
             onClick={() => setModo('registro')}
             className={`flex-1 py-1.5 text-sm font-semibold rounded-md transition-colors ${
               modo === 'registro'
-                ? 'bg-white text-[hsl(var(--foreground))] shadow-sm'
-                : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
+                ? 'bg-white text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Registrarse
@@ -105,7 +105,7 @@ export default function Login() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="nombreFinca">Nombre de la finca <span className="text-[hsl(var(--muted-foreground))] font-normal">(opcional)</span></Label>
+                    <Label htmlFor="nombreFinca">Nombre de la finca <span className="text-muted-foreground font-normal">(opcional)</span></Label>
                     <Input
                       id="nombreFinca"
                       type="text"
@@ -144,7 +144,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -153,7 +153,7 @@ export default function Login() {
               </div>
 
               {error && (
-                <p className="text-sm text-[hsl(var(--destructive))] bg-[hsl(var(--destructive)/0.08)] border border-[hsl(var(--destructive)/0.2)] rounded-md px-3 py-2">
+                <p className="text-sm text-destructive bg-destructive/8 border border-destructive/20 rounded-md px-3 py-2">
                   {error}
                 </p>
               )}

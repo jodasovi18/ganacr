@@ -40,10 +40,10 @@ export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }:
           <DialogTitle>Registrar Peso</DialogTitle>
         </DialogHeader>
 
-        <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3 text-sm space-y-1">
-          <p><span className="text-[hsl(var(--muted-foreground))]">Arete:</span> <strong>{animal.numeroArete}</strong> — {animal.raza}</p>
-          <p><span className="text-[hsl(var(--muted-foreground))]">Peso actual:</span> <strong>{formatKg(animal.pesoActual)}</strong></p>
-          <p><span className="text-[hsl(var(--muted-foreground))]">Peso inicial:</span> <strong>{formatKg(animal.pesoInicial)}</strong></p>
+        <div className="rounded-lg border border-border bg-background p-3 text-sm space-y-1">
+          <p><span className="text-muted-foreground">Arete:</span> <strong>{animal.numeroArete}</strong> — {animal.raza}</p>
+          <p><span className="text-muted-foreground">Peso actual:</span> <strong>{formatKg(animal.pesoActual)}</strong></p>
+          <p><span className="text-muted-foreground">Peso inicial:</span> <strong>{formatKg(animal.pesoInicial)}</strong></p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,7 +59,7 @@ export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }:
           </div>
 
           {gananciaPreview !== null && (
-            <div className={`rounded-lg border p-3 text-sm font-medium ${gananciaPreview >= 0 ? 'border-[hsl(var(--success))] text-[hsl(var(--success))]' : 'border-[hsl(var(--destructive))] text-[hsl(var(--destructive))]'}`}>
+            <div className={`rounded-lg border p-3 text-sm font-medium ${gananciaPreview >= 0 ? 'border-[hsl(var(--success))] text-success' : 'border-[hsl(var(--destructive))] text-destructive'}`}>
               Cambio: {gananciaPreview >= 0 ? '+' : ''}{formatKg(gananciaPreview)} respecto al peso actual
             </div>
           )}
@@ -67,7 +67,7 @@ export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }:
           <div className="space-y-1.5">
             <Label>Notas</Label>
             <textarea
-              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] resize-none"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
               rows={2}
               placeholder="Observaciones del pesaje..."
               value={notas}
@@ -75,7 +75,7 @@ export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }:
             />
           </div>
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>

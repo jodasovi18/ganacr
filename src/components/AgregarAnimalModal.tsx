@@ -97,7 +97,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
           <div className="space-y-1.5">
             <Label>Raza *</Label>
             <select
-              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground"
               value={raza}
               onChange={(e) => setRaza(e.target.value)}
               required
@@ -136,7 +136,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
           <div className="space-y-1.5">
             <Label>Notas</Label>
             <textarea
-              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] resize-none"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
               rows={2}
               placeholder="Observaciones del animal..."
               value={notas}
@@ -144,7 +144,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
             />
           </div>
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>

@@ -83,12 +83,12 @@ export default function MoverAnimalesModal({
           <div className="space-y-2">
             <Label>Destino</Label>
 
-            <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {fincaMap.get(loteSrc.fincaId) ?? 'Esta finca'}
             </p>
 
             {lotesMismaFinca.length === 0 ? (
-              <p className="text-sm text-[hsl(var(--muted-foreground))]">No hay otros lotes en esta finca</p>
+              <p className="text-sm text-muted-foreground">No hay otros lotes en esta finca</p>
             ) : (
               <div className="space-y-1">
                 {lotesMismaFinca.map((l) => (
@@ -96,8 +96,8 @@ export default function MoverAnimalesModal({
                     key={l.id}
                     className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                       loteDstId === l.id
-                        ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.08)]'
-                        : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                        ? 'border-primary bg-[hsl(var(--primary)/.08)]'
+                        : 'border-border hover:bg-muted'
                     }`}
                   >
                     <input
@@ -106,10 +106,10 @@ export default function MoverAnimalesModal({
                       value={l.id}
                       checked={loteDstId === l.id}
                       onChange={() => setLoteDstId(l.id)}
-                      className="accent-[hsl(var(--primary))]"
+                      className="accent-primary"
                     />
                     <span className="flex-1 text-sm font-medium">{l.nombreLote}</span>
-                    <span className="text-xs text-[hsl(var(--muted-foreground))]">{l.animalesActivos} activos</span>
+                    <span className="text-xs text-muted-foreground">{l.animalesActivos} activos</span>
                   </label>
                 ))}
               </div>
@@ -119,7 +119,7 @@ export default function MoverAnimalesModal({
               <>
                 <button
                   type="button"
-                  className="text-sm text-[hsl(var(--primary))] hover:underline flex items-center gap-1"
+                  className="text-sm text-primary hover:underline flex items-center gap-1"
                   onClick={() => setShowOtrasFincas((v) => !v)}
                 >
                   Otras fincas {showOtrasFincas ? '▲' : '▼'}
@@ -127,7 +127,7 @@ export default function MoverAnimalesModal({
 
                 {showOtrasFincas && [...lotesPorFinca.entries()].map(([fId, lts]) => (
                   <div key={fId} className="space-y-1">
-                    <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       {fincaMap.get(fId) ?? fId}
                     </p>
                     {lts.map((l) => (
@@ -135,8 +135,8 @@ export default function MoverAnimalesModal({
                         key={l.id}
                         className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                           loteDstId === l.id
-                            ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.08)]'
-                            : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                            ? 'border-primary bg-[hsl(var(--primary)/.08)]'
+                            : 'border-border hover:bg-muted'
                         }`}
                       >
                         <input
@@ -145,10 +145,10 @@ export default function MoverAnimalesModal({
                           value={l.id}
                           checked={loteDstId === l.id}
                           onChange={() => setLoteDstId(l.id)}
-                          className="accent-[hsl(var(--primary))]"
+                          className="accent-primary"
                         />
                         <span className="flex-1 text-sm font-medium">{l.nombreLote}</span>
-                        <span className="text-xs text-[hsl(var(--muted-foreground))]">{l.animalesActivos} activos</span>
+                        <span className="text-xs text-muted-foreground">{l.animalesActivos} activos</span>
                       </label>
                     ))}
                   </div>
@@ -161,7 +161,7 @@ export default function MoverAnimalesModal({
           <div className="space-y-1.5">
             <Label>Precio de traspaso</Label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-[hsl(var(--muted-foreground))]">₡</span>
+              <span className="text-sm text-muted-foreground">₡</span>
               <Input
                 type="number"
                 min={1}
@@ -172,16 +172,16 @@ export default function MoverAnimalesModal({
                 required
                 autoFocus={lotesMismaFinca.length === 0}
               />
-              <span className="text-sm text-[hsl(var(--muted-foreground))] whitespace-nowrap">/ kg</span>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">/ kg</span>
             </div>
             {precioKgNum > 0 && (
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              <p className="text-xs text-muted-foreground">
                 Total estimado: {formatColones(totalEstimado)} · {n} animal{n !== 1 ? 'es' : ''} · {formatKg(pesoTotal)} totales
               </p>
             )}
           </div>
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={saving}>

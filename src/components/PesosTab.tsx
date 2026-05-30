@@ -82,7 +82,7 @@ export default function PesosTab({ lote, animales, finca }: Props) {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="w-6 h-6 border-2 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function PesosTab({ lote, animales, finca }: Props) {
     return (
       <div className="text-center py-12">
         <div className="text-3xl mb-2">⚖️</div>
-        <p className="text-[hsl(var(--muted-foreground))] text-sm">No hay animales activos en este lote.</p>
+        <p className="text-muted-foreground text-sm">No hay animales activos en este lote.</p>
       </div>
     );
   }
@@ -113,11 +113,11 @@ export default function PesosTab({ lote, animales, finca }: Props) {
         )}
 
         {/* ── Lote avg chart ── */}
-        <div className="rounded-lg border border-[hsl(var(--border))] p-3">
+        <div className="rounded-lg border border-border p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Promedio del lote</span>
             {avgData.length >= 2 && (
-              <span className="text-xs text-[hsl(var(--muted-foreground))]">
+              <span className="text-xs text-muted-foreground">
                 {avgData[avgData.length - 1].promedio > avgData[0].promedio ? '↑' : '↓'}
                 {' '}{formatKg(Math.abs(avgData[avgData.length - 1].promedio - avgData[0].promedio))} total
               </span>
@@ -127,15 +127,15 @@ export default function PesosTab({ lote, animales, finca }: Props) {
         </div>
 
         {/* ── Semáforo list ── */}
-        <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Estado de pesaje — {animalesActivos.length} animales activos
         </p>
         <div className="space-y-1">
           {animalesConSemaforo.map(({ animal, status, diasSinPesar, ultimoPeso }) => (
             <div
               key={animal.id}
-              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-[hsl(var(--muted))] ${
-                status === '🔴' ? 'border-red-200 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20' : 'border-[hsl(var(--border))]'
+              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted ${
+                status === '🔴' ? 'border-red-200 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20' : 'border-border'
               }`}
               onClick={() => setSelectedAnimal(animal)}
               role="button"
@@ -150,7 +150,7 @@ export default function PesosTab({ lote, animales, finca }: Props) {
                 <div className={`text-xs mt-0.5 ${
                   status === '🔴' ? 'text-red-600 dark:text-red-400' :
                   status === '🟡' ? 'text-amber-600 dark:text-amber-400' :
-                  'text-[hsl(var(--muted-foreground))]'
+                  'text-muted-foreground'
                 }`}>
                   {diasSinPesar === null
                     ? 'Sin pesajes'
@@ -162,7 +162,7 @@ export default function PesosTab({ lote, animales, finca }: Props) {
                 </div>
               </div>
               <span className="text-sm font-semibold">{formatKg(animal.pesoActual)}</span>
-              <span className="text-[hsl(var(--muted-foreground))]">›</span>
+              <span className="text-muted-foreground">›</span>
             </div>
           ))}
         </div>

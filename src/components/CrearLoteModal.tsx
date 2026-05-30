@@ -79,7 +79,7 @@ export default function CrearLoteModal({ fincaId, onClose, editData }: Props) {
           <div className="space-y-1.5">
             <Label>Tipo de propiedad</Label>
             <select
-              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground"
               value={tipo}
               onChange={(e) => setTipo(e.target.value as 'propio' | 'medias')}
             >
@@ -103,13 +103,13 @@ export default function CrearLoteModal({ fincaId, onClose, editData }: Props) {
                   step={5}
                   value={socioPorcentaje}
                   onChange={(e) => setSocioPorcentaje(Number(e.target.value))}
-                  className="w-full accent-[hsl(var(--primary))]"
+                  className="w-full accent-primary"
                 />
               </div>
             </>
           )}
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>

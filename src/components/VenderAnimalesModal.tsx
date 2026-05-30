@@ -76,11 +76,11 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
             <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="max-w-xs" />
           </div>
 
-          <p className="text-sm font-medium text-[hsl(var(--foreground))]">Seleccioná los animales a vender:</p>
+          <p className="text-sm font-medium text-foreground">Seleccioná los animales a vender:</p>
 
-          <div className="overflow-x-auto rounded-lg border border-[hsl(var(--border))]">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+              <thead className="bg-muted text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2 text-left"></th>
                   <th className="px-3 py-2 text-left">Arete</th>
@@ -100,7 +100,7 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
                           type="checkbox"
                           checked={sel}
                           onChange={() => toggleAnimal(animal.id)}
-                          className="accent-[hsl(var(--primary))] w-4 h-4 cursor-pointer"
+                          className="accent-primary w-4 h-4 cursor-pointer"
                         />
                       </td>
                       <td className="px-3 py-2"><strong>{animal.numeroArete}</strong></td>
@@ -134,25 +134,25 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
           </div>
 
           {preview && seleccionados.size > 0 && (
-            <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3">
+            <div className="rounded-lg border border-border bg-background p-3">
               <p className="text-sm font-medium mb-2">Resumen de la venta ({seleccionados.size} animales)</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <span className="text-[hsl(var(--muted-foreground))]">Inversión animales:</span>
+                <span className="text-muted-foreground">Inversión animales:</span>
                 <span>{formatColones(preview.totalInversion)}</span>
-                <span className="text-[hsl(var(--muted-foreground))]">Gastos proporcionales:</span>
+                <span className="text-muted-foreground">Gastos proporcionales:</span>
                 <span>{formatColones(preview.gastosProporcion)}</span>
-                <span className="text-[hsl(var(--muted-foreground))]">Total venta:</span>
+                <span className="text-muted-foreground">Total venta:</span>
                 <span>{formatColones(preview.totalVenta)}</span>
-                <span className="text-[hsl(var(--muted-foreground))]">Utilidad bruta:</span>
-                <span className={`font-semibold ${preview.utilidadBruta >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+                <span className="text-muted-foreground">Utilidad bruta:</span>
+                <span className={`font-semibold ${preview.utilidadBruta >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {formatColones(preview.utilidadBruta)}
                 </span>
                 {preview.utilidadSocio !== undefined && lote.socio && (
                   <>
-                    <span className="text-[hsl(var(--muted-foreground))]">Utilidad {lote.socio.nombre} ({lote.socio.porcentaje}%):</span>
-                    <span className="text-[hsl(var(--success))]">{formatColones(preview.utilidadSocio)}</span>
-                    <span className="text-[hsl(var(--muted-foreground))]">Tu utilidad ({100 - lote.socio.porcentaje}%):</span>
-                    <span className="text-[hsl(var(--success))]">{formatColones(preview.utilidadPropietario ?? 0)}</span>
+                    <span className="text-muted-foreground">Utilidad {lote.socio.nombre} ({lote.socio.porcentaje}%):</span>
+                    <span className="text-success">{formatColones(preview.utilidadSocio)}</span>
+                    <span className="text-muted-foreground">Tu utilidad ({100 - lote.socio.porcentaje}%):</span>
+                    <span className="text-success">{formatColones(preview.utilidadPropietario ?? 0)}</span>
                   </>
                 )}
               </div>
@@ -162,7 +162,7 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
           <div className="space-y-1.5">
             <Label>Notas</Label>
             <textarea
-              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] resize-none"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
               rows={2}
               placeholder="Observaciones de la venta..."
               value={notas}
@@ -170,7 +170,7 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
             />
           </div>
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>

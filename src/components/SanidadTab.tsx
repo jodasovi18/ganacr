@@ -49,8 +49,8 @@ export default function SanidadTab({
 }: Props) {
   if (loading) {
     return (
-      <div className="flex justify-center items-center gap-2 py-12 text-sm text-[hsl(var(--muted-foreground))]">
-        <div className="w-4 h-4 border-2 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
+      <div className="flex justify-center items-center gap-2 py-12 text-sm text-muted-foreground">
+        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         Cargando eventos sanitarios...
       </div>
     );
@@ -66,7 +66,7 @@ export default function SanidadTab({
         <div className="text-center py-12 space-y-3">
           <div className="text-3xl">🩺</div>
           <h3 className="font-semibold">Sin eventos sanitarios</h3>
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">Registrá vacunas, desparasitaciones y tratamientos del lote.</p>
+          <p className="text-sm text-muted-foreground">Registrá vacunas, desparasitaciones y tratamientos del lote.</p>
           <Button onClick={onNuevo}>+ Registrar primer evento</Button>
         </div>
       ) : (
@@ -74,7 +74,7 @@ export default function SanidadTab({
           {eventos.map((ev) => {
             const alerta = alertaProximaDosis(ev.proximaDosis);
             return (
-              <div key={ev.id} className="flex gap-3 rounded-lg border border-[hsl(var(--border))] p-3">
+              <div key={ev.id} className="flex gap-3 rounded-lg border border-border p-3">
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <strong className="text-sm truncate">{ev.nombreProducto}</strong>
@@ -102,7 +102,7 @@ export default function SanidadTab({
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                     <span>{formatFecha(ev.fecha)}</span>
                     {ev.quienAplico && <><span>·</span><span>{ev.quienAplico}</span></>}
                     {ev.dosis && <><span>·</span><span>{ev.dosis}</span></>}
@@ -116,7 +116,7 @@ export default function SanidadTab({
                     title="Eliminar"
                     onClick={() => onEliminar(ev)}
                     disabled={deletingId === ev.id}
-                    className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))]"
+                    className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

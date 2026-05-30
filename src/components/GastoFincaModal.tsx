@@ -161,9 +161,9 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-[hsl(var(--foreground))] mb-2">Aplicar a lotes</p>
+            <p className="text-sm font-medium text-foreground mb-2">Aplicar a lotes</p>
             {lotes.length === 0 ? (
-              <p className="text-sm text-[hsl(var(--muted-foreground))]">
+              <p className="text-sm text-muted-foreground">
                 Esta finca no tiene lotes. Creá un lote primero.
               </p>
             ) : (
@@ -179,9 +179,9 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
                       className={[
                         'flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer transition-colors',
                         checked && !disabled
-                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.05)]'
-                          : 'border-[hsl(var(--border))]',
-                        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[hsl(var(--muted))]',
+                          ? 'border-primary bg-[hsl(var(--primary)/0.05)]'
+                          : 'border-border',
+                        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted',
                       ].filter(Boolean).join(' ')}
                     >
                       <input
@@ -189,18 +189,18 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
                         checked={checked}
                         disabled={disabled}
                         onChange={() => { if (!disabled) toggleLote(lote.id); }}
-                        className="accent-[hsl(var(--primary))]"
+                        className="accent-primary"
                       />
                       <span className="flex-1 truncate">
                         {esMedias && '🤝 '}
                         {lote.nombreLote}
                         {esMedias && (
-                          <span className="text-[hsl(var(--muted-foreground))] text-xs ml-1">
+                          <span className="text-muted-foreground text-xs ml-1">
                             (a medias — seleccioná explícitamente)
                           </span>
                         )}
                       </span>
-                      <span className="text-[hsl(var(--muted-foreground))] text-xs shrink-0">
+                      <span className="text-muted-foreground text-xs shrink-0">
                         {disabled ? '0 act.' : `${lote.animalesActivos} act.`}
                       </span>
                       <span className="text-xs font-medium shrink-0 w-24 text-right">
@@ -214,14 +214,14 @@ export default function GastoFincaModal({ fincaId, lotes, onClose }: Props) {
           </div>
 
           {lotesEnDistribucion.length > 0 && monto > 0 && (
-            <div className="text-sm text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted))] rounded-md px-3 py-2">
-              Total: <strong className="text-[hsl(var(--foreground))]">{formatColones(monto)}</strong>
+            <div className="text-sm text-muted-foreground bg-muted rounded-md px-3 py-2">
+              Total: <strong className="text-foreground">{formatColones(monto)}</strong>
               {' · '}{lotesEnDistribucion.length} lote{lotesEnDistribucion.length !== 1 ? 's' : ''}
               {' · '}{totalActivos} animales activos
             </div>
           )}
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="outline" onClick={onClose}>

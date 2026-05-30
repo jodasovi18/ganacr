@@ -102,8 +102,8 @@ export default function EventoSanitarioModal({
                 type="button"
                 className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                   alcance === 'lote'
-                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                    : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                    ? 'border-primary bg-primary text-[hsl(var(--primary-foreground))]'
+                    : 'border-border hover:bg-muted'
                 }`}
                 onClick={() => { setAlcance('lote'); setAnimalId(''); setAnimalQuery(''); }}
               >
@@ -113,8 +113,8 @@ export default function EventoSanitarioModal({
                 type="button"
                 className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                   alcance === 'animal'
-                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                    : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                    ? 'border-primary bg-primary text-[hsl(var(--primary-foreground))]'
+                    : 'border-border hover:bg-muted'
                 }`}
                 onClick={() => setAlcance('animal')}
               >
@@ -133,12 +133,12 @@ export default function EventoSanitarioModal({
                 placeholder="Número de arete..."
               />
               {animalQuery && !animalSeleccionado && animalesFiltrados.length > 0 && (
-                <div className="rounded-lg border border-[hsl(var(--border))] overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden">
                   {animalesFiltrados.slice(0, 5).map((a) => (
                     <button
                       key={a.id}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[hsl(var(--muted))] transition-colors border-b border-[hsl(var(--border))] last:border-0"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b border-border last:border-0"
                       onClick={() => { setAnimalId(a.id); setAnimalQuery(a.numeroArete); }}
                     >
                       #{a.numeroArete} · {a.raza} · {formatKg(a.pesoActual)}
@@ -147,7 +147,7 @@ export default function EventoSanitarioModal({
                 </div>
               )}
               {animalQuery && !animalSeleccionado && animalesFiltrados.length === 0 && (
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">Animal no encontrado en este lote</p>
+                <p className="text-sm text-muted-foreground">Animal no encontrado en este lote</p>
               )}
               {animalSeleccionado && (
                 <div className="rounded-lg border border-[hsl(var(--success))] bg-[hsl(var(--success)/.08)] px-3 py-2 text-sm">
@@ -167,8 +167,8 @@ export default function EventoSanitarioModal({
                   type="button"
                   className={`rounded-lg border px-2 py-2 text-xs font-medium transition-colors ${
                     tipo === t.value
-                      ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                      : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                      ? 'border-primary bg-primary text-[hsl(var(--primary-foreground))]'
+                      : 'border-border hover:bg-muted'
                   }`}
                   onClick={() => setTipo(t.value)}
                 >
@@ -218,7 +218,7 @@ export default function EventoSanitarioModal({
             <Label>Próxima dosis</Label>
             <Input type="date" value={proximaDosis} min={fecha} onChange={(e) => setProximaDosis(e.target.value)} />
             {proximaDosisInvalida && (
-              <p className="text-sm text-[hsl(var(--destructive))]">La próxima dosis no puede ser anterior a la fecha del evento</p>
+              <p className="text-sm text-destructive">La próxima dosis no puede ser anterior a la fecha del evento</p>
             )}
           </div>
 
@@ -228,7 +228,7 @@ export default function EventoSanitarioModal({
             <Input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Observaciones..." />
           </div>
 
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>

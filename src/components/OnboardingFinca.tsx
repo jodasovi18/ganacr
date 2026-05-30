@@ -62,12 +62,12 @@ export default function OnboardingFinca() {
               disabled={saving}
             />
             {defaultNombre && (
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              <p className="text-xs text-muted-foreground">
                 Pre-llenado desde tu perfil — editalo si querés
               </p>
             )}
           </div>
-          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <Button
             type="submit"
             className="w-full"
