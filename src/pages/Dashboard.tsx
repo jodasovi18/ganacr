@@ -209,7 +209,7 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Invertido</p>
             </CardContent>
           </Card>
-          <Card className={totalUtilidad >= 0 ? 'bg-success-light border-[hsl(142_71%_45%/0.3)]' : ''}>
+          <Card className={totalUtilidad >= 0 ? 'bg-success-light border-success/30' : ''}>
             <CardContent className="pt-4 pb-3 text-center">
               <p className={`text-2xl font-extrabold ${totalUtilidad >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatColones(totalUtilidad)}

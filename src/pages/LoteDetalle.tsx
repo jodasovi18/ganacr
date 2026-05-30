@@ -236,10 +236,10 @@ export default function LoteDetalle() {
               { label: 'Gastos', value: formatColones(lote.totalGastos) },
               { label: 'Utilidad', value: formatColones(lote.utilidadTotal), color: lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive' },
             ].map((stat) => (
-              <Card key={stat.label} className="py-0">
-                <CardContent className="p-2 text-center">
-                  <div className={`font-bold text-sm leading-tight ${stat.color ?? ''}`}>{stat.value}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
+              <Card key={stat.label}>
+                <CardContent className="p-3 text-center">
+                  <div className={`font-extrabold text-base leading-tight ${stat.color ?? 'text-foreground'}`}>{stat.value}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 uppercase tracking-wide">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
