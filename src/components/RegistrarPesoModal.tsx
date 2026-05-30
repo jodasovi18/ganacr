@@ -2,6 +2,10 @@ import { useState, FormEvent } from 'react';
 import { useRegistrarPeso } from '@/hooks/usePesos';
 import { Animal } from '@/types';
 import { formatKg } from '@/utils/calculadora';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props { fincaId: string; animal: Animal; loteId: string; onClose: () => void; }
 
@@ -30,52 +34,57 @@ export default function RegistrarPesoModal({ fincaId, animal, loteId, onClose }:
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-header">
-          <h2>⚖️ Registrar Peso</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Registrar Peso</DialogTitle>
+        </DialogHeader>
+
+        <div className="rounded-lg border border-border bg-background p-3 text-sm space-y-1">
+          <p><span className="text-muted-foreground">Arete:</span> <strong>{animal.numeroArete}</strong> — {animal.raza}</p>
+          <p><span className="text-muted-foreground">Peso actual:</span> <strong>{formatKg(animal.pesoActual)}</strong></p>
+          <p><span className="text-muted-foreground">Peso inicial:</span> <strong>{formatKg(animal.pesoInicial)}</strong></p>
         </div>
 
-        <div className="card mb-2" style={{ background: 'var(--color-bg)' }}>
-          <p><strong>Arete:</strong> {animal.numeroArete} — {animal.raza}</p>
-          <p><strong>Peso actual:</strong> {formatKg(animal.pesoActual)}</p>
-          <p><strong>Peso inicial:</strong> {formatKg(animal.pesoInicial)}</p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Nuevo peso (kg) *</label>
-              <input className="form-input" type="number" min="1" step="0.5" placeholder="Ej: 350" value={peso} onChange={(e) => setPeso(e.target.value)} required autoFocus />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Nuevo peso (kg) *</Label>
+              <Input type="number" min="1" step="0.5" placeholder="Ej: 350" value={peso} onChange={(e) => setPeso(e.target.value)} required autoFocus />
             </div>
-            <div className="form-group">
-              <label className="form-label">Fecha</label>
-              <input className="form-input" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            <div className="space-y-1.5">
+              <Label>Fecha</Label>
+              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
             </div>
           </div>
 
           {gananciaPreview !== null && (
-            <div className={`card mb-2 ${gananciaPreview >= 0 ? 'text-success' : 'text-danger'}`}>
+            <div className={`rounded-lg border p-3 text-sm font-medium ${gananciaPreview >= 0 ? 'border-[hsl(var(--success))] text-success' : 'border-[hsl(var(--destructive))] text-destructive'}`}>
               Cambio: {gananciaPreview >= 0 ? '+' : ''}{formatKg(gananciaPreview)} respecto al peso actual
             </div>
           )}
 
-          <div className="form-group">
-            <label className="form-label">Notas</label>
-            <textarea className="form-textarea" rows={2} placeholder="Observaciones del pesaje..." value={notas} onChange={(e) => setNotas(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label>Notas</Label>
+            <textarea
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
+              rows={2}
+              placeholder="Observaciones del pesaje..."
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+            />
           </div>
 
-          {error && <div className="form-error mb-2">{error}</div>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="flex gap-1 mt-2">
-            <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? 'Guardando...' : 'Registrar Peso'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

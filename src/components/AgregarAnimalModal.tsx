@@ -1,6 +1,10 @@
 import { useState, FormEvent } from 'react';
 import { useAgregarAnimal, useEditarAnimal } from '@/hooks/useAnimales';
 import { Animal } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   fincaId: string;
@@ -66,34 +70,38 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-header">
-          <h2>{isEdit ? '✏️ Editar Animal' : '🐄 Agregar Animal'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Número de arete *</label>
-              <input
-                className="form-input"
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Editar Animal' : 'Agregar Animal'}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Número de arete *</Label>
+              <Input
                 placeholder="Ej: CR-001234"
                 value={numeroArete}
                 onChange={(e) => setNumeroArete(e.target.value)}
                 required
                 disabled={isEdit}
-                style={isEdit ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
+                className={isEdit ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">N° subasta</label>
-              <input className="form-input" placeholder="Ej: 45" value={numeroSubasta} onChange={(e) => setNumeroSubasta(e.target.value)} />
+            <div className="space-y-1.5">
+              <Label>N° subasta</Label>
+              <Input placeholder="Ej: 45" value={numeroSubasta} onChange={(e) => setNumeroSubasta(e.target.value)} />
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Raza *</label>
-            <select className="form-select" value={raza} onChange={(e) => setRaza(e.target.value)} required>
+
+          <div className="space-y-1.5">
+            <Label>Raza *</Label>
+            <select
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground"
+              value={raza}
+              onChange={(e) => setRaza(e.target.value)}
+              required
+            >
               <option value="">Seleccionar raza...</option>
               <option>Brahman</option>
               <option>Holstein</option>
@@ -108,33 +116,44 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
               <option>Otra</option>
             </select>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Peso inicial (kg) *</label>
-              <input className="form-input" type="number" min="1" step="0.5" placeholder="Ej: 320" value={pesoInicial} onChange={(e) => setPesoInicial(e.target.value)} required />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Peso inicial (kg) *</Label>
+              <Input type="number" min="1" step="0.5" placeholder="Ej: 320" value={pesoInicial} onChange={(e) => setPesoInicial(e.target.value)} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Precio de compra (₡) *</label>
-              <input className="form-input" type="number" min="1" step="any" placeholder="Ej: 450000" value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} required />
+            <div className="space-y-1.5">
+              <Label>Precio de compra (₡) *</Label>
+              <Input type="number" min="1" step="any" placeholder="Ej: 450000" value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} required />
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Fecha de ingreso</label>
-            <input className="form-input" type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} />
+
+          <div className="space-y-1.5">
+            <Label>Fecha de ingreso</Label>
+            <Input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} />
           </div>
-          <div className="form-group">
-            <label className="form-label">Notas</label>
-            <textarea className="form-textarea" rows={2} placeholder="Observaciones del animal..." value={notas} onChange={(e) => setNotas(e.target.value)} />
+
+          <div className="space-y-1.5">
+            <Label>Notas</Label>
+            <textarea
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
+              rows={2}
+              placeholder="Observaciones del animal..."
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+            />
           </div>
-          {error && <div className="form-error mb-2">{error}</div>}
-          <div className="flex gap-1 mt-2">
-            <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Agregar Animal'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

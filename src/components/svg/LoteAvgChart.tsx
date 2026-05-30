@@ -84,9 +84,8 @@ export default function LoteAvgChart({ data }: Props) {
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      className="lote-avg-chart"
+      className="w-full block"
       aria-label="Evolución del promedio del lote"
-      style={{ width: '100%', display: 'block' }}
     >
       <defs>
         <linearGradient id="loteAvgGrad" x1="0" y1="0" x2="0" y2="1">

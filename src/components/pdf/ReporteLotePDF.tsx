@@ -1,17 +1,7 @@
-import { Document, Font, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { Animal, Gasto, Lote, Venta } from '@/types';
 
-Font.register({
-  family: 'Roboto',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf' },
-    {
-      src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf',
-      fontWeight: 700,
-    },
-  ],
-});
-
+// ─── Tema ────────────────────────────────────────────────────────────────────
 const C = {
   primary:     '#1b4332',
   primaryMid:  '#2d6a4f',
@@ -25,37 +15,45 @@ const C = {
 };
 
 const s = StyleSheet.create({
-  page:             { fontFamily: 'Roboto', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
+  page:             { fontFamily: 'Helvetica', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
+  // Header
   header:           { backgroundColor: C.primary, padding: 14, marginBottom: 16, borderRadius: 4 },
-  headerBrand:      { fontSize: 15, color: C.white, fontWeight: 'bold', marginBottom: 3 },
+  headerBrand:      { fontSize: 15, color: C.white, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
   headerFinca:      { fontSize: 9, color: C.accent, marginBottom: 1 },
-  headerLote:       { fontSize: 11, color: C.white, fontWeight: 'bold', marginBottom: 1 },
+  headerLote:       { fontSize: 11, color: C.white, fontFamily: 'Helvetica-Bold', marginBottom: 1 },
   headerFecha:      { fontSize: 8, color: '#a7d4bc' },
+  // Sección
   section:          { marginBottom: 14 },
   sectionBar:       { backgroundColor: C.primaryMid, paddingHorizontal: 8, paddingVertical: 5, marginBottom: 0 },
-  sectionTitle:     { fontSize: 9, color: C.white, fontWeight: 'bold' },
-  infoBlock:        { padding: '8 0', borderBottomWidth: 0.5, borderBottomColor: C.border, marginBottom: 8 },
+  sectionTitle:     { fontSize: 9, color: C.white, fontFamily: 'Helvetica-Bold' },
+  // Info
+  infoBlock:        { paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: C.border, marginBottom: 8 },
   infoRow:          { flexDirection: 'row', marginBottom: 3 },
-  infoLabel:        { width: 110, fontSize: 8, fontWeight: 'bold', color: C.muted },
+  infoLabel:        { width: 110, fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.muted },
   infoValue:        { flex: 1, fontSize: 8, color: C.text },
+  // Resumen financiero
   summaryRow:       { flexDirection: 'row', marginTop: 6, marginBottom: 2 },
   summaryCard:      { flex: 1, marginRight: 5, backgroundColor: C.primaryLight, borderWidth: 0.5, borderColor: C.border, borderRadius: 3, padding: 7 },
   summaryCardLast:  { flex: 1, marginRight: 0, backgroundColor: C.primaryLight, borderWidth: 0.5, borderColor: C.border, borderRadius: 3, padding: 7 },
   summaryCardHl:    { flex: 1, marginRight: 0, backgroundColor: C.primary, borderRadius: 3, padding: 7 },
   summaryLabel:     { fontSize: 7, color: C.muted, marginBottom: 3 },
   summaryLabelHl:   { fontSize: 7, color: '#a7d4bc', marginBottom: 3 },
-  summaryValue:     { fontSize: 10, fontWeight: 'bold', color: C.primary },
-  summaryValueHl:   { fontSize: 10, fontWeight: 'bold', color: C.white },
+  summaryValue:     { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.primary },
+  summaryValueHl:   { fontSize: 10, fontFamily: 'Helvetica-Bold', color: C.white },
+  // Tabla
   tableHeader:      { flexDirection: 'row', backgroundColor: C.primaryMid, paddingVertical: 5, paddingHorizontal: 4 },
   tableRow:         { flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 4, borderBottomWidth: 0.3, borderBottomColor: C.border },
   tableRowAlt:      { backgroundColor: C.altRow },
-  cellH:            { fontSize: 7, color: C.white, fontWeight: 'bold' },
+  cellH:            { fontSize: 7, color: C.white, fontFamily: 'Helvetica-Bold' },
   cell:             { fontSize: 7, color: C.text },
   emptyRow:         { paddingVertical: 6, paddingHorizontal: 4 },
   emptyText:        { fontSize: 8, color: C.muted, fontStyle: 'italic' },
+  // Footer
   footer:           { position: 'absolute', bottom: 18, left: 30, right: 30, flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 0.5, borderTopColor: C.border, paddingTop: 5 },
   footerText:       { fontSize: 7, color: C.muted },
 });
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmtDate(iso?: string | null): string {
   if (!iso || typeof iso !== 'string') return '—';
@@ -65,11 +63,13 @@ function fmtDate(iso?: string | null): string {
 }
 
 function fmtCRC(n: number): string {
-  return '₡' + Math.round(n).toLocaleString('es-CR');
+  const safe = Number.isFinite(n) ? n : 0;
+  return '₡' + Math.round(safe).toLocaleString('es-CR');
 }
 
 function fmtKg(n: number): string {
-  return n.toFixed(1) + ' kg';
+  const safe = Number.isFinite(n) ? n : 0;
+  return safe.toFixed(1) + ' kg';
 }
 
 const TIPO_LABEL: Record<string, string> = {
@@ -80,16 +80,22 @@ const TIPO_LABEL: Record<string, string> = {
   otro:        'Otro',
 };
 
+// ─── Props ───────────────────────────────────────────────────────────────────
+
 export interface ReporteLotePDFProps {
   lote: Lote;
   animales: Animal[];
   ventas: Venta[];
   gastos: Gasto[];
   nombreFinca: string;
-  fechaGenerado: string;
+  fechaGenerado: string; // ISO date
 }
 
-export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreFinca, fechaGenerado }: ReporteLotePDFProps) {
+// ─── Componente ──────────────────────────────────────────────────────────────
+
+export default function ReporteLotePDF({
+  lote, animales, ventas, gastos, nombreFinca, fechaGenerado,
+}: ReporteLotePDFProps) {
   const esMedias = lote.tipoPropiedad === 'medias';
   const activos  = animales.filter(a => a.estado === 'activo');
   const gastosOrdenados = [...gastos].sort((a, b) => b.fecha.localeCompare(a.fecha));
@@ -98,6 +104,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
     <Document title={`GanaCR - ${lote.nombreLote}`} author="GanaCR">
       <Page size="A4" style={s.page}>
 
+        {/* Header */}
         <View style={s.header}>
           <Text style={s.headerBrand}>GanaCR</Text>
           <Text style={s.headerFinca}>{nombreFinca}</Text>
@@ -105,6 +112,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           <Text style={s.headerFecha}>Generado el {fmtDate(fechaGenerado)}</Text>
         </View>
 
+        {/* Info del lote */}
         <View style={s.infoBlock}>
           <View style={s.infoRow}>
             <Text style={s.infoLabel}>Fecha de compra:</Text>
@@ -124,6 +132,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           </View>
         </View>
 
+        {/* Resumen financiero */}
         <View style={s.section}>
           <View style={s.sectionBar}><Text style={s.sectionTitle}>RESUMEN FINANCIERO</Text></View>
           <View style={s.summaryRow}>
@@ -152,6 +161,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           </View>
         </View>
 
+        {/* Inventario actual */}
         <View style={s.section}>
           <View style={s.sectionBar}><Text style={s.sectionTitle}>INVENTARIO ACTUAL ({activos.length} animales activos)</Text></View>
           <View style={s.tableHeader}>
@@ -174,6 +184,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           ))}
         </View>
 
+        {/* Ventas */}
         <View style={s.section}>
           <View style={s.sectionBar}><Text style={s.sectionTitle}>HISTORIAL DE VENTAS ({ventas.length})</Text></View>
           <View style={s.tableHeader}>
@@ -196,6 +207,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           ))}
         </View>
 
+        {/* Gastos detallados */}
         <View style={s.section}>
           <View style={s.sectionBar}><Text style={s.sectionTitle}>GASTOS DETALLADOS ({gastosOrdenados.length})</Text></View>
           <View style={s.tableHeader}>
@@ -216,9 +228,10 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
           ))}
         </View>
 
+        {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>GanaCR — Sistema de Gestión Ganadera</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `Página ${pageNumber} / ${totalPages}`} />
+          <Text style={s.footerText}>GanaCR — Sistema de Gestion Ganadera</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `Pagina ${pageNumber} / ${totalPages}`} />
         </View>
 
       </Page>

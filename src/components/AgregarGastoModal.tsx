@@ -1,6 +1,10 @@
 import { useState, FormEvent } from 'react';
 import { useAgregarGasto, useActualizarGasto } from '@/hooks/useGastos';
 import { TipoGasto, Gasto } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   fincaId: string;
@@ -52,56 +56,65 @@ export default function AgregarGastoModal({ fincaId, loteId, onClose, editData }
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-header">
-          <h2>{isEdit ? '✏️ Editar Gasto' : '💸 Registrar Gasto'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Tipo de gasto</label>
-            <select className="form-select" value={tipo} onChange={(e) => setTipo(e.target.value as TipoGasto)}>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Editar Gasto' : 'Registrar Gasto'}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Tipo de gasto</Label>
+            <select
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground"
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value as TipoGasto)}
+            >
               {TIPOS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Concepto *</label>
-            <input className="form-input" placeholder="Ej: Sales minerales, Ivermectina, etc." value={concepto} onChange={(e) => setConcepto(e.target.value)} required />
+          <div className="space-y-1.5">
+            <Label>Concepto *</Label>
+            <Input placeholder="Ej: Sales minerales, Ivermectina, etc." value={concepto} onChange={(e) => setConcepto(e.target.value)} required />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Monto (₡) *</label>
-              <input className="form-input" type="number" min="1" step="any" placeholder="Ej: 25000" value={monto} onChange={(e) => setMonto(e.target.value)} required />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Monto (₡) *</Label>
+              <Input type="number" min="1" step="any" placeholder="Ej: 25000" value={monto} onChange={(e) => setMonto(e.target.value)} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Fecha</label>
-              <input className="form-input" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            <div className="space-y-1.5">
+              <Label>Fecha</Label>
+              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Quién pagó (si es a medias)</label>
-            <input className="form-input" placeholder="Ej: Juan, Yo, Ambos..." value={quienPago} onChange={(e) => setQuienPago(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label>Quién pagó (si es a medias)</Label>
+            <Input placeholder="Ej: Juan, Yo, Ambos..." value={quienPago} onChange={(e) => setQuienPago(e.target.value)} />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Notas</label>
-            <textarea className="form-textarea" rows={2} placeholder="Detalle adicional..." value={notas} onChange={(e) => setNotas(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label>Notas</Label>
+            <textarea
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground resize-none"
+              rows={2}
+              placeholder="Detalle adicional..."
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+            />
           </div>
 
-          {error && <div className="form-error mb-2">{error}</div>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="flex gap-1 mt-2">
-            <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar Gasto'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

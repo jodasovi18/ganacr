@@ -4,7 +4,6 @@ import { formatKg, formatFecha } from '@/utils/calculadora';
 import { usePesosLote } from '@/hooks/usePesosLote';
 import LoteAvgChart, { calcularLoteAvgData } from '@/components/svg/LoteAvgChart';
 import AnimalPesoModal from '@/components/AnimalPesoModal';
-import './PesosTab.css';
 
 const DEFAULT_UMBRAL_AMARILLO = 15;
 const DEFAULT_UMBRAL_ROJO = 30;
@@ -46,17 +45,14 @@ export default function PesosTab({ lote, animales, finca }: Props) {
   const umbralAmarillo = finca.pesoUmbralAmarillo ?? DEFAULT_UMBRAL_AMARILLO;
   const umbralRojo = finca.pesoUmbralRojo ?? DEFAULT_UMBRAL_ROJO;
 
-  // ── Latest peso per animal ─────────────────────────────────────────────────
   const ultimoPorAnimal = useMemo(() => {
     const map = new Map<string, Peso>();
-    // pesos come desc → first one per animalId is the latest
     for (const p of pesos) {
       if (!map.has(p.animalId)) map.set(p.animalId, p);
     }
     return map;
   }, [pesos]);
 
-  // ── Semáforo list ──────────────────────────────────────────────────────────
   const animalesConSemaforo: AnimalConSemaforo[] = useMemo(() => {
     const hoy = Date.now();
     return animales
@@ -94,60 +90,54 @@ export default function PesosTab({ lote, animales, finca }: Props) {
 
   const avgData = useMemo(() => calcularLoteAvgData(pesosConBaseline), [pesosConBaseline]);
 
-  // ── Computed lote average (for passing to AnimalPesoModal) ────────────────
-  // Derived from animal.pesoActual counters (same source as lote.pesoPromedio),
-  // not from the pesos collection snapshot. This is intentional: the counter is
-  // always in sync with the latest registered weight and avoids an extra query.
   const pesoPromedioLote = useMemo(() => {
     const activos = animales.filter((a) => a.estado === 'activo');
     if (activos.length === 0) return 0;
     return activos.reduce((s, a) => s + a.pesoActual, 0) / activos.length;
   }, [animales]);
 
-  // ── Alert counts ───────────────────────────────────────────────────────────
   const countRojo = animalesConSemaforo.filter((a) => a.status === '🔴').length;
-  // animalesConSemaforo already filters activos — reuse its length for the label
   const animalesActivos = animalesConSemaforo;
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner" />
+      <div className="flex justify-center items-center py-12">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (animalesActivos.length === 0) {
     return (
-      <div className="pesos-empty">
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚖️</div>
-        <p>No hay animales activos en este lote.</p>
+      <div className="text-center py-12">
+        <div className="text-3xl mb-2">⚖️</div>
+        <p className="text-muted-foreground text-sm">No hay animales activos en este lote.</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="tab-content page-content">
+      <div className="space-y-4 py-4">
         {/* ── Alert banner ── */}
         {countRojo > 0 && (
-          <div className="pesos-alert-banner">
-            <span className="pesos-alert-icon">🔴</span>
+          <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30 p-3">
+            <span className="text-lg">🔴</span>
             <div>
-              <div className="pesos-alert-text">
+              <div className="text-sm font-medium text-red-800 dark:text-red-300">
                 {countRojo} animal{countRojo !== 1 ? 'es' : ''} sin pesar en más de {umbralRojo} días
               </div>
-              <div className="pesos-alert-sub">Tocá el animal para registrar un pesaje</div>
+              <div className="text-xs text-red-600 dark:text-red-400 mt-0.5">Tocá el animal para registrar un pesaje</div>
             </div>
           </div>
         )}
 
         {/* ── Lote avg chart ── */}
-        <div className="pesos-avg-card">
-          <div className="pesos-avg-header">
-            <span className="pesos-avg-title">Promedio del lote</span>
+        <div className="rounded-lg border border-border p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Promedio del lote</span>
             {avgData.length >= 2 && (
-              <span className="pesos-avg-badge">
+              <span className="text-xs text-muted-foreground">
                 {avgData[avgData.length - 1].promedio > avgData[0].promedio ? '↑' : '↓'}
                 {' '}{formatKg(Math.abs(avgData[avgData.length - 1].promedio - avgData[0].promedio))} total
               </span>
@@ -157,25 +147,31 @@ export default function PesosTab({ lote, animales, finca }: Props) {
         </div>
 
         {/* ── Semáforo list ── */}
-        <p className="pesos-section-label">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Estado de pesaje — {animalesActivos.length} animales activos
         </p>
-        <div className="pesos-animal-list">
+        <div className="space-y-1">
           {animalesConSemaforo.map(({ animal, status, diasSinPesar, ultimoPeso }) => (
             <div
               key={animal.id}
-              className={`pesos-animal-row${status === '🔴' ? ' row-red' : ''}`}
+              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted ${
+                status === '🔴' ? 'border-red-200 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20' : 'border-border'
+              }`}
               onClick={() => setSelectedAnimal(animal)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && setSelectedAnimal(animal)}
             >
-              <span className="pesos-semaforo">{status}</span>
-              <div className="pesos-animal-info">
-                <div className="pesos-animal-nombre">
+              <span className="text-lg">{status}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">
                   {animal.numeroArete} — {animal.raza}
                 </div>
-                <div className={`pesos-animal-dias${status === '🔴' ? ' dias-red' : status === '🟡' ? ' dias-yellow' : ''}`}>
+                <div className={`text-xs mt-0.5 ${
+                  status === '🔴' ? 'text-red-600 dark:text-red-400' :
+                  status === '🟡' ? 'text-amber-600 dark:text-amber-400' :
+                  'text-muted-foreground'
+                }`}>
                   {diasSinPesar === null
                     ? 'Sin pesajes'
                     : diasSinPesar === 0
@@ -185,8 +181,8 @@ export default function PesosTab({ lote, animales, finca }: Props) {
                   {ultimoPeso && ` · ${formatFecha(ultimoPeso.fecha)}`}
                 </div>
               </div>
-              <span className="pesos-animal-peso">{formatKg(animal.pesoActual)}</span>
-              <span className="pesos-animal-arrow">›</span>
+              <span className="text-sm font-semibold">{formatKg(animal.pesoActual)}</span>
+              <span className="text-muted-foreground">›</span>
             </div>
           ))}
         </div>
