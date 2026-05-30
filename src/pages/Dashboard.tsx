@@ -191,32 +191,26 @@ export default function Dashboard() {
       <main className="max-w-5xl mx-auto px-4 py-6 pb-16">
         {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <Card>
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-foreground">{lotes.length}</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Lotes</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-foreground">{totalAnimales}</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Animales</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-extrabold text-foreground">{formatColones(totalInvertido)}</p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Invertido</p>
-            </CardContent>
-          </Card>
-          <Card className={totalUtilidad >= 0 ? 'bg-success-light border-[hsl(142_71%_45%/0.3)]' : ''}>
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className={`text-2xl font-extrabold ${totalUtilidad >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {formatColones(totalUtilidad)}
-              </p>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mt-0.5">Utilidad</p>
-            </CardContent>
-          </Card>
+          {[
+            { label: 'Lotes', value: String(lotes.length), color: '' },
+            { label: 'Animales', value: String(totalAnimales), color: '' },
+            { label: 'Invertido', value: formatColones(totalInvertido), color: '' },
+            {
+              label: 'Utilidad',
+              value: formatColones(totalUtilidad),
+              color: totalUtilidad >= 0 ? 'text-success' : 'text-destructive',
+              cardClass: totalUtilidad >= 0 ? 'bg-success-light border-success/30' : '',
+            },
+          ].map((stat) => (
+            <Card key={stat.label} className={stat.cardClass ?? ''}>
+              <CardContent className="p-4 flex flex-col items-center justify-center min-h-[72px] gap-1">
+                <p className={`text-xl sm:text-2xl font-extrabold leading-none text-center break-words w-full ${stat.color || 'text-foreground'}`}>
+                  {stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide text-center">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {exportError && <p className="text-sm text-destructive mb-3">{exportError}</p>}
