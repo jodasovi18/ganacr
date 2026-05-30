@@ -20,6 +20,7 @@ import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEve
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -281,9 +282,9 @@ export default function LoteDetalle() {
                       {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
                     </Button>
                   )}
-                  <input
+                  <Input
                     type="search"
-                    className="flex-1 border border-[hsl(var(--border))] rounded-md px-3 py-1.5 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
+                    className="flex-1"
                     placeholder="Buscar por arete…"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
