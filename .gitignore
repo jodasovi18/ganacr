@@ -37,3 +37,4 @@ scripts/service-account.json
 tests/qa/screenshots/
 tests/responsive/screenshots/
 playwright-report/
+.superpowers/
