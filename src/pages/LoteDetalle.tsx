@@ -19,7 +19,12 @@ import { exportarLotesExcel } from '@/utils/exportExcel';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
-import './LoteDetalle.css';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Plus, MoreVertical, FileSpreadsheet, Trash2, Pencil, Scale } from 'lucide-react';
 
 type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad';
 
@@ -75,8 +80,20 @@ export default function LoteDetalle() {
     [animales]
   );
 
-  if (loading) return <div className="loading-container"><div className="loading-spinner" /></div>;
-  if (!lote) return <div className="container page-content"><p>Lote no encontrado.</p></div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!lote) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <p className="text-[hsl(var(--muted-foreground))]">Lote no encontrado.</p>
+      </div>
+    );
+  }
 
   const animalesActivos = animales.filter((a) => a.estado === 'activo');
   const animalesFiltrados = animales.filter((a) =>
@@ -161,93 +178,112 @@ export default function LoteDetalle() {
   }
 
   return (
-    <div className={`lote-detalle-page${modoSeleccion && seleccionados.size > 0 ? ' has-select-bar' : ''}`}>
-      {/* Header */}
-      <header className="detalle-header">
-        <div className="container">
-          <button className="btn btn-ghost btn-sm mb-2" onClick={() => navigate('/')}>
-            ← Volver
-          </button>
-          <div className="flex-between flex-wrap gap-2">
+    <div className="min-h-screen bg-[hsl(var(--background))]">
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-10 bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <div className="max-w-5xl mx-auto px-4 py-3">
+          <Button variant="ghost" size="sm" className="mb-2 -ml-2" onClick={() => navigate('/')}>
+            <ArrowLeft className="w-4 h-4 mr-1" /> Volver
+          </Button>
+
+          <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <h1 className="detalle-titulo">{lote.nombreLote}</h1>
+              <h1 className="text-xl font-bold text-[hsl(var(--foreground))]">{lote.nombreLote}</h1>
               {lote.tipoPropiedad === 'medias' && lote.socio && (
-                <p className="detalle-socio">🤝 A medias con <strong>{lote.socio.nombre}</strong> ({lote.socio.porcentaje}% / {100 - lote.socio.porcentaje}%)</p>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">
+                  🤝 A medias con <strong>{lote.socio.nombre}</strong> ({lote.socio.porcentaje}% / {100 - lote.socio.porcentaje}%)
+                </p>
               )}
-              <p className="text-muted" style={{ fontSize: '0.82rem' }}>Compra: {formatFecha(lote.fechaCompra)}</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Compra: {formatFecha(lote.fechaCompra)}</p>
             </div>
-            <div className="detalle-acciones">
-              <button className="btn btn-primary btn-sm" onClick={() => setShowAnimal(true)}>+ Animal</button>
-              <button className="btn btn-secondary btn-sm" onClick={() => setShowGasto(true)}>+ Gasto</button>
-              {animalesActivos.length > 0 && (
-                <button className="btn btn-secondary btn-sm" onClick={() => setShowVenta(true)}>💰 Vender</button>
-              )}
-              {animales.length > 0 && (
-                <button className="btn btn-secondary btn-sm" onClick={handleExportarExcel}>
-                  📊 Excel
-                </button>
-              )}
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button size="sm" onClick={() => setShowAnimal(true)}>
+                <Plus className="w-4 h-4 mr-1" /> Animal
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowGasto(true)}>
+                <Plus className="w-4 h-4 mr-1" /> Gasto
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {animalesActivos.length > 0 && (
+                    <DropdownMenuItem onClick={() => setShowVenta(true)}>
+                      💰 Vender animales
+                    </DropdownMenuItem>
+                  )}
+                  {animales.length > 0 && (
+                    <DropdownMenuItem onClick={handleExportarExcel}>
+                      <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar Excel
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
-          <div className="stats-grid mt-2">
-            <div className="stat-card"><div className="stat-value">{lote.animalesActivos}</div><div className="stat-label">Activos</div></div>
-            <div className="stat-card"><div className="stat-value">{lote.animalesVendidos}</div><div className="stat-label">Vendidos</div></div>
-            <div className="stat-card"><div className="stat-value">{formatColones(lote.totalInvertido)}</div><div className="stat-label">Invertido</div></div>
-            <div className="stat-card"><div className="stat-value">{formatColones(lote.totalGastos)}</div><div className="stat-label">Gastos</div></div>
-            <div className="stat-card">
-              <div className={`stat-value ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-danger'}`}>
-                {formatColones(lote.utilidadTotal)}
-              </div>
-              <div className="stat-label">Utilidad</div>
-            </div>
+          {/* Stat cards */}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3">
+            {[
+              { label: 'Activos', value: String(lote.animalesActivos) },
+              { label: 'Vendidos', value: String(lote.animalesVendidos) },
+              { label: 'Invertido', value: formatColones(lote.totalInvertido) },
+              { label: 'Gastos', value: formatColones(lote.totalGastos) },
+              { label: 'Utilidad', value: formatColones(lote.utilidadTotal), color: lote.utilidadTotal >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]' },
+            ].map((stat) => (
+              <Card key={stat.label} className="py-0">
+                <CardContent className="p-2 text-center">
+                  <div className={`font-bold text-sm leading-tight ${stat.color ?? ''}`}>{stat.value}</div>
+                  <div className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{stat.label}</div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </header>
 
-      {/* Sticky Tabs */}
-      <div className="tabs-sticky">
-        <div className="container">
-          <div className="tabs mt-2">
-            {(['animales', 'gastos', 'ventas', 'pesos', 'sanidad'] as Tab[]).map((t) => (
-              <button key={t} className={`tab-btn ${tab === t ? 'active' : ''}`} onClick={() => { setTab(t); setFilterText(''); cancelarModo(); }}>
-                {t === 'animales' && `🐄 Animales (${animales.length})`}
-                {t === 'gastos' && `💸 Gastos (${gastos.length})`}
-                {t === 'ventas' && `💰 Ventas (${ventas.length})`}
-                {t === 'pesos' && `⚖️ Pesos`}
-                {t === 'sanidad' && `🩺 Sanidad (${eventos.length})`}
-              </button>
-            ))}
+      {/* ── Tabs ── */}
+      <div className="max-w-5xl mx-auto px-4">
+        <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab); setFilterText(''); cancelarModo(); }}>
+          <div className="sticky top-[var(--header-h,160px)] z-10 bg-[hsl(var(--background))] pt-3 pb-1">
+            <TabsList className="w-full overflow-x-auto justify-start h-auto flex-wrap gap-1">
+              <TabsTrigger value="animales" className="text-xs sm:text-sm">🐄 Animales ({animales.length})</TabsTrigger>
+              <TabsTrigger value="gastos" className="text-xs sm:text-sm">💸 Gastos ({gastos.length})</TabsTrigger>
+              <TabsTrigger value="ventas" className="text-xs sm:text-sm">💰 Ventas ({ventas.length})</TabsTrigger>
+              <TabsTrigger value="pesos" className="text-xs sm:text-sm">⚖️ Pesos</TabsTrigger>
+              <TabsTrigger value="sanidad" className="text-xs sm:text-sm">🩺 Sanidad ({eventos.length})</TabsTrigger>
+            </TabsList>
           </div>
-        </div>
-      </div>
 
-      <div className="container">
-        <div className="tab-content page-content">
           {/* ── Tab Animales ── */}
-          {tab === 'animales' && (
-            animales.length === 0 ? (
-              <div className="empty-state">
-                <div className="emoji">🐄</div>
-                <h3>Sin animales aún</h3>
-                <p>Agregá el primer animal a este lote</p>
-                <button className="btn btn-primary" onClick={() => setShowAnimal(true)}>+ Agregar animal</button>
+          <TabsContent value="animales">
+            {animales.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <div className="text-4xl">🐄</div>
+                <h3 className="font-semibold">Sin animales aún</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Agregá el primer animal a este lote</p>
+                <Button onClick={() => setShowAnimal(true)}><Plus className="w-4 h-4 mr-1" /> Agregar animal</Button>
               </div>
             ) : (
-              <>
-                {/* Arete search + selection toggle */}
-                <div className="arete-search-wrap">
+              <div className="space-y-3 py-3">
+                {/* Search + selection toggle */}
+                <div className="flex items-center gap-2">
                   {animalesActivos.length > 0 && (
-                    <button
-                      className="btn btn-ghost btn-sm mover-seleccionar-btn"
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => modoSeleccion ? cancelarModo() : setModoSeleccion(true)}
                     >
-                      {modoSeleccion ? 'Cancelar selección' : 'Seleccionar'}
-                    </button>
+                      {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
+                    </Button>
                   )}
                   <input
                     type="search"
-                    className="form-input arete-search"
+                    className="flex-1 border border-[hsl(var(--border))] rounded-md px-3 py-1.5 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]"
                     placeholder="Buscar por arete…"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
@@ -255,85 +291,92 @@ export default function LoteDetalle() {
                 </div>
 
                 {animalesFiltrados.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="emoji">🔍</div>
-                    <h3>Sin resultados</h3>
-                    <p>No hay animales con arete "{filterText}"</p>
+                  <div className="text-center py-12 space-y-1">
+                    <div className="text-3xl">🔍</div>
+                    <h3 className="font-semibold">Sin resultados</h3>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">No hay animales con arete "{filterText}"</p>
                   </div>
                 ) : (
                   <>
-                    {/* Desktop: tabla */}
-                    <div className="table-wrap animals-table-wrap">
-                      <table>
-                        <thead>
+                    {/* Desktop table */}
+                    <div className="hidden sm:block overflow-x-auto rounded-lg border border-[hsl(var(--border))]">
+                      <table className="w-full text-sm">
+                        <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
                           <tr>
-                            {modoSeleccion && <th style={{ width: '2rem' }}></th>}
-                            <th>Arete</th>
-                            <th>Raza</th>
-                            <th>Peso inicial</th>
-                            <th>Peso actual</th>
-                            <th>Ganancia</th>
-                            <th>Precio compra</th>
-                            <th>Estado</th>
-                            <th></th>
+                            {modoSeleccion && <th className="w-8 px-3 py-2"></th>}
+                            <th className="px-3 py-2 text-left">Arete</th>
+                            <th className="px-3 py-2 text-left">Raza</th>
+                            <th className="px-3 py-2 text-left">Peso ini.</th>
+                            <th className="px-3 py-2 text-left">Peso act.</th>
+                            <th className="px-3 py-2 text-left">Ganancia</th>
+                            <th className="px-3 py-2 text-left">Precio</th>
+                            <th className="px-3 py-2 text-left">Estado</th>
+                            <th className="px-3 py-2"></th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-[hsl(var(--border))]">
                           {animalesFiltrados.map((animal) => {
                             const ganancia = animal.pesoActual - animal.pesoInicial;
                             return (
-                              <tr key={animal.id}>
+                              <tr key={animal.id} className="hover:bg-[hsl(var(--muted)/.5)]">
                                 {modoSeleccion && (
-                                  <td>
+                                  <td className="px-3 py-2">
                                     {animal.estado === 'activo' && (
                                       <input
                                         type="checkbox"
                                         checked={seleccionados.has(animal.id)}
                                         onChange={() => toggleSeleccion(animal.id)}
-                                        style={{ cursor: 'pointer' }}
+                                        className="cursor-pointer accent-[hsl(var(--primary))]"
                                       />
                                     )}
                                   </td>
                                 )}
-                                <td><strong>{animal.numeroArete}</strong></td>
-                                <td>{animal.raza}</td>
-                                <td>{formatKg(animal.pesoInicial)}</td>
-                                <td>{formatKg(animal.pesoActual)}</td>
-                                <td className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
+                                <td className="px-3 py-2"><strong>{animal.numeroArete}</strong></td>
+                                <td className="px-3 py-2">{animal.raza}</td>
+                                <td className="px-3 py-2">{formatKg(animal.pesoInicial)}</td>
+                                <td className="px-3 py-2">{formatKg(animal.pesoActual)}</td>
+                                <td className={`px-3 py-2 ${ganancia >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
                                   {ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}
                                 </td>
-                                <td>{formatColones(animal.precioCompra)}</td>
-                                <td>
-                                  <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
+                                <td className="px-3 py-2">{formatColones(animal.precioCompra)}</td>
+                                <td className="px-3 py-2">
+                                  <Badge variant={animal.estado === 'activo' ? 'default' : 'secondary'} className="text-xs">
                                     {animal.estado}
-                                  </span>
+                                  </Badge>
                                 </td>
-                                <td>
-                                  <div className="flex gap-1">
-                                    {animal.estado === 'activo' && (
-                                      <>
+                                <td className="px-3 py-2">
+                                  {animal.estado === 'activo' && (
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                          <MoreVertical className="w-3.5 h-3.5" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
+                                          <Scale className="w-4 h-4 mr-2" /> Registrar peso
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => { setSanidadAnimalInicial(animal.id); setShowSanidad(true); }}>
+                                          🩺 Evento sanitario
+                                        </DropdownMenuItem>
                                         {!modoSeleccion && (
-                                          <button className="btn btn-ghost btn-sm" title="Mover a otro lote" onClick={() => abrirMoverModal([animal])}>
-                                            ↗
-                                          </button>
+                                          <DropdownMenuItem onClick={() => abrirMoverModal([animal])}>
+                                            ↗ Mover a otro lote
+                                          </DropdownMenuItem>
                                         )}
-                                        <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>
-                                          ⚖️
-                                        </button>
-                                        <button className="btn btn-ghost btn-sm" title="Editar animal" onClick={() => setEditAnimal(animal)}>
-                                          ✏️
-                                        </button>
-                                        <button
-                                          className="btn btn-ghost btn-sm"
-                                          title="Eliminar animal"
-                                          style={{ color: 'var(--color-danger, #dc3545)' }}
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => setEditAnimal(animal)}>
+                                          <Pencil className="w-4 h-4 mr-2" /> Editar
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          className="text-[hsl(var(--destructive))]"
                                           onClick={() => setDeleteAnimal(animal)}
                                         >
-                                          🗑️
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
+                                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  )}
                                 </td>
                               </tr>
                             );
@@ -342,186 +385,200 @@ export default function LoteDetalle() {
                       </table>
                     </div>
 
-                    {/* Mobile: cards */}
-                    <div className="animals-cards">
+                    {/* Mobile cards */}
+                    <div className="sm:hidden space-y-2">
                       {animalesFiltrados.map((animal) => {
                         const ganancia = animal.pesoActual - animal.pesoInicial;
                         return (
-                          <div
+                          <Card
                             key={animal.id}
-                            className={`animal-card${modoSeleccion && animal.estado === 'activo' ? ' animal-card--seleccionable' : ''}${seleccionados.has(animal.id) ? ' animal-card--seleccionado' : ''}`}
+                            className={`cursor-default ${modoSeleccion && animal.estado === 'activo' ? 'cursor-pointer' : ''} ${seleccionados.has(animal.id) ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.06)]' : ''}`}
                             onClick={modoSeleccion && animal.estado === 'activo' ? () => toggleSeleccion(animal.id) : undefined}
                           >
-                            <div className="animal-card-header">
-                              <span className="animal-card-arete">{animal.numeroArete}</span>
-                              <span className={`badge ${animal.estado === 'activo' ? 'badge-green' : animal.estado === 'vendido' ? 'badge-yellow' : 'badge-red'}`}>
-                                {animal.estado}
-                              </span>
-                            </div>
-                            <div className="animal-card-data">
-                              <span>Raza: <strong>{animal.raza}</strong></span>
-                              <span>Precio: <strong>{formatColones(animal.precioCompra)}</strong></span>
-                              <span>Peso ini: <strong>{formatKg(animal.pesoInicial)}</strong></span>
-                              <span>Peso act: <strong>{formatKg(animal.pesoActual)}</strong></span>
-                              <span className={ganancia >= 0 ? 'text-success' : 'text-danger'}>
-                                Ganancia: <strong>{ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}</strong>
-                              </span>
-                            </div>
-                            {animal.estado === 'activo' && (
-                              <div className="animal-card-actions">
-                                {!modoSeleccion && (
-                                  <button
-                                    className="btn btn-secondary btn-sm"
-                                    title="Mover a otro lote"
-                                    onClick={(e) => { e.stopPropagation(); abrirMoverModal([animal]); }}
-                                  >
-                                    ↗
-                                  </button>
-                                )}
-                                <button className="btn btn-ghost btn-sm" title="Agregar evento sanitario" onClick={(e) => { e.stopPropagation(); setSanidadAnimalInicial(animal.id); setShowSanidad(true); }}>🩺</button>
-                                <button className="btn btn-ghost btn-sm" title="Registrar peso" onClick={() => { setAnimalPeso(animal); setShowPeso(true); }}>⚖️</button>
-                                <button className="btn btn-ghost btn-sm" title="Editar" onClick={() => setEditAnimal(animal)}>✏️</button>
-                                <button
-                                  className="btn btn-ghost btn-sm"
-                                  title="Eliminar"
-                                  style={{ color: 'var(--color-danger, #dc3545)' }}
-                                  onClick={() => setDeleteAnimal(animal)}
-                                >🗑️</button>
+                            <CardContent className="p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-sm">{animal.numeroArete}</span>
+                                <Badge variant={animal.estado === 'activo' ? 'default' : 'secondary'} className="text-xs">
+                                  {animal.estado}
+                                </Badge>
                               </div>
-                            )}
-                            {/* Historial sanitario individual */}
-                            {(() => {
-                              const eventosAnimal = eventos.filter(e => e.animalId === animal.id);
-                              if (eventosAnimal.length === 0) return null;
-                              return (
-                                <div className="animal-card-sanidad">
-                                  <div className="animal-card-sanidad-title">🩺 Historial individual</div>
-                                  {eventosAnimal.slice(0, 3).map(e => (
-                                    <div key={e.id} className="animal-card-sanidad-item">
-                                      <span>{e.tipo === 'vacuna' ? '💉' : e.tipo === 'tratamiento' ? '💊' : e.tipo === 'desparasitante' ? '🔬' : e.tipo === 'vitamina' ? '🌿' : '➕'}</span>
-                                      <span className="animal-card-sanidad-nombre">{e.nombreProducto}</span>
-                                    </div>
-                                  ))}
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                                <span className="text-[hsl(var(--muted-foreground))]">Raza</span><span><strong>{animal.raza}</strong></span>
+                                <span className="text-[hsl(var(--muted-foreground))]">Precio</span><span>{formatColones(animal.precioCompra)}</span>
+                                <span className="text-[hsl(var(--muted-foreground))]">Peso ini.</span><span>{formatKg(animal.pesoInicial)}</span>
+                                <span className="text-[hsl(var(--muted-foreground))]">Peso act.</span><span>{formatKg(animal.pesoActual)}</span>
+                                <span className="text-[hsl(var(--muted-foreground))]">Ganancia</span>
+                                <span className={ganancia >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>
+                                  {ganancia >= 0 ? '+' : ''}{formatKg(ganancia)}
+                                </span>
+                              </div>
+                              {animal.estado === 'activo' && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {!modoSeleccion && (
+                                    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); abrirMoverModal([animal]); }}>
+                                      ↗ Mover
+                                    </Button>
+                                  )}
+                                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setSanidadAnimalInicial(animal.id); setShowSanidad(true); }}>🩺</Button>
+                                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setAnimalPeso(animal); setShowPeso(true); }}>⚖️</Button>
+                                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setEditAnimal(animal); }}><Pencil className="w-3 h-3" /></Button>
+                                  <Button variant="outline" size="sm" className="h-7 text-xs text-[hsl(var(--destructive))]" onClick={(e) => { e.stopPropagation(); setDeleteAnimal(animal); }}><Trash2 className="w-3 h-3" /></Button>
                                 </div>
-                              );
-                            })()}
-                          </div>
+                              )}
+                              {/* Historial sanitario individual */}
+                              {(() => {
+                                const eventosAnimal = eventos.filter(e => e.animalId === animal.id);
+                                if (eventosAnimal.length === 0) return null;
+                                return (
+                                  <div className="mt-2 pt-2 border-t border-[hsl(var(--border))]">
+                                    <p className="text-xs font-medium mb-1">🩺 Historial individual</p>
+                                    {eventosAnimal.slice(0, 3).map(e => (
+                                      <div key={e.id} className="flex items-center gap-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+                                        <span>{e.tipo === 'vacuna' ? '💉' : e.tipo === 'tratamiento' ? '💊' : e.tipo === 'desparasitante' ? '🔬' : e.tipo === 'vitamina' ? '🌿' : '➕'}</span>
+                                        <span>{e.nombreProducto}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
+                            </CardContent>
+                          </Card>
                         );
                       })}
                     </div>
                   </>
                 )}
-              </>
-            )
-          )}
+              </div>
+            )}
+          </TabsContent>
 
           {/* ── Tab Gastos ── */}
-          {tab === 'gastos' && (
-            gastos.length === 0 ? (
-              <div className="empty-state">
-                <div className="emoji">💸</div>
-                <h3>Sin gastos registrados</h3>
-                <p>Registrá los gastos de alimento, veterinario, etc.</p>
-                <button className="btn btn-primary" onClick={() => setShowGasto(true)}>+ Agregar gasto</button>
+          <TabsContent value="gastos">
+            {gastos.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <div className="text-4xl">💸</div>
+                <h3 className="font-semibold">Sin gastos registrados</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Registrá los gastos de alimento, veterinario, etc.</p>
+                <Button onClick={() => setShowGasto(true)}><Plus className="w-4 h-4 mr-1" /> Agregar gasto</Button>
               </div>
             ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Quién pagó</th><th>Monto</th><th></th></tr>
+              <div className="py-3 overflow-x-auto rounded-lg border border-[hsl(var(--border))] mt-3">
+                <table className="w-full text-sm">
+                  <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Fecha</th>
+                      <th className="px-3 py-2 text-left">Concepto</th>
+                      <th className="px-3 py-2 text-left">Tipo</th>
+                      <th className="px-3 py-2 text-left">Quién pagó</th>
+                      <th className="px-3 py-2 text-left">Monto</th>
+                      <th className="px-3 py-2"></th>
+                    </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-[hsl(var(--border))]">
                     {gastos.map((g) => (
-                      <tr key={g.id}>
-                        <td>{formatFecha(g.fecha)}</td>
-                        <td>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <tr key={g.id} className="hover:bg-[hsl(var(--muted)/.5)]">
+                        <td className="px-3 py-2 whitespace-nowrap">{formatFecha(g.fecha)}</td>
+                        <td className="px-3 py-2">
+                          <span className="flex items-center gap-1.5">
                             {g.concepto}
-                            {g.gastoFincaId && <span className="badge badge-finca">📌 Finca</span>}
+                            {g.gastoFincaId && <Badge variant="outline" className="text-xs">📌 Finca</Badge>}
                           </span>
                         </td>
-                        <td><span className="badge badge-gray">{g.tipo.replace('_', ' ')}</span></td>
-                        <td>{g.quienPago || '—'}</td>
-                        <td><strong>{formatColones(g.monto)}</strong></td>
-                        <td>
+                        <td className="px-3 py-2">
+                          <Badge variant="secondary" className="text-xs">{g.tipo.replace('_', ' ')}</Badge>
+                        </td>
+                        <td className="px-3 py-2">{g.quienPago || '—'}</td>
+                        <td className="px-3 py-2"><strong>{formatColones(g.monto)}</strong></td>
+                        <td className="px-3 py-2">
                           {!g.gastoFincaId && (
                             <div className="flex gap-1">
-                              <button className="btn btn-ghost btn-sm" title="Editar gasto" onClick={() => setEditGasto(g)}>✏️</button>
-                              <button
-                                className="btn btn-ghost btn-sm"
-                                title="Eliminar gasto"
-                                style={{ color: 'var(--color-danger, #dc3545)' }}
-                                onClick={() => setDeleteGasto(g)}
-                              >🗑️</button>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditGasto(g)}>
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-[hsl(var(--destructive))]" onClick={() => setDeleteGasto(g)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
                             </div>
                           )}
                         </td>
                       </tr>
                     ))}
-                    <tr>
-                      <td colSpan={4} className="text-right"><strong>TOTAL</strong></td>
-                      <td><strong className="text-danger">{formatColones(gastos.reduce((s, g) => s + g.monto, 0))}</strong></td>
+                    <tr className="bg-[hsl(var(--muted)/.3)]">
+                      <td colSpan={4} className="px-3 py-2 text-right font-semibold">TOTAL</td>
+                      <td className="px-3 py-2">
+                        <strong className="text-[hsl(var(--destructive))]">
+                          {formatColones(gastos.reduce((s, g) => s + g.monto, 0))}
+                        </strong>
+                      </td>
                       <td></td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-            )
-          )}
+            )}
+          </TabsContent>
 
           {/* ── Tab Ventas ── */}
-          {tab === 'ventas' && (
-            ventas.length === 0 ? (
-              <div className="empty-state">
-                <div className="emoji">💰</div>
-                <h3>Sin ventas registradas</h3>
-                <p>Cuando vendás animales, el registro aparecerá aquí</p>
+          <TabsContent value="ventas">
+            {ventas.length === 0 ? (
+              <div className="text-center py-16 space-y-3">
+                <div className="text-4xl">💰</div>
+                <h3 className="font-semibold">Sin ventas registradas</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Cuando vendás animales, el registro aparecerá aquí</p>
               </div>
             ) : (
-              <div className="ventas-list">
+              <div className="space-y-3 py-3">
                 {ventas.map((v) => (
-                  <div key={v.id} className="venta-card card mb-2">
-                    <div className="flex-between mb-1">
-                      <span><strong>{v.cantidadAnimales} animal{v.cantidadAnimales !== 1 ? 'es' : ''}</strong> — {formatFecha(v.fecha)}</span>
-                      <div className="flex gap-1" style={{ alignItems: 'center' }}>
-                        <span className={`badge ${v.utilidadBruta >= 0 ? 'badge-green' : 'badge-red'}`}>
-                          {v.utilidadBruta >= 0 ? '+' : ''}{formatColones(v.utilidadBruta)}
+                  <Card key={v.id}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm">
+                          <strong>{v.cantidadAnimales} animal{v.cantidadAnimales !== 1 ? 'es' : ''}</strong> — {formatFecha(v.fecha)}
                         </span>
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          style={{ color: 'var(--color-danger, #dc3545)', fontSize: '0.78rem' }}
-                          onClick={() => setDeleteVenta(v)}
-                        >
-                          Anular
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={v.utilidadBruta >= 0 ? 'default' : 'destructive'} className="text-xs">
+                            {v.utilidadBruta >= 0 ? '+' : ''}{formatColones(v.utilidadBruta)}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs text-[hsl(var(--destructive))]"
+                            onClick={() => setDeleteVenta(v)}
+                          >
+                            Anular
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="venta-detalle">
-                      <div><span>Inversión</span><span>{formatColones(v.totalInversion)}</span></div>
-                      <div><span>Gastos prop.</span><span>{formatColones(v.gastosProporcion)}</span></div>
-                      <div><span>Venta total</span><span>{formatColones(v.totalVenta)}</span></div>
-                      {v.utilidadSocio !== null && v.utilidadSocio !== undefined && lote.socio && (
-                        <>
-                          <div><span>Utilidad {lote.socio.nombre}</span><span className="text-success">{formatColones(v.utilidadSocio)}</span></div>
-                          <div><span>Tu utilidad</span><span className="text-success">{formatColones(v.utilidadPropietario ?? 0)}</span></div>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                        <span className="text-[hsl(var(--muted-foreground))]">Inversión</span><span>{formatColones(v.totalInversion)}</span>
+                        <span className="text-[hsl(var(--muted-foreground))]">Gastos prop.</span><span>{formatColones(v.gastosProporcion)}</span>
+                        <span className="text-[hsl(var(--muted-foreground))]">Venta total</span><span>{formatColones(v.totalVenta)}</span>
+                        {v.utilidadSocio !== null && v.utilidadSocio !== undefined && lote.socio && (
+                          <>
+                            <span className="text-[hsl(var(--muted-foreground))]">Utilidad {lote.socio.nombre}</span>
+                            <span className="text-[hsl(var(--success))]">{formatColones(v.utilidadSocio)}</span>
+                            <span className="text-[hsl(var(--muted-foreground))]">Tu utilidad</span>
+                            <span className="text-[hsl(var(--success))]">{formatColones(v.utilidadPropietario ?? 0)}</span>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            )
-          )}
+            )}
+          </TabsContent>
 
           {/* ── Tab Pesos ── */}
-          {tab === 'pesos' && (
-            fincaActiva
+          <TabsContent value="pesos">
+            {fincaActiva
               ? <PesosTab lote={lote} animales={animales} finca={fincaActiva} />
-              : <p className="tab-empty">Cargando finca...</p>
-          )}
+              : <p className="text-sm text-[hsl(var(--muted-foreground))] py-8">Cargando finca...</p>
+            }
+          </TabsContent>
 
           {/* ── Tab Sanidad ── */}
-          {tab === 'sanidad' && (
+          <TabsContent value="sanidad">
             <SanidadTab
               eventos={eventos}
               loading={loadingEventos}
@@ -530,29 +587,29 @@ export default function LoteDetalle() {
               onEliminar={setEventoToDelete}
               deletingId={deletingEventoId}
             />
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* ── Barra multi-select ── */}
       {modoSeleccion && seleccionados.size > 0 && (
-        <div className="mover-select-bar">
-          <span className="mover-select-count">
+        <div className="fixed bottom-0 left-0 right-0 z-20 bg-[hsl(var(--background))] border-t border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between gap-3 shadow-lg">
+          <span className="text-sm font-medium">
             {seleccionados.size} animal{seleccionados.size !== 1 ? 'es' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
           </span>
-          <div className="mover-select-actions">
-            <button
-              className="btn btn-primary btn-sm"
+          <div className="flex gap-2">
+            <Button
+              size="sm"
               onClick={() => {
                 const sel = animalesActivos.filter((a) => seleccionados.has(a.id));
                 abrirMoverModal(sel);
               }}
             >
               Mover
-            </button>
-            <button className="btn btn-ghost btn-sm" onClick={cancelarModo}>
+            </Button>
+            <Button variant="outline" size="sm" onClick={cancelarModo}>
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       )}

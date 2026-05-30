@@ -4,7 +4,8 @@ import { usePesos } from '@/hooks/usePesos';
 import { formatKg, formatFecha } from '@/utils/calculadora';
 import AnimalWeightChart from '@/components/svg/AnimalWeightChart';
 import RegistrarPesoModal from '@/components/RegistrarPesoModal';
-import './AnimalPesoModal.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   animal: Animal;
@@ -42,9 +43,8 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
   const vsPromedio = pesoActual - pesoPromedioLote;
 
   // ── Historial rows ─────────────────────────────────────────────────────────
-  // Show newest first (pesos comes desc from hook)
   const historial = pesos.map((p, i) => {
-    const prev = pesos[i + 1]; // next in desc = previous in time
+    const prev = pesos[i + 1];
     const delta = prev ? p.peso - prev.peso : null;
     return { ...p, delta };
   });
@@ -62,122 +62,98 @@ export default function AnimalPesoModal({ animal, lote, pesoPromedioLote, onClos
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal bottom-sheet animal-peso-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="modal-header">
-          <div>
-            <h2 style={{ fontSize: '1rem' }}>
-              {animal.numeroArete} — {animal.raza}
-            </h2>
-            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '0.1rem' }}>
-              Lote {lote.nombreLote}
-            </p>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-base">
+            {animal.numeroArete} — {animal.raza}
+          </DialogTitle>
+          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Lote {lote.nombreLote}</p>
+        </DialogHeader>
+
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[120px]">
+            <div className="w-6 h-6 border-2 border-[hsl(var(--primary))] border-t-transparent rounded-full animate-spin" />
           </div>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-
-        <div className="modal-body">
-          {loading ? (
-            <div className="loading-container" style={{ minHeight: '120px' }}>
-              <div className="loading-spinner" />
+        ) : pesos.length === 0 ? (
+          <div className="text-center py-8 space-y-3">
+            <p className="text-[hsl(var(--muted-foreground))] text-sm">Este animal aún no tiene pesajes registrados.</p>
+            <Button onClick={() => setShowRegistrar(true)}>+ Registrar primer peso</Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* ── Stat cards ── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Peso actual', value: formatKg(pesoActual), color: '' },
+                { label: 'Total ganado', value: `${kgGanados >= 0 ? '+' : ''}${formatKg(kgGanados)}`, color: kgGanados >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]' },
+                { label: 'kg/día', value: kgPorDia !== null ? kgPorDia.toFixed(2) : '—', color: '' },
+                { label: 'vs. prom. lote', value: `${vsPromedio >= 0 ? '+' : ''}${formatKg(vsPromedio)}`, color: vsPromedio >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]' },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-lg border border-[hsl(var(--border))] p-3 text-center">
+                  <div className={`font-bold text-lg ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{stat.label}</div>
+                </div>
+              ))}
             </div>
-          ) : pesos.length === 0 ? (
-            /* ── No pesajes yet ── */
-            <div className="peso-primer-estado">
-              <p>Este animal aún no tiene pesajes registrados.</p>
-              <button className="btn btn-primary" onClick={() => setShowRegistrar(true)}>
-                + Registrar primer peso
-              </button>
+
+            {/* ── Chart ── */}
+            <div className="rounded-lg border border-[hsl(var(--border))] p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Evolución de peso</span>
+                <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                  {pesos.length} pesaje{pesos.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <AnimalWeightChart pesos={pesosAsc} pesoPromedioLote={pesoPromedioLote} />
             </div>
-          ) : (
-            <>
-              {/* ── Stat cards ── */}
-              <div className="peso-stat-grid">
-                <div className="peso-stat-card">
-                  <div className="peso-stat-value">{formatKg(pesoActual)}</div>
-                  <div className="peso-stat-label">Peso actual</div>
-                </div>
-                <div className="peso-stat-card">
-                  <div className={`peso-stat-value ${kgGanados >= 0 ? 'positive' : 'negative'}`}>
-                    {kgGanados >= 0 ? '+' : ''}{formatKg(kgGanados)}
-                  </div>
-                  <div className="peso-stat-label">Total ganado</div>
-                </div>
-                <div className="peso-stat-card">
-                  <div className="peso-stat-value">
-                    {kgPorDia !== null ? kgPorDia.toFixed(2) : '—'}
-                  </div>
-                  <div className="peso-stat-label">kg/día</div>
-                </div>
-                <div className="peso-stat-card">
-                  <div className={`peso-stat-value ${vsPromedio >= 0 ? 'positive' : 'negative'}`}>
-                    {vsPromedio >= 0 ? '+' : ''}{formatKg(vsPromedio)}
-                  </div>
-                  <div className="peso-stat-label">vs. prom. lote</div>
-                </div>
-              </div>
 
-              {/* ── Chart ── */}
-              <div className="animal-chart-wrap">
-                <div className="animal-chart-title">
-                  Evolución de peso
-                  <span className="animal-chart-count">{pesos.length} pesaje{pesos.length !== 1 ? 's' : ''}</span>
-                </div>
-                <AnimalWeightChart
-                  pesos={pesosAsc}
-                  pesoPromedioLote={pesoPromedioLote}
-                />
-              </div>
-
-              {/* ── Historial ── */}
-              <p className="peso-historial-title">Historial</p>
-              <table className="peso-historial-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Peso</th>
-                    <th>Delta</th>
-                    {tieneNotas && <th>Notas</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {historial.map((h) => (
-                    <tr key={h.id}>
-                      <td>{formatFecha(h.fecha)}</td>
-                      <td><strong>{formatKg(h.peso)}</strong></td>
-                      <td>
-                        {h.delta !== null ? (
-                          <span className={h.delta >= 0 ? 'peso-delta-pos' : 'peso-delta-neg'}>
-                            {h.delta >= 0 ? '+' : ''}{formatKg(h.delta)}
-                          </span>
-                        ) : '—'}
-                      </td>
-                      {tieneNotas && (
-                        <td style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                          {h.notas || '—'}
-                        </td>
-                      )}
+            {/* ── Historial ── */}
+            <div>
+              <p className="text-sm font-medium mb-2">Historial</p>
+              <div className="overflow-x-auto rounded-lg border border-[hsl(var(--border))]">
+                <table className="w-full text-sm">
+                  <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Fecha</th>
+                      <th className="px-3 py-2 text-left">Peso</th>
+                      <th className="px-3 py-2 text-left">Delta</th>
+                      {tieneNotas && <th className="px-3 py-2 text-left">Notas</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[hsl(var(--border))]">
+                    {historial.map((h) => (
+                      <tr key={h.id}>
+                        <td className="px-3 py-2">{formatFecha(h.fecha)}</td>
+                        <td className="px-3 py-2"><strong>{formatKg(h.peso)}</strong></td>
+                        <td className="px-3 py-2">
+                          {h.delta !== null ? (
+                            <span className={h.delta >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}>
+                              {h.delta >= 0 ? '+' : ''}{formatKg(h.delta)}
+                            </span>
+                          ) : '—'}
+                        </td>
+                        {tieneNotas && (
+                          <td className="px-3 py-2 text-xs text-[hsl(var(--muted-foreground))]">
+                            {h.notas || '—'}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-              {/* ── Registrar peso button ── */}
-              {animal.estado === 'activo' && (
-                <div className="peso-modal-actions">
-                  <button className="btn btn-primary btn-sm" onClick={() => setShowRegistrar(true)}>
-                    + Registrar peso
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+            {/* ── Registrar peso button ── */}
+            {animal.estado === 'activo' && (
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => setShowRegistrar(true)}>+ Registrar peso</Button>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

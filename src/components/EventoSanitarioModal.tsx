@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useAgregarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import { Animal, TipoEventoSanitario } from '@/types';
 import { formatKg } from '@/utils/calculadora';
-import './EventoSanitarioModal.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const TIPOS: Array<{ value: TipoEventoSanitario; label: string }> = [
   { value: 'vacuna',         label: '💉 Vacuna' },
@@ -84,46 +87,58 @@ export default function EventoSanitarioModal({
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-bottom-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-handle" />
-        <h2 className="modal-title">Agregar evento sanitario</h2>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Agregar evento sanitario</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Alcance */}
-          <div className="form-group">
-            <label className="form-label">Aplicar a</label>
-            <div className="toggle-alcance">
+          <div className="space-y-1.5">
+            <Label>Aplicar a</Label>
+            <div className="flex gap-2">
               <button
                 type="button"
-                className={`toggle-btn ${alcance === 'lote' ? 'active' : ''}`}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  alcance === 'lote'
+                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                    : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                }`}
                 onClick={() => { setAlcance('lote'); setAnimalId(''); setAnimalQuery(''); }}
-              >🐄 Lote completo</button>
+              >
+                🐄 Lote completo
+              </button>
               <button
                 type="button"
-                className={`toggle-btn ${alcance === 'animal' ? 'active' : ''}`}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  alcance === 'animal'
+                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                    : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                }`}
                 onClick={() => setAlcance('animal')}
-              >🔖 Animal específico</button>
+              >
+                🔖 Animal específico
+              </button>
             </div>
           </div>
 
           {/* Selector de animal */}
           {alcance === 'animal' && (
-            <div className="form-group">
-              <label className="form-label">Buscar animal por arete *</label>
-              <input
-                className="form-input"
+            <div className="space-y-1.5">
+              <Label>Buscar animal por arete *</Label>
+              <Input
                 value={animalQuery}
                 onChange={(e) => { setAnimalQuery(e.target.value); setAnimalId(''); }}
                 placeholder="Número de arete..."
               />
               {animalQuery && !animalSeleccionado && animalesFiltrados.length > 0 && (
-                <div className="animal-search-results">
+                <div className="rounded-lg border border-[hsl(var(--border))] overflow-hidden">
                   {animalesFiltrados.slice(0, 5).map((a) => (
                     <button
                       key={a.id}
                       type="button"
-                      className="animal-search-result"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[hsl(var(--muted))] transition-colors border-b border-[hsl(var(--border))] last:border-0"
                       onClick={() => { setAnimalId(a.id); setAnimalQuery(a.numeroArete); }}
                     >
                       #{a.numeroArete} · {a.raza} · {formatKg(a.pesoActual)}
@@ -132,10 +147,10 @@ export default function EventoSanitarioModal({
                 </div>
               )}
               {animalQuery && !animalSeleccionado && animalesFiltrados.length === 0 && (
-                <div className="animal-search-empty">Animal no encontrado en este lote</div>
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Animal no encontrado en este lote</p>
               )}
               {animalSeleccionado && (
-                <div className="animal-search-selected">
+                <div className="rounded-lg border border-[hsl(var(--success))] bg-[hsl(var(--success)/.08)] px-3 py-2 text-sm">
                   ✅ <strong>#{animalSeleccionado.numeroArete}</strong> · {animalSeleccionado.raza} · {formatKg(animalSeleccionado.pesoActual)}
                 </div>
               )}
@@ -143,25 +158,30 @@ export default function EventoSanitarioModal({
           )}
 
           {/* Tipo */}
-          <div className="form-group">
-            <label className="form-label">Tipo *</label>
-            <div className="tipo-evento-grid">
+          <div className="space-y-1.5">
+            <Label>Tipo *</Label>
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
               {TIPOS.map((t) => (
                 <button
                   key={t.value}
                   type="button"
-                  className={`tipo-evento-btn ${tipo === t.value ? 'active' : ''}`}
+                  className={`rounded-lg border px-2 py-2 text-xs font-medium transition-colors ${
+                    tipo === t.value
+                      ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                      : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                  }`}
                   onClick={() => setTipo(t.value)}
-                >{t.label}</button>
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
           </div>
 
           {/* Nombre */}
-          <div className="form-group">
-            <label className="form-label">Nombre del producto *</label>
-            <input
-              className="form-input"
+          <div className="space-y-1.5">
+            <Label>Nombre del producto *</Label>
+            <Input
               value={nombreProducto}
               onChange={(e) => setNombreProducto(e.target.value)}
               placeholder="ej. Ivomec, Clostrivac, ADE..."
@@ -170,54 +190,54 @@ export default function EventoSanitarioModal({
           </div>
 
           {/* Fecha + Costo */}
-          <div className="form-row-2">
-            <div className="form-group">
-              <label className="form-label">Fecha *</label>
-              <input className="form-input" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Fecha *</Label>
+              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Costo total (₡) *</label>
-              <input className="form-input" type="number" min="0" value={costo} onChange={(e) => setCosto(e.target.value)} placeholder="0" required />
+            <div className="space-y-1.5">
+              <Label>Costo total (₡) *</Label>
+              <Input type="number" min="0" value={costo} onChange={(e) => setCosto(e.target.value)} placeholder="0" required />
             </div>
           </div>
 
           {/* Dosis + Quién */}
-          <div className="form-row-2">
-            <div className="form-group">
-              <label className="form-label">Dosis</label>
-              <input className="form-input" value={dosis} onChange={(e) => setDosis(e.target.value)} placeholder="ej. 5ml/animal" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Dosis</Label>
+              <Input value={dosis} onChange={(e) => setDosis(e.target.value)} placeholder="ej. 5ml/animal" />
             </div>
-            <div className="form-group">
-              <label className="form-label">Quién aplicó</label>
-              <input className="form-input" value={quienAplico} onChange={(e) => setQuienAplico(e.target.value)} placeholder="Veterinario..." />
+            <div className="space-y-1.5">
+              <Label>Quién aplicó</Label>
+              <Input value={quienAplico} onChange={(e) => setQuienAplico(e.target.value)} placeholder="Veterinario..." />
             </div>
           </div>
 
           {/* Próxima dosis */}
-          <div className="form-group">
-            <label className="form-label">Próxima dosis</label>
-            <input className="form-input" type="date" value={proximaDosis} min={fecha} onChange={(e) => setProximaDosis(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label>Próxima dosis</Label>
+            <Input type="date" value={proximaDosis} min={fecha} onChange={(e) => setProximaDosis(e.target.value)} />
             {proximaDosisInvalida && (
-              <span className="form-error">La próxima dosis no puede ser anterior a la fecha del evento</span>
+              <p className="text-sm text-[hsl(var(--destructive))]">La próxima dosis no puede ser anterior a la fecha del evento</p>
             )}
           </div>
 
           {/* Notas */}
-          <div className="form-group">
-            <label className="form-label">Notas</label>
-            <input className="form-input" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Observaciones..." />
+          <div className="space-y-1.5">
+            <Label>Notas</Label>
+            <Input value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Observaciones..." />
           </div>
 
-          {error && <div className="form-error">{error}</div>}
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary" disabled={!canSave || saving}>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={!canSave || saving}>
               {saving ? 'Guardando...' : 'Guardar evento'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

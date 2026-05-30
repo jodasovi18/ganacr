@@ -2,15 +2,18 @@ import { useState } from 'react';
 import { useMoverAnimales } from '@/hooks/useMoverAnimales';
 import { Animal, Finca, Lote } from '@/types';
 import { formatColones, formatKg } from '@/utils/calculadora';
-import './MoverAnimalesModal.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
-  animales: Animal[];        // 1 o más, todos activos
-  loteSrc: Lote;             // lote actual
-  todosLosLotes: Lote[];     // todos los lotes del usuario (todas las fincas)
-  fincas: Finca[];           // para mostrar nombre de cada finca
+  animales: Animal[];
+  loteSrc: Lote;
+  todosLosLotes: Lote[];
+  fincas: Finca[];
   onClose: () => void;
-  onSuccess: () => void;     // limpia la selección multi-select al terminar
+  onSuccess: () => void;
 }
 
 export default function MoverAnimalesModal({
@@ -25,7 +28,6 @@ export default function MoverAnimalesModal({
 
   const loteDst = todosLosLotes.find((l) => l.id === loteDstId) ?? null;
 
-  // Group lotes: same finca (excluding origin), other fincas
   const lotesMismaFinca = todosLosLotes.filter(
     (l) => l.fincaId === loteSrc.fincaId && l.id !== loteSrc.id
   );
@@ -42,7 +44,6 @@ export default function MoverAnimalesModal({
   const canSubmit = loteDstId !== '' && precioKgNum > 0 && !saving;
   const n = animales.length;
 
-  // Group other-finca lotes by finca for display
   const lotesPorFinca = new Map<string, Lote[]>();
   for (const l of lotesOtrasFincas) {
     if (!lotesPorFinca.has(l.fincaId)) lotesPorFinca.set(l.fincaId, []);
@@ -59,7 +60,6 @@ export default function MoverAnimalesModal({
       onClose();
       onSuccess();
     } catch (err) {
-      // If Phase 2 failed, the animals moved but peso history may be stale
       const msg = err instanceof Error ? err.message : 'Error al mover los animales';
       if (msg.includes('pesos') || msg.includes('Phase 2')) {
         setError('Los animales fueron movidos, pero el historial de pesajes puede tardar en actualizarse. Cerrá y revisá el lote destino.');
@@ -72,62 +72,72 @@ export default function MoverAnimalesModal({
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && !saving && onClose()}>
-      <div className="modal mover-modal">
-        <div className="modal-header">
-          <h2>↗️ Mover {n === 1 ? '1 animal' : `${n} animales`}</h2>
-          <button className="modal-close" onClick={onClose} disabled={saving}>×</button>
-        </div>
+    <Dialog open onOpenChange={(open) => { if (!open && !saving) onClose(); }}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Mover {n === 1 ? '1 animal' : `${n} animales`}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* ── Destino ── */}
-          <div className="form-group">
-            <label className="form-label">Destino</label>
+          <div className="space-y-2">
+            <Label>Destino</Label>
 
-            <div className="mover-group-label">
+            <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
               {fincaMap.get(loteSrc.fincaId) ?? 'Esta finca'}
-            </div>
+            </p>
 
             {lotesMismaFinca.length === 0 ? (
-              <p className="mover-empty">No hay otros lotes en esta finca</p>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">No hay otros lotes en esta finca</p>
             ) : (
-              lotesMismaFinca.map((l) => (
-                <label
-                  key={l.id}
-                  className={`mover-lote-option${loteDstId === l.id ? ' selected' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="loteDst"
-                    value={l.id}
-                    checked={loteDstId === l.id}
-                    onChange={() => setLoteDstId(l.id)}
-                  />
-                  <span className="mover-lote-nombre">{l.nombreLote}</span>
-                  <span className="mover-lote-count">{l.animalesActivos} activos</span>
-                </label>
-              ))
+              <div className="space-y-1">
+                {lotesMismaFinca.map((l) => (
+                  <label
+                    key={l.id}
+                    className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                      loteDstId === l.id
+                        ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.08)]'
+                        : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="loteDst"
+                      value={l.id}
+                      checked={loteDstId === l.id}
+                      onChange={() => setLoteDstId(l.id)}
+                      className="accent-[hsl(var(--primary))]"
+                    />
+                    <span className="flex-1 text-sm font-medium">{l.nombreLote}</span>
+                    <span className="text-xs text-[hsl(var(--muted-foreground))]">{l.animalesActivos} activos</span>
+                  </label>
+                ))}
+              </div>
             )}
 
             {lotesOtrasFincas.length > 0 && (
               <>
                 <button
                   type="button"
-                  className="mover-toggle-fincas"
+                  className="text-sm text-[hsl(var(--primary))] hover:underline flex items-center gap-1"
                   onClick={() => setShowOtrasFincas((v) => !v)}
                 >
                   Otras fincas {showOtrasFincas ? '▲' : '▼'}
                 </button>
 
                 {showOtrasFincas && [...lotesPorFinca.entries()].map(([fId, lts]) => (
-                  <div key={fId}>
-                    <div className="mover-group-label mover-group-label--other">
+                  <div key={fId} className="space-y-1">
+                    <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wide">
                       {fincaMap.get(fId) ?? fId}
-                    </div>
+                    </p>
                     {lts.map((l) => (
                       <label
                         key={l.id}
-                        className={`mover-lote-option${loteDstId === l.id ? ' selected' : ''}`}
+                        className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                          loteDstId === l.id
+                            ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.08)]'
+                            : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
+                        }`}
                       >
                         <input
                           type="radio"
@@ -135,9 +145,10 @@ export default function MoverAnimalesModal({
                           value={l.id}
                           checked={loteDstId === l.id}
                           onChange={() => setLoteDstId(l.id)}
+                          className="accent-[hsl(var(--primary))]"
                         />
-                        <span className="mover-lote-nombre">{l.nombreLote}</span>
-                        <span className="mover-lote-count">{l.animalesActivos} activos</span>
+                        <span className="flex-1 text-sm font-medium">{l.nombreLote}</span>
+                        <span className="text-xs text-[hsl(var(--muted-foreground))]">{l.animalesActivos} activos</span>
                       </label>
                     ))}
                   </div>
@@ -147,13 +158,12 @@ export default function MoverAnimalesModal({
           </div>
 
           {/* ── Precio de traspaso ── */}
-          <div className="form-group">
-            <label className="form-label">Precio de traspaso</label>
-            <div className="mover-precio-wrap">
-              <span className="mover-precio-symbol">₡</span>
-              <input
+          <div className="space-y-1.5">
+            <Label>Precio de traspaso</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[hsl(var(--muted-foreground))]">₡</span>
+              <Input
                 type="number"
-                className="form-input mover-precio-input"
                 min={1}
                 step={1}
                 placeholder="0"
@@ -162,39 +172,27 @@ export default function MoverAnimalesModal({
                 required
                 autoFocus={lotesMismaFinca.length === 0}
               />
-              <span className="mover-precio-unit">/ kg</span>
+              <span className="text-sm text-[hsl(var(--muted-foreground))] whitespace-nowrap">/ kg</span>
             </div>
             {precioKgNum > 0 && (
-              <p className="mover-total-estimado">
-                Total estimado: {formatColones(totalEstimado)}
-                {' '}· {n} animal{n !== 1 ? 'es' : ''} · {formatKg(pesoTotal)} totales
+              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                Total estimado: {formatColones(totalEstimado)} · {n} animal{n !== 1 ? 'es' : ''} · {formatKg(pesoTotal)} totales
               </p>
             )}
           </div>
 
-          {error && <p className="form-error">{error}</p>}
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
 
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={onClose}
-              disabled={saving}
-            >
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={saving}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={!canSubmit}
-            >
-              {saving
-                ? 'Moviendo...'
-                : `Mover ${n === 1 ? 'animal' : `${n} animales`}`}
-            </button>
+            </Button>
+            <Button type="submit" className="flex-1" disabled={!canSubmit}>
+              {saving ? 'Moviendo...' : `Mover ${n === 1 ? 'animal' : `${n} animales`}`}
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

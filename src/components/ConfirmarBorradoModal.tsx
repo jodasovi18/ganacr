@@ -1,3 +1,6 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+
 interface Props {
   titulo: string;
   descripcion?: string;
@@ -18,35 +21,21 @@ export default function ConfirmarBorradoModal({
   onClose,
 }: Props) {
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: '420px' }}>
-        <div className="modal-header">
-          <h2>⚠️ {titulo}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        {descripcion && (
-          <p className="text-muted mb-2" style={{ fontSize: '0.9rem' }}>{descripcion}</p>
-        )}
-        <div className="flex gap-1 mt-2">
-          <button
-            type="button"
-            className="btn btn-secondary btn-full"
-            onClick={onClose}
-            disabled={loading}
-          >
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>{titulo}</DialogTitle>
+          {descripcion && <DialogDescription>{descripcion}</DialogDescription>}
+        </DialogHeader>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-full"
-            style={{ background: 'var(--color-danger, #dc3545)', color: '#fff' }}
-            onClick={onConfirm}
-            disabled={loading}
-          >
+          </Button>
+          <Button variant="destructive" onClick={onConfirm} disabled={loading}>
             {loading ? labelCargando : labelConfirmar}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -2,6 +2,10 @@ import { useState, FormEvent } from 'react';
 import { useRegistrarVenta } from '@/hooks/useVentas';
 import { Animal, Gasto, Lote, ItemVenta } from '@/types';
 import { formatColones, calcularVenta } from '@/utils/calculadora';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   fincaId: string;
@@ -60,64 +64,66 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: '640px' }}>
-        <div className="modal-header">
-          <h2>💰 Vender Animales</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Vender Animales</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Fecha de venta</label>
-            <input className="form-input" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Fecha de venta</Label>
+            <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="max-w-xs" />
           </div>
 
-          <p className="form-label mb-1">Seleccioná los animales a vender:</p>
+          <p className="text-sm font-medium text-[hsl(var(--foreground))]">Seleccioná los animales a vender:</p>
 
-          <div className="table-wrap mb-2">
-            <table>
-              <thead>
+          <div className="overflow-x-auto rounded-lg border border-[hsl(var(--border))]">
+            <table className="w-full text-sm">
+              <thead className="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
                 <tr>
-                  <th></th>
-                  <th>Arete</th>
-                  <th>Raza</th>
-                  <th>Peso actual</th>
-                  <th>Peso final (kg)</th>
-                  <th>Precio venta (₡)</th>
+                  <th className="px-3 py-2 text-left"></th>
+                  <th className="px-3 py-2 text-left">Arete</th>
+                  <th className="px-3 py-2 text-left">Raza</th>
+                  <th className="px-3 py-2 text-left">Peso actual</th>
+                  <th className="px-3 py-2 text-left">Peso final (kg)</th>
+                  <th className="px-3 py-2 text-left">Precio venta (₡)</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-[hsl(var(--border))]">
                 {animalesActivos.map((animal) => {
                   const sel = seleccionados.has(animal.id);
                   return (
-                    <tr key={animal.id} style={{ opacity: sel ? 1 : 0.6 }}>
-                      <td>
-                        <input type="checkbox" checked={sel} onChange={() => toggleAnimal(animal.id)} style={{ accentColor: 'var(--color-primary)', width: 16, height: 16 }} />
-                      </td>
-                      <td><strong>{animal.numeroArete}</strong></td>
-                      <td>{animal.raza}</td>
-                      <td>{animal.pesoActual} kg</td>
-                      <td>
+                    <tr key={animal.id} className={sel ? '' : 'opacity-50'}>
+                      <td className="px-3 py-2">
                         <input
-                          className="form-input"
+                          type="checkbox"
+                          checked={sel}
+                          onChange={() => toggleAnimal(animal.id)}
+                          className="accent-[hsl(var(--primary))] w-4 h-4 cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-3 py-2"><strong>{animal.numeroArete}</strong></td>
+                      <td className="px-3 py-2">{animal.raza}</td>
+                      <td className="px-3 py-2">{animal.pesoActual} kg</td>
+                      <td className="px-3 py-2">
+                        <Input
                           type="number" min="1" step="0.5"
                           placeholder={String(animal.pesoActual)}
                           value={pesos[animal.id] || ''}
                           onChange={(e) => setPesos((p) => ({ ...p, [animal.id]: e.target.value }))}
                           disabled={!sel}
-                          style={{ width: 90, padding: '0.3rem 0.5rem' }}
+                          className="w-24 h-7 px-2 py-1"
                         />
                       </td>
-                      <td>
-                        <input
-                          className="form-input"
+                      <td className="px-3 py-2">
+                        <Input
                           type="number" min="1" step="any"
                           placeholder="0"
                           value={precios[animal.id] || ''}
                           onChange={(e) => setPrecios((p) => ({ ...p, [animal.id]: e.target.value }))}
                           disabled={!sel}
-                          style={{ width: 110, padding: '0.3rem 0.5rem' }}
+                          className="w-28 h-7 px-2 py-1"
                         />
                       </td>
                     </tr>
@@ -127,45 +133,53 @@ export default function VenderAnimalesModal({ fincaId, lote, animalesActivos, ga
             </table>
           </div>
 
-          {/* Vista previa del cálculo */}
           {preview && seleccionados.size > 0 && (
-            <div className="card mb-2" style={{ background: 'var(--color-bg)' }}>
-              <p className="form-label mb-1">Resumen de la venta ({seleccionados.size} animales)</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem 1rem', fontSize: '0.9rem' }}>
-                <span className="text-muted">Inversión animales:</span> <span>{formatColones(preview.totalInversion)}</span>
-                <span className="text-muted">Gastos proporcionales:</span> <span>{formatColones(preview.gastosProporcion)}</span>
-                <span className="text-muted">Total venta:</span> <span>{formatColones(preview.totalVenta)}</span>
-                <span className="text-muted">Utilidad bruta:</span>
-                <span className={preview.utilidadBruta >= 0 ? 'text-success' : 'text-danger'}>
-                  <strong>{formatColones(preview.utilidadBruta)}</strong>
+            <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] p-3">
+              <p className="text-sm font-medium mb-2">Resumen de la venta ({seleccionados.size} animales)</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <span className="text-[hsl(var(--muted-foreground))]">Inversión animales:</span>
+                <span>{formatColones(preview.totalInversion)}</span>
+                <span className="text-[hsl(var(--muted-foreground))]">Gastos proporcionales:</span>
+                <span>{formatColones(preview.gastosProporcion)}</span>
+                <span className="text-[hsl(var(--muted-foreground))]">Total venta:</span>
+                <span>{formatColones(preview.totalVenta)}</span>
+                <span className="text-[hsl(var(--muted-foreground))]">Utilidad bruta:</span>
+                <span className={`font-semibold ${preview.utilidadBruta >= 0 ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'}`}>
+                  {formatColones(preview.utilidadBruta)}
                 </span>
                 {preview.utilidadSocio !== undefined && lote.socio && (
                   <>
-                    <span className="text-muted">Utilidad {lote.socio.nombre} ({lote.socio.porcentaje}%):</span>
-                    <span className="text-success">{formatColones(preview.utilidadSocio)}</span>
-                    <span className="text-muted">Tu utilidad ({100 - lote.socio.porcentaje}%):</span>
-                    <span className="text-success">{formatColones(preview.utilidadPropietario ?? 0)}</span>
+                    <span className="text-[hsl(var(--muted-foreground))]">Utilidad {lote.socio.nombre} ({lote.socio.porcentaje}%):</span>
+                    <span className="text-[hsl(var(--success))]">{formatColones(preview.utilidadSocio)}</span>
+                    <span className="text-[hsl(var(--muted-foreground))]">Tu utilidad ({100 - lote.socio.porcentaje}%):</span>
+                    <span className="text-[hsl(var(--success))]">{formatColones(preview.utilidadPropietario ?? 0)}</span>
                   </>
                 )}
               </div>
             </div>
           )}
 
-          <div className="form-group">
-            <label className="form-label">Notas</label>
-            <textarea className="form-textarea" rows={2} placeholder="Observaciones de la venta..." value={notas} onChange={(e) => setNotas(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label>Notas</Label>
+            <textarea
+              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))] resize-none"
+              rows={2}
+              placeholder="Observaciones de la venta..."
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+            />
           </div>
 
-          {error && <div className="form-error mb-2">{error}</div>}
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
 
-          <div className="flex gap-1 mt-2">
-            <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary btn-full" disabled={loading || seleccionados.size === 0}>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={loading || seleccionados.size === 0}>
               {loading ? 'Procesando...' : `Registrar Venta (${seleccionados.size} animales)`}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

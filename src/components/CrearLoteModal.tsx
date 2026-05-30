@@ -1,6 +1,10 @@
 import { useState, FormEvent } from 'react';
 import { useCrearLote, useActualizarLote } from '@/hooks/useLotes';
 import { Lote } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   fincaId: string;
@@ -54,28 +58,31 @@ export default function CrearLoteModal({ fincaId, onClose, editData }: Props) {
   }
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-header">
-          <h2>{isEdit ? '✏️ Editar Lote' : '🐄 Nuevo Lote'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Nombre del lote *</label>
-            <input className="form-input" placeholder="Ej: Lote Enero 2026" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Editar Lote' : 'Nuevo Lote'}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Nombre del lote *</Label>
+            <Input placeholder="Ej: Lote Enero 2026" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
           </div>
 
           {!isEdit && (
-            <div className="form-group">
-              <label className="form-label">Fecha de compra</label>
-              <input className="form-input" type="date" value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} />
+            <div className="space-y-1.5">
+              <Label>Fecha de compra</Label>
+              <Input type="date" value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} />
             </div>
           )}
 
-          <div className="form-group">
-            <label className="form-label">Tipo de propiedad</label>
-            <select className="form-select" value={tipo} onChange={(e) => setTipo(e.target.value as 'propio' | 'medias')}>
+          <div className="space-y-1.5">
+            <Label>Tipo de propiedad</Label>
+            <select
+              className="w-full border border-[hsl(var(--border))] rounded-md px-3 py-2 text-sm bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value as 'propio' | 'medias')}
+            >
               <option value="propio">100% Propio</option>
               <option value="medias">A medias con socio</option>
             </select>
@@ -83,27 +90,35 @@ export default function CrearLoteModal({ fincaId, onClose, editData }: Props) {
 
           {tipo === 'medias' && (
             <>
-              <div className="form-group">
-                <label className="form-label">Nombre del socio *</label>
-                <input className="form-input" placeholder="Ej: Juan Pérez" value={socioNombre} onChange={(e) => setSocioNombre(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label>Nombre del socio *</Label>
+                <Input placeholder="Ej: Juan Pérez" value={socioNombre} onChange={(e) => setSocioNombre(e.target.value)} />
               </div>
-              <div className="form-group">
-                <label className="form-label">Porcentaje del socio: {socioPorcentaje}% / {100 - socioPorcentaje}% tuyo</label>
-                <input type="range" min={10} max={90} step={5} value={socioPorcentaje} onChange={(e) => setSocioPorcentaje(Number(e.target.value))} style={{ width: '100%', accentColor: 'var(--color-primary)' }} />
+              <div className="space-y-1.5">
+                <Label>Porcentaje del socio: {socioPorcentaje}% / {100 - socioPorcentaje}% tuyo</Label>
+                <input
+                  type="range"
+                  min={10}
+                  max={90}
+                  step={5}
+                  value={socioPorcentaje}
+                  onChange={(e) => setSocioPorcentaje(Number(e.target.value))}
+                  className="w-full accent-[hsl(var(--primary))]"
+                />
               </div>
             </>
           )}
 
-          {error && <div className="form-error mb-2">{error}</div>}
+          {error && <p className="text-sm text-[hsl(var(--destructive))]">{error}</p>}
 
-          <div className="flex gap-1 mt-2">
-            <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear Lote'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
