@@ -26,34 +26,37 @@
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  /* Sombra idéntica al mockup Campo Claro */
+  --shadow-sm: 0 1px 4px 0 rgb(0 0 0 / 0.07), 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 16px 0 rgb(0 0 0 / 0.1), 0 2px 4px 0 rgb(0 0 0 / 0.06);
 }
 
 /* ─── Campo Claro — GanaCR theme ─────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 214 32% 95%;     /* slate-100 tinted — páginas se ven con fondo */
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;             /* cards blancas contrastan con el fondo */
+    --background: 210 40% 98%;     /* #f8fafc — igual al mockup, casi blanco */
+    --foreground: 222 47% 11%;     /* #0f172a — texto oscuro */
+    --card: 0 0% 100%;             /* #ffffff — cards blancas sobre el fondo */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 158 44% 21%;        /* #1e4d3a verde bosque */
+    --primary: 158 44% 21%;        /* #1e4d3a — verde bosque */
     --primary-foreground: 0 0% 100%;
     --secondary: 148 39% 33%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 214 32% 88%;          /* más oscuro — TabsList visible contra background */
-    --muted-foreground: 215 20% 42%;
-    --accent: 214 32% 88%;
+    --muted: 214 32% 92%;          /* #dce4ec — gris visible para TabsList */
+    --muted-foreground: 215 20% 42%; /* #64748b */
+    --accent: 214 32% 92%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 82%;         /* borde más marcado */
-    --input: 214 32% 82%;
+    --border: 214 32% 88%;         /* #d1d9e3 — borde claro pero visible */
+    --input: 214 32% 88%;
     --ring: 158 44% 21%;
-    --radius: 0.5rem;
-    --success: 142 71% 38%;        /* verde más oscuro para mejor contraste */
+    --radius: 0.625rem;            /* 10px — igual al mockup */
+    --success: 142 71% 38%;
     --success-foreground: 0 0% 100%;
-    --success-light: 138 50% 93%;
+    --success-light: 138 50% 94%;
   }
 }
 
