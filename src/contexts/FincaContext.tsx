@@ -28,7 +28,7 @@ export function FincaProvider({ children }: { children: ReactNode }) {
     );
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() } as Finca))
+        .map((d) => ({ ...d.data(), id: d.id } as Finca))
         .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
       setFincas(list);
       setLoading(false);

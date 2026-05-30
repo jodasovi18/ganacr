@@ -31,7 +31,7 @@ export function useFincas() {
     const unsub = onSnapshot(q, (snap) => {
       setFincas(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Finca))
+          .map((d) => ({ ...d.data(), id: d.id } as Finca))
           .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
       );
       setLoading(false);

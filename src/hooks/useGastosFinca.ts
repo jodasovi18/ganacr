@@ -60,7 +60,7 @@ export function useGastosFinca(fincaId: string | null) {
       (snap) => {
         setGastosFinca(
           snap.docs
-            .map((d) => ({ id: d.id, ...d.data() } as GastoFinca))
+            .map((d) => ({ ...d.data(), id: d.id } as GastoFinca))
             .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
         );
         setLoading(false);

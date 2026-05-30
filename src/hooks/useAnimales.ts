@@ -30,7 +30,7 @@ export function useAnimales(loteId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setAnimales(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Animal))
+          .map((d) => ({ ...d.data(), id: d.id } as Animal))
           .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
       );
       setLoading(false);

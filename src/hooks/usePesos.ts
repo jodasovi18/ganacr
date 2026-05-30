@@ -26,7 +26,7 @@ export function usePesos(animalId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setPesos(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Peso))
+          .map((d) => ({ ...d.data(), id: d.id } as Peso))
           .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
       );
       setLoading(false);

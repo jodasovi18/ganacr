@@ -30,7 +30,7 @@ export function useVentas(loteId: string | null) {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Venta));
+        const data = snap.docs.map((d) => ({ ...d.data(), id: d.id } as Venta));
         data.sort((a, b) => (b.fecha > a.fecha ? 1 : -1));
         setVentas(data);
         setLoading(false);
@@ -124,7 +124,7 @@ export function useAnularVenta() {
 
     const ventaSnap = await getDoc(doc(db, 'ventas', ventaId));
     if (!ventaSnap.exists()) throw new Error('Venta no encontrada');
-    const venta = { id: ventaSnap.id, ...ventaSnap.data() } as Venta;
+    const venta = { ...ventaSnap.data(), id: ventaSnap.id } as Venta;
     if (venta.userId !== user.uid) throw new Error('No autorizado');
 
     const now = new Date().toISOString();

@@ -29,7 +29,7 @@ export function useGastos(loteId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setGastos(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Gasto))
+          .map((d) => ({ ...d.data(), id: d.id } as Gasto))
           .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
       );
       setLoading(false);

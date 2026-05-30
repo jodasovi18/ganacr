@@ -101,9 +101,9 @@ export default function Dashboard() {
 
       await exportarLotePDF({
         lote,
-        animales: animalesSnap.docs.map(d => ({ id: d.id, ...d.data() } as Animal)),
-        ventas:   ventasSnap.docs.map(d  => ({ id: d.id, ...d.data() } as Venta)),
-        gastos:   gastosSnap.docs.map(d  => ({ id: d.id, ...d.data() } as Gasto)),
+        animales: animalesSnap.docs.map(d => ({ ...d.data(), id: d.id } as Animal)),
+        ventas:   ventasSnap.docs.map(d  => ({ ...d.data(), id: d.id } as Venta)),
+        gastos:   gastosSnap.docs.map(d  => ({ ...d.data(), id: d.id } as Gasto)),
         nombreFinca: fincaActiva.nombre,
         fechaGenerado: new Date().toISOString().substring(0, 10),
       });
@@ -134,14 +134,14 @@ export default function Dashboard() {
 
       const animalesPorLote = new Map<string, Animal[]>();
       animalesSnap.docs.forEach(d => {
-        const a = { id: d.id, ...d.data() } as Animal;
+        const a = { ...d.data(), id: d.id } as Animal;
         if (!animalesPorLote.has(a.loteId)) animalesPorLote.set(a.loteId, []);
         animalesPorLote.get(a.loteId)!.push(a);
       });
 
       const ventasPorLote = new Map<string, Venta[]>();
       ventasSnap.docs.forEach(d => {
-        const v = { id: d.id, ...d.data() } as Venta;
+        const v = { ...d.data(), id: d.id } as Venta;
         if (!ventasPorLote.has(v.loteId)) ventasPorLote.set(v.loteId, []);
         ventasPorLote.get(v.loteId)!.push(v);
       });

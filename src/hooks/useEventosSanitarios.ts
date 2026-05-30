@@ -31,7 +31,7 @@ export function useEventosSanitarios(loteId: string | null) {
       (snap) => {
         setEventos(
           snap.docs
-            .map((d) => ({ id: d.id, ...d.data() } as EventoSanitario))
+            .map((d) => ({ ...d.data(), id: d.id } as EventoSanitario))
             .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
         );
         setLoading(false);

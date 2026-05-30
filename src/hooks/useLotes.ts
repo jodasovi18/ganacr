@@ -33,7 +33,7 @@ export function useLotes(fincaId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setLotes(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Lote))
+          .map((d) => ({ ...d.data(), id: d.id } as Lote))
           .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
       );
       setLoading(false);
@@ -56,7 +56,7 @@ export function useLote(loteId: string | null) {
   useEffect(() => {
     if (!loteId) { setLoading(false); return; }
     const unsub = onSnapshot(doc(db, 'lotes', loteId), (snap) => {
-      setLote(snap.exists() ? ({ id: snap.id, ...snap.data() } as Lote) : null);
+      setLote(snap.exists() ? ({ ...snap.data(), id: snap.id } as Lote) : null);
       setLoading(false);
     }, (error) => {
       console.error('[useLote] onSnapshot error:', error);
@@ -194,7 +194,7 @@ export function useAllLotes() {
     const unsub = onSnapshot(q, (snap) => {
       setLotes(
         snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as Lote))
+          .map((d) => ({ ...d.data(), id: d.id } as Lote))
           .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
       );
       setLoading(false);
