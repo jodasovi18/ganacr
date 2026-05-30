@@ -28,16 +28,25 @@ const s = StyleSheet.create({
   page:             { fontFamily: 'Roboto', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
   header:           { backgroundColor: C.primary, padding: 14, marginBottom: 16, borderRadius: 4 },
   headerBrand:      { fontSize: 15, color: C.white, fontWeight: 'bold', marginBottom: 3 },
-  headerFinca:      { fontSize: 9, color: C.accent, marginBottom: 1 },
-  headerLote:       { fontSize: 11, color: C.white, fontWeight: 'bold', marginBottom: 1 },
+  headerPara:       { fontSize: 9, color: '#a7d4bc', marginBottom: 2 },
+  headerSocio:      { fontSize: 13, color: C.white, fontWeight: 'bold', marginBottom: 2 },
+  headerLote:       { fontSize: 9, color: C.accent, marginBottom: 1 },
   headerFecha:      { fontSize: 8, color: '#a7d4bc' },
-  section:          { marginBottom: 14 },
-  sectionBar:       { backgroundColor: C.primaryMid, paddingHorizontal: 8, paddingVertical: 5, marginBottom: 0 },
-  sectionTitle:     { fontSize: 9, color: C.white, fontWeight: 'bold' },
-  infoBlock:        { padding: '8 0', borderBottomWidth: 0.5, borderBottomColor: C.border, marginBottom: 8 },
+  hero:             { backgroundColor: C.primaryMid, borderRadius: 6, padding: 14, marginBottom: 14, flexDirection: 'row', alignItems: 'center' },
+  heroMain:         { flex: 1 },
+  heroLabel:        { fontSize: 7, color: '#a7d4bc', marginBottom: 4 },
+  heroValue:        { fontSize: 20, color: C.white, fontWeight: 'bold' },
+  heroSub:          { fontSize: 7, color: '#a7d4bc', marginTop: 2 },
+  heroPct:          { width: 48, height: 48, backgroundColor: C.accent, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  heroPctNum:       { fontSize: 16, fontWeight: 'bold', color: C.white },
+  heroPctLabel:     { fontSize: 6, color: 'rgba(255,255,255,0.8)' },
+  infoBlock:        { paddingBottom: 8, borderBottomWidth: 0.5, borderBottomColor: C.border, marginBottom: 10 },
   infoRow:          { flexDirection: 'row', marginBottom: 3 },
   infoLabel:        { width: 110, fontSize: 8, fontWeight: 'bold', color: C.muted },
   infoValue:        { flex: 1, fontSize: 8, color: C.text },
+  section:          { marginBottom: 14 },
+  sectionBar:       { backgroundColor: C.primaryMid, paddingHorizontal: 8, paddingVertical: 5 },
+  sectionTitle:     { fontSize: 9, color: C.white, fontWeight: 'bold' },
   summaryRow:       { flexDirection: 'row', marginTop: 6, marginBottom: 2 },
   summaryCard:      { flex: 1, marginRight: 5, backgroundColor: C.primaryLight, borderWidth: 0.5, borderColor: C.border, borderRadius: 3, padding: 7 },
   summaryCardLast:  { flex: 1, marginRight: 0, backgroundColor: C.primaryLight, borderWidth: 0.5, borderColor: C.border, borderRadius: 3, padding: 7 },
@@ -80,29 +89,48 @@ const TIPO_LABEL: Record<string, string> = {
   otro:        'Otro',
 };
 
-export interface ReporteLotePDFProps {
+export interface ReporteSocioPDFProps {
   lote: Lote;
   animales: Animal[];
   ventas: Venta[];
   gastos: Gasto[];
   nombreFinca: string;
+  nombreDueno: string;
   fechaGenerado: string;
 }
 
-export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreFinca, fechaGenerado }: ReporteLotePDFProps) {
-  const esMedias = lote.tipoPropiedad === 'medias';
-  const activos  = animales.filter(a => a.estado === 'activo');
+export default function ReporteSocioPDF({
+  lote, animales, ventas, gastos, nombreFinca, nombreDueno, fechaGenerado,
+}: ReporteSocioPDFProps) {
+  const socio = lote.socio!;
+  const pctSocio = socio.porcentaje;
+  const pctDueno = 100 - pctSocio;
+  const activos = animales.filter(a => a.estado === 'activo');
   const gastosOrdenados = [...gastos].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const utilidadSocio = lote.utilidadTotal * pctSocio / 100;
 
   return (
-    <Document title={`GanaCR - ${lote.nombreLote}`} author="GanaCR">
+    <Document title={`GanaCR - Reporte Socio - ${lote.nombreLote}`} author="GanaCR">
       <Page size="A4" style={s.page}>
 
         <View style={s.header}>
           <Text style={s.headerBrand}>GanaCR</Text>
-          <Text style={s.headerFinca}>{nombreFinca}</Text>
-          <Text style={s.headerLote}>{lote.nombreLote}</Text>
+          <Text style={s.headerPara}>Reporte para socio</Text>
+          <Text style={s.headerSocio}>{socio.nombre}</Text>
+          <Text style={s.headerLote}>{nombreFinca} · {lote.nombreLote}</Text>
           <Text style={s.headerFecha}>Generado el {fmtDate(fechaGenerado)}</Text>
+        </View>
+
+        <View style={s.hero}>
+          <View style={s.heroMain}>
+            <Text style={s.heroLabel}>TU UTILIDAD ACUMULADA</Text>
+            <Text style={s.heroValue}>{fmtCRC(utilidadSocio)}</Text>
+            <Text style={s.heroSub}>Sobre {fmtCRC(lote.utilidadTotal)} de utilidad bruta total</Text>
+          </View>
+          <View style={s.heroPct}>
+            <Text style={s.heroPctNum}>{pctSocio}%</Text>
+            <Text style={s.heroPctLabel}>tu parte</Text>
+          </View>
         </View>
 
         <View style={s.infoBlock}>
@@ -111,12 +139,8 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
             <Text style={s.infoValue}>{fmtDate(lote.fechaCompra)}</Text>
           </View>
           <View style={s.infoRow}>
-            <Text style={s.infoLabel}>Tipo de propiedad:</Text>
-            <Text style={s.infoValue}>
-              {esMedias && lote.socio
-                ? `A medias — ${lote.socio.nombre} (${lote.socio.porcentaje}% / ${100 - lote.socio.porcentaje}%)`
-                : 'Propio'}
-            </Text>
+            <Text style={s.infoLabel}>Socios:</Text>
+            <Text style={s.infoValue}>{nombreDueno} ({pctDueno}%) · {socio.nombre} ({pctSocio}%)</Text>
           </View>
           <View style={s.infoRow}>
             <Text style={s.infoLabel}>Animales activos:</Text>
@@ -139,16 +163,14 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
               <Text style={s.summaryLabel}>Total ventas</Text>
               <Text style={s.summaryValue}>{fmtCRC(lote.totalVentas)}</Text>
             </View>
-            <View style={esMedias ? s.summaryCard : s.summaryCardLast}>
+            <View style={s.summaryCard}>
               <Text style={s.summaryLabel}>Utilidad bruta</Text>
               <Text style={s.summaryValue}>{fmtCRC(lote.utilidadTotal)}</Text>
             </View>
-            {esMedias && lote.socio && (
-              <View style={s.summaryCardHl}>
-                <Text style={s.summaryLabelHl}>Utilidad socio ({lote.socio.porcentaje}%)</Text>
-                <Text style={s.summaryValueHl}>{fmtCRC(lote.utilidadTotal * lote.socio.porcentaje / 100)}</Text>
-              </View>
-            )}
+            <View style={s.summaryCardHl}>
+              <Text style={s.summaryLabelHl}>Tu utilidad ({pctSocio}%)</Text>
+              <Text style={s.summaryValueHl}>{fmtCRC(utilidadSocio)}</Text>
+            </View>
           </View>
         </View>
 
@@ -181,7 +203,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
             <Text style={[s.cellH, { flex: 0.7 }]}>Animales</Text>
             <Text style={[s.cellH, { flex: 1.2 }]}>Total venta</Text>
             <Text style={[s.cellH, { flex: 1.2 }]}>Utilidad bruta</Text>
-            {esMedias && <Text style={[s.cellH, { flex: 1.2 }]}>Utilidad socio</Text>}
+            <Text style={[s.cellH, { flex: 1.2 }]}>Tu utilidad ({pctSocio}%)</Text>
           </View>
           {ventas.length === 0 ? (
             <View style={s.emptyRow}><Text style={s.emptyText}>Sin ventas registradas</Text></View>
@@ -191,7 +213,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
               <Text style={[s.cell, { flex: 0.7 }]}>{v.cantidadAnimales}</Text>
               <Text style={[s.cell, { flex: 1.2 }]}>{fmtCRC(v.totalVenta)}</Text>
               <Text style={[s.cell, { flex: 1.2 }]}>{fmtCRC(v.utilidadBruta)}</Text>
-              {esMedias && <Text style={[s.cell, { flex: 1.2 }]}>{fmtCRC(v.utilidadSocio ?? 0)}</Text>}
+              <Text style={[s.cell, { flex: 1.2 }]}>{fmtCRC(v.utilidadSocio ?? 0)}</Text>
             </View>
           ))}
         </View>
@@ -217,7 +239,7 @@ export default function ReporteLotePDF({ lote, animales, ventas, gastos, nombreF
         </View>
 
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>GanaCR — Sistema de Gestión Ganadera</Text>
+          <Text style={s.footerText}>GanaCR — Reporte generado para {socio.nombre}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `Página ${pageNumber} / ${totalPages}`} />
         </View>
 
