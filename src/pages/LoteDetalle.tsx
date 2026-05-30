@@ -16,7 +16,8 @@ import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
 import { exportarLotesExcel } from '@/utils/exportExcel';
-import { exportarLotePDF } from '@/utils/exportPDF';
+import { exportarLotePDF, exportarSocioPDF } from '@/utils/exportPDF';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
@@ -32,6 +33,7 @@ export default function LoteDetalle() {
   const { ventas } = useVentas(loteId ?? null);
   const navigate = useNavigate();
   const { fincaActiva, fincas } = useFinca();
+  const { userData } = useAuth();
   const { lotes: todosLosLotes } = useAllLotes();
 
   const { eliminarAnimal } = useEliminarAnimal();
@@ -161,6 +163,23 @@ export default function LoteDetalle() {
     exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
   }
 
+  async function handleGenerarPDFSocio() {
+    if (!lote || !fincaActiva || !lote.socio) return;
+    try {
+      await exportarSocioPDF({
+        lote,
+        animales,
+        ventas,
+        gastos,
+        nombreFinca: fincaActiva.nombre,
+        nombreDueno: userData?.nombre ?? 'Propietario',
+        fechaGenerado: new Date().toISOString().substring(0, 10),
+      });
+    } catch (err) {
+      console.error('[LoteDetalle] Error generando PDF socio:', err);
+    }
+  }
+
   async function handleGenerarPDF() {
     if (!lote || !fincaActiva) return;
     try {
@@ -207,6 +226,11 @@ export default function LoteDetalle() {
               {animales.length > 0 && (
                 <button className="btn btn-secondary btn-sm" onClick={handleGenerarPDF}>
                   📄 PDF
+                </button>
+              )}
+              {animales.length > 0 && lote.tipoPropiedad === 'medias' && lote.socio && (
+                <button className="btn btn-secondary btn-sm" onClick={handleGenerarPDFSocio}>
+                  🤝 PDF Socio
                 </button>
               )}
             </div>
