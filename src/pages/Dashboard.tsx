@@ -255,53 +255,66 @@ export default function Dashboard() {
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {lotes.map((lote) => (
-                  <Card key={lote.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/lote/${lote.id}`)}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-foreground truncate">{lote.nombreLote}</h3>
-                            {lote.tipoPropiedad === 'medias' && (
-                              <Badge variant="secondary" className="text-xs shrink-0">
-                                {lote.socio ? `🤝 ${lote.socio.nombre}` : 'A medias'}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {lote.animalesActivos} activos · {lote.animalesVendidos} vendidos · {formatColones(lote.totalInvertido)}
-                          </p>
-                          {lote.utilidadTotal !== 0 && (
-                            <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive'}`}>
-                              Utilidad: {formatColones(lote.utilidadTotal)}
-                            </p>
+                  <Card key={lote.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      {/* Título + badge status */}
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h3 className="font-bold text-foreground leading-tight">{lote.nombreLote}</h3>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {lote.tipoPropiedad === 'medias' && lote.socio && (
+                            <Badge variant="secondary" className="text-xs">🤝 {lote.socio.nombre}</Badge>
                           )}
-                          <p className="text-xs text-muted-foreground mt-1">Compra: {formatFecha(lote.fechaCompra)}</p>
+                          {/* PDF/Excel secundarios */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <MoreVertical size={14} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleGenerarPDF(lote)} disabled={generandoPDF}>
+                                <FileText size={14} className="mr-2" /> {generandoPDF ? 'Generando...' : 'PDF Lote'}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                              <MoreVertical size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/lote/${lote.id}`); }}>
-                              <Eye size={14} className="mr-2" /> Ver lote
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditLote(lote); }}>
-                              <Pencil size={14} className="mr-2" /> Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleGenerarPDF(lote); }} disabled={generandoPDF}>
-                              <FileText size={14} className="mr-2" /> {generandoPDF ? 'Generando...' : 'PDF Lote'}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={(e) => { e.stopPropagation(); setDeleteLote(lote); }}
-                            >
-                              <Trash2 size={14} className="mr-2" /> Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      </div>
+
+                      {/* Stats */}
+                      <p className="text-sm text-muted-foreground">
+                        {lote.animalesActivos} animales · {formatColones(lote.totalInvertido)}
+                      </p>
+                      {lote.utilidadTotal !== 0 && (
+                        <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          Utilidad: {formatColones(lote.utilidadTotal)}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-0.5">Compra: {formatFecha(lote.fechaCompra)}</p>
+
+                      {/* Botones de acción visibles — igual al mockup */}
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => navigate(`/lote/${lote.id}`)}
+                        >
+                          Ver lote →
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditLote(lote)}
+                        >
+                          <Pencil size={13} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5"
+                          onClick={() => setDeleteLote(lote)}
+                        >
+                          <Trash2 size={13} />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
