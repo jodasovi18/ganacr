@@ -1,4 +1,5 @@
 import { Document, Font, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+import { Animal, Gasto, Lote, Venta } from '@/types';
 
 Font.register({
   family: 'Roboto',
@@ -6,11 +7,10 @@ Font.register({
     { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf' },
     {
       src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf',
-      fontWeight: 'bold',
+      fontWeight: 700,
     },
   ],
 });
-import { Animal, Gasto, Lote, Venta } from '@/types';
 
 const C = {
   primary:     '#1b4332',
