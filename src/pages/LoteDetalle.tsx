@@ -11,6 +11,8 @@ import RegistrarPesoModal from '@/components/RegistrarPesoModal';
 import VenderAnimalesModal from '@/components/VenderAnimalesModal';
 import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
 import { useFinca } from '@/contexts/FincaContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { exportarLotePDF, exportarSocioPDF } from '@/utils/exportPDF';
 import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
@@ -25,7 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Plus, MoreVertical, FileSpreadsheet, Trash2, Pencil, Scale } from 'lucide-react';
+import { ArrowLeft, Plus, MoreVertical, FileSpreadsheet, FileText, Trash2, Pencil, Scale } from 'lucide-react';
 
 type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad';
 
@@ -37,6 +39,7 @@ export default function LoteDetalle() {
   const { ventas } = useVentas(loteId ?? null);
   const navigate = useNavigate();
   const { fincaActiva, fincas } = useFinca();
+  const { userData } = useAuth();
   const { lotes: todosLosLotes } = useAllLotes();
 
   const { eliminarAnimal } = useEliminarAnimal();
@@ -178,6 +181,39 @@ export default function LoteDetalle() {
     exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
   }
 
+  async function handleGenerarPDF() {
+    if (!lote || !fincaActiva) return;
+    try {
+      await exportarLotePDF({
+        lote,
+        animales,
+        ventas,
+        gastos,
+        nombreFinca: fincaActiva.nombre,
+        fechaGenerado: new Date().toISOString().substring(0, 10),
+      });
+    } catch (err) {
+      console.error('[LoteDetalle] Error generando PDF:', err);
+    }
+  }
+
+  async function handleGenerarPDFSocio() {
+    if (!lote || !fincaActiva || !lote.socio) return;
+    try {
+      await exportarSocioPDF({
+        lote,
+        animales,
+        ventas,
+        gastos,
+        nombreFinca: fincaActiva.nombre,
+        nombreDueno: userData?.nombre ?? '',
+        fechaGenerado: new Date().toISOString().substring(0, 10),
+      });
+    } catch (err) {
+      console.error('[LoteDetalle] Error generando PDF socio:', err);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* ── Header ── */}
@@ -220,6 +256,16 @@ export default function LoteDetalle() {
                   {animales.length > 0 && (
                     <DropdownMenuItem onClick={handleExportarExcel}>
                       <FileSpreadsheet className="w-4 h-4 mr-2" /> Exportar Excel
+                    </DropdownMenuItem>
+                  )}
+                  {animales.length > 0 && (
+                    <DropdownMenuItem onClick={handleGenerarPDF}>
+                      <FileText className="w-4 h-4 mr-2" /> PDF Lote
+                    </DropdownMenuItem>
+                  )}
+                  {animales.length > 0 && lote.tipoPropiedad === 'medias' && lote.socio && (
+                    <DropdownMenuItem onClick={handleGenerarPDFSocio}>
+                      <FileText className="w-4 h-4 mr-2" /> PDF Socio
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
