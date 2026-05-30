@@ -63,17 +63,24 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - **PDF perdido en migración**: `handleGenerarPDF()` y `handleGenerarPDFSocio()` eliminados
   accidentalmente al reescribir LoteDetalle. Restaurados con dropdown items en el menú ⋮.
 
-### Usuario demo — SCRIPT LISTO, pendiente deploy de indexes
+### Usuario demo — FUNCIONANDO ✅ (corregido 30 mayo 2026)
 - Script `npm run copy-to-demo` copia TODOS los datos del usuario real a `demo@ganacr.com / GanaCR2026!`
 - Script `npm run verify-demo` verifica integridad de los datos copiados
-- **Los datos están correctamente copiados** (1,404 documentos, fincaIds verificados ✅)
-- **PENDIENTE**: `firebase deploy --only firestore:indexes` — los índices compuestos
-  (userId + fincaId + createdAt) no están deployados en producción. Sin esto, las queries
-  de lotes/animales del usuario demo retornan 0 resultados aunque los datos existen en Firestore.
-  Los índices están definidos en `firestore.indexes.json`.
+- Script `npx tsx scripts/test-client-query.ts` corre una query vía Client SDK como un usuario
+  (replica el browser, pasa por security rules) — útil para diagnosticar 0-resultados.
+- **ROOT CAUSE del bug "demo muestra 0 lotes"** (NO eran los índices, eso fue una pista falsa):
+  Los documentos seed/copiados traen un campo `id` espurio (UUID) y `_testData`. El mapeo
+  `{ id: d.id, ...d.data() }` ponía el spread DESPUÉS, así el UUID sobreescribía el doc id real.
+  Resultado: `fincaActiva.id` = UUID basura → `useLotes` consultaba `fincaId == <UUID>` mientras
+  los lotes tenían el fincaId real → 0 matches, sin error. Las fincas igual aparecían (usan
+  `data.nombre`), enmascarando el bug.
+- **FIX**: invertir el spread a `{ ...d.data(), id: d.id }` en los 18 sitios (el doc id real
+  siempre gana). Verificado en producción: 5 lotes en La Esperanza, 1 en El Roble, detalle OK.
+- Nota: los docs demo aún tienen los campos basura (`id`/`_testData`), ahora inofensivos.
+  Limpieza opcional pendiente si se quiere higiene de datos.
 
 ## Pendiente inmediato
-- [ ] **`firebase deploy --only firestore:indexes`** — URGENTE para que el usuario demo funcione
+- [ ] (Opcional) Limpiar campos `id`/`_testData` espurios de los docs demo
 - [ ] Mover animales entre fincas distintas (cross-finca, Fase 2A restante)
 - [ ] Control de partos (Fase 2B)
 
