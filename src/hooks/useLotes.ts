@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -29,11 +28,14 @@ export function useLotes(fincaId: string | null) {
     const q = query(
       collection(db, 'lotes'),
       where('userId', '==', user.uid),
-      where('fincaId', '==', fincaId),
-      orderBy('createdAt', 'desc')
+      where('fincaId', '==', fincaId)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setLotes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lote)));
+      setLotes(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Lote))
+          .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[useLotes] onSnapshot error:', error);
@@ -187,11 +189,14 @@ export function useAllLotes() {
     if (!user) { setLoading(false); return; }
     const q = query(
       collection(db, 'lotes'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', user.uid)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setLotes(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Lote)));
+      setLotes(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Lote))
+          .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[useAllLotes] onSnapshot error:', error);

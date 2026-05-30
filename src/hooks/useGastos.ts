@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   doc,
@@ -25,11 +24,14 @@ export function useGastos(loteId: string | null) {
     const q = query(
       collection(db, 'gastos'),
       where('userId', '==', user.uid),
-      where('loteId', '==', loteId),
-      orderBy('fecha', 'desc')
+      where('loteId', '==', loteId)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setGastos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Gasto)));
+      setGastos(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Gasto))
+          .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[useGastos] onSnapshot error:', error);

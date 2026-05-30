@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   getDocs,
@@ -26,11 +25,14 @@ export function useAnimales(loteId: string | null) {
     const q = query(
       collection(db, 'animales'),
       where('userId', '==', user.uid),
-      where('loteId', '==', loteId),
-      orderBy('createdAt', 'desc')
+      where('loteId', '==', loteId)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setAnimales(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Animal)));
+      setAnimales(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Animal))
+          .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[useAnimales] onSnapshot error:', error);

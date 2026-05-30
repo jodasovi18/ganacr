@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   doc,
   getDocs,
@@ -54,13 +53,16 @@ export function useGastosFinca(fincaId: string | null) {
     const q = query(
       collection(db, 'gastosFinca'),
       where('userId', '==', user.uid),
-      where('fincaId', '==', fincaId),
-      orderBy('fecha', 'desc')
+      where('fincaId', '==', fincaId)
     );
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setGastosFinca(snap.docs.map((d) => ({ id: d.id, ...d.data() } as GastoFinca)));
+        setGastosFinca(
+          snap.docs
+            .map((d) => ({ id: d.id, ...d.data() } as GastoFinca))
+            .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
+        );
         setLoading(false);
       },
       (_err) => { setLoading(false); }

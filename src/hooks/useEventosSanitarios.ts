@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   doc,
   writeBatch,
@@ -25,13 +24,16 @@ export function useEventosSanitarios(loteId: string | null) {
     const q = query(
       collection(db, 'eventosSanitarios'),
       where('userId', '==', user.uid),
-      where('loteId', '==', loteId),
-      orderBy('fecha', 'desc')
+      where('loteId', '==', loteId)
     );
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setEventos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EventoSanitario)));
+        setEventos(
+          snap.docs
+            .map((d) => ({ id: d.id, ...d.data() } as EventoSanitario))
+            .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
+        );
         setLoading(false);
       },
       (err) => { console.error('[useEventosSanitarios]', err); setLoading(false); }

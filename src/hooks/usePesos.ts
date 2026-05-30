@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   doc,
   writeBatch,
@@ -22,11 +21,14 @@ export function usePesos(animalId: string | null) {
     const q = query(
       collection(db, 'pesos'),
       where('userId', '==', user.uid),
-      where('animalId', '==', animalId),
-      orderBy('fecha', 'desc')
+      where('animalId', '==', animalId)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setPesos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peso)));
+      setPesos(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Peso))
+          .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[usePesos] onSnapshot error:', error);

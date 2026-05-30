@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Finca } from '@/types';
@@ -24,11 +24,12 @@ export function FincaProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const q = query(
       collection(db, 'fincas'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'asc')
+      where('userId', '==', user.uid)
     );
     const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Finca));
+      const list = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() } as Finca))
+        .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
       setFincas(list);
       setLoading(false);
 
