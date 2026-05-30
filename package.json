@@ -11,6 +11,7 @@
     "seed": "tsx --tsconfig scripts/tsconfig.json scripts/seed.ts",
     "cleanup": "tsx --tsconfig scripts/tsconfig.json scripts/cleanup.ts",
     "copy-to-demo": "tsx --tsconfig scripts/tsconfig.json scripts/copy-to-demo.ts",
+    "verify-demo": "tsx --tsconfig scripts/tsconfig.json scripts/verify-demo.ts",
     "test:qa": "playwright test"
   },
   "dependencies": {
