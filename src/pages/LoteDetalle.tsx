@@ -228,18 +228,18 @@ export default function LoteDetalle() {
           </div>
 
           {/* Stat cards */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3">
+          <div className="grid grid-cols-5 gap-2 mt-3">
             {[
-              { label: 'Activos', value: String(lote.animalesActivos) },
-              { label: 'Vendidos', value: String(lote.animalesVendidos) },
+              { label: 'Activos',   value: String(lote.animalesActivos) },
+              { label: 'Vendidos',  value: String(lote.animalesVendidos) },
               { label: 'Invertido', value: formatColones(lote.totalInvertido) },
-              { label: 'Gastos', value: formatColones(lote.totalGastos) },
-              { label: 'Utilidad', value: formatColones(lote.utilidadTotal), color: lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive' },
+              { label: 'Gastos',    value: formatColones(lote.totalGastos) },
+              { label: 'Utilidad',  value: formatColones(lote.utilidadTotal), color: lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive' },
             ].map((stat) => (
               <Card key={stat.label}>
-                <CardContent className="p-3 text-center">
-                  <div className={`font-extrabold text-base leading-tight ${stat.color ?? 'text-foreground'}`}>{stat.value}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 uppercase tracking-wide">{stat.label}</div>
+                <CardContent className="p-2 sm:p-3 flex flex-col items-center justify-center min-h-[56px] gap-0.5">
+                  <div className={`font-extrabold text-xs sm:text-sm leading-tight text-center break-words w-full ${stat.color ?? 'text-foreground'}`}>{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide text-center">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -315,7 +315,7 @@ export default function LoteDetalle() {
                             <th className="px-3 py-2"></th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[hsl(var(--border))]">
+                        <tbody className="divide-y divide-border">
                           {animalesFiltrados.map((animal) => {
                             const ganancia = animal.pesoActual - animal.pesoInicial;
                             return (
@@ -393,7 +393,7 @@ export default function LoteDetalle() {
                         return (
                           <Card
                             key={animal.id}
-                            className={`cursor-default ${modoSeleccion && animal.estado === 'activo' ? 'cursor-pointer' : ''} ${seleccionados.has(animal.id) ? 'border-primary bg-primary/6' : ''}`}
+                            className={`cursor-default ${modoSeleccion && animal.estado === 'activo' ? 'cursor-pointer' : ''} ${seleccionados.has(animal.id) ? 'border-primary bg-primary/10' : ''}`}
                             onClick={modoSeleccion && animal.estado === 'activo' ? () => toggleSeleccion(animal.id) : undefined}
                           >
                             <CardContent className="p-3">
