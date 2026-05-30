@@ -10,6 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "seed": "tsx --tsconfig scripts/tsconfig.json scripts/seed.ts",
     "cleanup": "tsx --tsconfig scripts/tsconfig.json scripts/cleanup.ts",
+    "copy-to-demo": "tsx --tsconfig scripts/tsconfig.json scripts/copy-to-demo.ts",
     "test:qa": "playwright test"
   },
   "dependencies": {
