@@ -5,6 +5,7 @@ import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
 import LoteDetalle from '@/pages/LoteDetalle';
 import { ReactNode } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/lote/:loteId" element={<PrivateRoute><LoteDetalle /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster position="top-right" richColors />
       </BrowserRouter>
     </AuthProvider>
   );
