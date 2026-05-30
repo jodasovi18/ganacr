@@ -45,7 +45,7 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - [ ] Control de partos (madre, fecha, peso al nacer) — PENDIENTE
 - [ ] Filtro avanzado de animales (por raza, estado, rango de peso) — PENDIENTE
 
-### Rediseño UI — COMPLETO (PR #13 pendiente de merge)
+### Rediseño UI — COMPLETO (en producción)
 - Migración completa de CSS vanilla a **Tailwind CSS v4 + shadcn/ui**
 - Paleta "Campo Claro": background `#f8fafc`, primary `#1e4d3a`, border `#d1d9e3`
 - 11 componentes shadcn: Button, Card, Dialog, Tabs, Input, Label, Badge, DropdownMenu, Select, Sonner, Drawer
@@ -54,9 +54,26 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - Zero archivos CSS individuales — todo en `src/index.css`
 - `@theme inline` + `@apply border-border` en base layer (requerido por shadcn/Tailwind v4)
 
+### Bugs post-migración UI corregidos (sesión 30 mayo 2026 — PR #15)
+- **CSS Cascade Level 5**: reset `* { margin:0; padding:0 }` estaba fuera de `@layer`, lo que
+  sobreescribía TODOS los utilities de Tailwind v4 (`p-*`, `m-*`, `px-*`, `py-*`).
+  Fix: mover dentro de `@layer base` en `src/index.css`.
+- **Tab activo invisible**: `data-[state=active]:bg-background` = `#f8fafc` (fondo de página).
+  Fix: cambiar a `bg-card` en `src/components/ui/tabs.tsx`.
+- **PDF perdido en migración**: `handleGenerarPDF()` y `handleGenerarPDFSocio()` eliminados
+  accidentalmente al reescribir LoteDetalle. Restaurados con dropdown items en el menú ⋮.
+
+### Usuario demo — SCRIPT LISTO, pendiente deploy de indexes
+- Script `npm run copy-to-demo` copia TODOS los datos del usuario real a `demo@ganacr.com / GanaCR2026!`
+- Script `npm run verify-demo` verifica integridad de los datos copiados
+- **Los datos están correctamente copiados** (1,404 documentos, fincaIds verificados ✅)
+- **PENDIENTE**: `firebase deploy --only firestore:indexes` — los índices compuestos
+  (userId + fincaId + createdAt) no están deployados en producción. Sin esto, las queries
+  de lotes/animales del usuario demo retornan 0 resultados aunque los datos existen en Firestore.
+  Los índices están definidos en `firestore.indexes.json`.
+
 ## Pendiente inmediato
-- [ ] **Merge PR #13** — rediseño UI (verificar preview antes de merge)
-- [ ] **Usuario demo** — crear usuario de prueba con datos ficticios para demos con clientes
+- [ ] **`firebase deploy --only firestore:indexes`** — URGENTE para que el usuario demo funcione
 - [ ] Mover animales entre fincas distintas (cross-finca, Fase 2A restante)
 - [ ] Control de partos (Fase 2B)
 
@@ -119,7 +136,7 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `src/lib/utils.ts` — función `cn()` de shadcn/ui
 - `docs/superpowers/` — specs y planes de implementación (brainstorming sessions)
 - `tests/responsive/` — tests Playwright (`playwright.responsive.config.ts`)
-- `scripts/` — seed y cleanup de datos (tsx)
+- `scripts/` — seed, cleanup, copy-to-demo y verify-demo (tsx con Firebase Admin SDK)
 
 ## Convenciones del proyecto
 - Colones costarricenses (₡) para moneda, formateados con `formatColones()`
@@ -147,6 +164,8 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 
 ## Índices Firestore relevantes
 Ver `firestore.indexes.json` — índices compuestos para queries por userId + fincaId + loteId.
+**IMPORTANTE**: Los índices deben deployarse con `firebase deploy --only firestore:indexes`.
+Sin este paso, las queries multi-campo fallan silenciosamente (0 resultados, sin error en consola).
 
 ## Contexto del desarrollador
 - José Daniel, contador en Costa Rica con conocimientos en Python, JS, TypeScript
