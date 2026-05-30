@@ -8,43 +8,59 @@ Objetivo a mediano plazo: producto comercializable para ganaderos costarricenses
 con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 
 ## Stack
-- React 18 + TypeScript + Vite
+- React 18 + TypeScript + Vite 5
 - Firebase: Firestore (base de datos) + Auth (autenticación)
 - React Router DOM 6
-- CSS vanilla con variables CSS (no Tailwind, no Material UI)
+- **Tailwind CSS v4** + **shadcn/ui** — paleta "Campo Claro" (#1e4d3a verde bosque)
 - Offline-first: Firestore IndexedDB persistence
+- react-pdf/renderer — exportación PDF de lotes
+- xlsx — exportación Excel
 
-## Estado actual del MVP (COMPLETO)
+## Estado actual (al 30 mayo 2026)
+
+### MVP original — COMPLETO
 - Auth (login/registro con Firebase)
-- Dashboard con estadísticas de todos los lotes
+- Dashboard con estadísticas globales de finca
 - Crear lotes (propio o a medias con socio)
 - Agregar animales (arete, raza, peso, precio)
-- Registrar pesajes
+- Registrar pesajes con historial
 - Registrar gastos (alimento, veterinario, mano de obra, transporte)
 - Vender animales con cálculo automático de utilidad y división a medias
 - CRUD completo: editar y borrar animales, gastos, lotes; anular ventas con reversión de contadores
-- Diseño responsive mobile-first (móvil ≤640px, tablet 641–1024px, desktop ≥1025px); hamburger nav, bottom-sheet modals, cards por animal, filtro de arete offline
+
+### Fase 2A — Multi-finca — COMPLETO
+- Colección `fincas` en Firestore; campo `fincaId` en `lotes`, `animales`, `gastos`, `ventas`
+- `FincaContext` + `FincaSelector` — selector de finca activa en el navbar
+- `useFincas`, `useLotes(fincaId)` — hooks filtran por finca
+- Onboarding: crea primera finca al registrarse
+- Mover animales entre lotes de la misma finca (MoverAnimalesModal + writeBatch)
+- Gastos a nivel de finca con distribución proporcional entre lotes (GastosFincaTab, GastoFincaModal)
+- **Pendiente de Fase 2A**: mover animales entre fincas distintas (cross-finca)
+
+### Fase 2B — Gestión básica — PARCIALMENTE COMPLETO
+- [x] Módulo de sanidad: vacunas y tratamientos por animal (SanidadTab, EventoSanitarioModal)
+- [x] Gráficos de evolución de peso por animal (AnimalWeightChart) y por lote (LoteAvgChart)
+- [x] Export Excel de inventario y ventas (`exportarLotesExcel`)
+- [x] Reporte PDF de lote con datos completos (`ReporteLotePDF`, `ReporteSocioPDF`)
+- [ ] Control de partos (madre, fecha, peso al nacer) — PENDIENTE
+- [ ] Filtro avanzado de animales (por raza, estado, rango de peso) — PENDIENTE
+
+### Rediseño UI — COMPLETO (PR #13 pendiente de merge)
+- Migración completa de CSS vanilla a **Tailwind CSS v4 + shadcn/ui**
+- Paleta "Campo Claro": background `#f8fafc`, primary `#1e4d3a`, border `#d1d9e3`
+- 11 componentes shadcn: Button, Card, Dialog, Tabs, Input, Label, Badge, DropdownMenu, Select, Sonner, Drawer
+- Login, Dashboard, LoteDetalle + 11 modales migrados
+- Cards de lote con botones de acción visibles (Ver lote, Editar, Eliminar)
+- Zero archivos CSS individuales — todo en `src/index.css`
+- `@theme inline` + `@apply border-border` en base layer (requerido por shadcn/Tailwind v4)
+
+## Pendiente inmediato
+- [ ] **Merge PR #13** — rediseño UI (verificar preview antes de merge)
+- [ ] **Usuario demo** — crear usuario de prueba con datos ficticios para demos con clientes
+- [ ] Mover animales entre fincas distintas (cross-finca, Fase 2A restante)
+- [ ] Control de partos (Fase 2B)
 
 ## Roadmap — Próximas fases
-
-### Fase 2A — Arquitectura multi-finca (FUNDACIÓN — hacer antes que Fase 2B y 3)
-Contexto: hoy la jerarquía es Usuario → Lotes. Introducir Fincas es el cambio
-arquitectónico más importante porque todas las features siguientes dependen de él.
-Jerarquía objetivo: Usuario → Fincas → Lotes → Animales/Gastos/Ventas.
-- [ ] Nueva colección `fincas` en Firestore; campo `fincaId` en `lotes`, `animales`, `gastos`, `ventas`
-- [ ] Hooks actualizados (`useLotes`, `useAnimales`, `useGastos`, `usePesos`, `useVentas`) para filtrar por `fincaId`
-- [ ] Pantalla de selección/gestión de fincas antes del Dashboard actual
-- [ ] Migración de datos: asignar lotes existentes a una "Finca por defecto" sin romper cuentas activas
-- [ ] Mover animales entre lotes de la misma finca: actualizar `loteId` + ajustar contadores con `writeBatch`
-- [ ] Mover animales entre fincas distintas: actualizar `fincaId` + `loteId` + manejar utilidad parcial en lotes a medias
-- [ ] Gastos a nivel de finca: el usuario crea el gasto, selecciona los lotes a los que aplica, y el sistema distribuye el monto proporcionalmente según animales activos de cada lote seleccionado (los lotes a medias se incluyen solo si el usuario los selecciona explícitamente)
-
-### Fase 2B — Completar gestión básica
-- [ ] Módulo de vacunas y tratamientos por animal
-- [ ] Control de partos (madre, fecha, peso al nacer)
-- [ ] Gráficos de evolución de peso por animal/lote
-- [ ] Export a Excel de inventario y ventas
-- [ ] Reporte PDF de lote para enviar al socio por WhatsApp
 
 ### Fase 3 — Trazabilidad SENASA (PRIORIDAD ALTA — legislación vigente)
 Contexto: SENASA implementó obligatoriedad de areteo y registro de movilización.
@@ -57,9 +73,6 @@ offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
 - [ ] Alertas de animales sin arete registrado
 
 ### Fase 4 — Finanzas y costos ganaderos
-Contexto: los ganaderos no conocen su costo real por kilo producido ni su
-rentabilidad por animal, lo que les impide acceder a créditos del MAG/BNCR
-o tomar decisiones informadas.
 - [ ] Costo por kilo producido (inversión + gastos / kg ganado)
 - [ ] Margen por animal vendido
 - [ ] Rentabilidad por lote y comparativa entre lotes
@@ -67,8 +80,6 @@ o tomar decisiones informadas.
 - [ ] Módulo simplificado compatible con líneas de crédito MAG al 6%
 
 ### Fase 5 — Gestión de pastos y finca
-Contexto: tecnología académica (UCR, CATIE) no llega al productor promedio.
-Se necesita una versión práctica sin sensores.
 - [ ] Mapa básico de potreros (polígonos simples)
 - [ ] Rotación de potreros con fechas de entrada/salida
 - [ ] Estimación de carga animal por potrero
@@ -91,12 +102,24 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `src/types/index.ts` — todas las interfaces TypeScript
 - `src/services/firebase.ts` — configuración Firebase (credenciales aquí)
 - `src/contexts/AuthContext.tsx` — manejo de sesión
-- `src/hooks/` — lógica de datos (useLotes, useAnimales, useGastos, usePesos, useVentas, useEditarAnimal, useEliminarAnimal, useActualizarGasto, useEliminarGasto, useEliminarLoteConCascada, useAnularVenta)
-- `src/utils/calculadora.ts` — cálculos de ventas y formateo
-- `src/pages/` — Dashboard, Login, LoteDetalle (con sus `.css` individuales)
-- `src/components/` — modales (CrearLote, AgregarAnimal, AgregarGasto, RegistrarPeso, VenderAnimales, ConfirmarBorrado)
-- `src/index.css` — variables CSS, estilos globales y responsive (bottom-sheet, breakpoints)
-- `tests/responsive/` — tests Playwright de filtro y responsive (`playwright.responsive.config.ts`)
+- `src/contexts/FincaContext.tsx` — finca activa y lista de fincas del usuario
+- `src/hooks/` — lógica de datos (useLotes, useAnimales, useGastos, usePesos, useVentas,
+  useFincas, useGastosFinca, useEventosSanitarios, useEliminarAnimal, useAnularVenta, etc.)
+- `src/utils/calculadora.ts` — cálculos de ventas y formateo (formatColones, formatKg, formatFecha)
+- `src/utils/exportExcel.ts` — exportación a Excel
+- `src/utils/exportPDF.ts` — exportación a PDF
+- `src/pages/` — Dashboard, Login, LoteDetalle
+- `src/components/` — modales y tabs (CrearLote, AgregarAnimal, AgregarGasto,
+  RegistrarPeso, VenderAnimales, ConfirmarBorrado, MoverAnimales,
+  EventoSanitario, AnimalPeso, GastoFinca, PesosTab, SanidadTab, GastosFincaTab)
+- `src/components/ui/` — componentes shadcn/ui (Button, Card, Dialog, Tabs, etc.)
+- `src/components/svg/` — gráficos SVG (AnimalWeightChart, LoteAvgChart)
+- `src/components/pdf/` — componentes react-pdf (ReporteLotePDF, ReporteSocioPDF)
+- `src/index.css` — Tailwind v4 + @theme inline + @layer base con paleta Campo Claro
+- `src/lib/utils.ts` — función `cn()` de shadcn/ui
+- `docs/superpowers/` — specs y planes de implementación (brainstorming sessions)
+- `tests/responsive/` — tests Playwright (`playwright.responsive.config.ts`)
+- `scripts/` — seed y cleanup de datos (tsx)
 
 ## Convenciones del proyecto
 - Colones costarricenses (₡) para moneda, formateados con `formatColones()`
@@ -104,21 +127,26 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - Pesos en kilogramos con `formatKg()`
 - Cada colección Firestore tiene campo `userId` para seguridad por usuario
 - Los lotes acumulan contadores con `increment()` para eficiencia
-- Diseño mobile-first, responsive
-- Sin librerías de UI externas — CSS vanilla con variables
+- Diseño mobile-first, responsive (≤640px mobile, 641-1024px tablet, ≥1025px desktop)
+- **Tailwind CSS v4** con utilidades semánticas: `bg-background`, `text-foreground`,
+  `text-muted-foreground`, `bg-primary`, `text-destructive`, `text-success`, etc.
+- **shadcn/ui**: componentes en `src/components/ui/`, usar `cn()` de `@/lib/utils`
+- Modales usan shadcn `Dialog`; en mobile pueden usar `Drawer` (bottom-sheet)
+- Funciones `cn()` para combinar clases condicionales en componentes
 
 ## Base de datos Firestore (colecciones actuales)
 - `users` — perfil del usuario
-- `lotes` — lotes de ganado con contadores acumulados
-- `animales` — animales individuales ligados a un lote
+- `fincas` — fincas del usuario (nivel superior en la jerarquía)
+- `lotes` — lotes de ganado con contadores acumulados, ligados a una finca
+- `animales` — animales individuales ligados a un lote y finca
 - `pesos` — historial de pesajes por animal
 - `gastos` — gastos por lote
 - `ventas` — ventas realizadas con cálculo de utilidad
+- `gastosFinca` — gastos a nivel de finca con distribución entre lotes
+- `eventosSanitarios` — vacunas y tratamientos por animal
 
-## Base de datos Firestore (planeada — Fase 2A)
-- `fincas` — fincas del usuario (nivel superior antes de lotes)
-- `lotes` — se agrega campo `fincaId`
-- `animales`, `gastos`, `ventas` — se agrega campo `fincaId` para filtrado eficiente
+## Índices Firestore relevantes
+Ver `firestore.indexes.json` — índices compuestos para queries por userId + fincaId + loteId.
 
 ## Contexto del desarrollador
 - José Daniel, contador en Costa Rica con conocimientos en Python, JS, TypeScript
