@@ -160,7 +160,7 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--secondary))] text-white"
+                className="w-full"
                 disabled={loading}
               >
                 {loading ? 'Cargando...' : modo === 'login' ? 'Ingresar' : 'Crear cuenta'}
