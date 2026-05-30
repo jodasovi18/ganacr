@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -27,11 +26,14 @@ export function useFincas() {
     if (!user) return;
     const q = query(
       collection(db, 'fincas'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'asc')
+      where('userId', '==', user.uid)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setFincas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Finca)));
+      setFincas(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Finca))
+          .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
+      );
       setLoading(false);
     }, (error) => {
       console.error('[useFincas] onSnapshot error:', error);

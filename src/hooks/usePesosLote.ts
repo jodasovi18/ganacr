@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Peso } from '@/types';
@@ -22,11 +22,14 @@ export function usePesosLote(loteId: string | null) {
     const q = query(
       collection(db, 'pesos'),
       where('userId', '==', user.uid),
-      where('loteId', '==', loteId),
-      orderBy('fecha', 'desc')
+      where('loteId', '==', loteId)
     );
     const unsub = onSnapshot(q, (snap) => {
-      setPesos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peso)));
+      setPesos(
+        snap.docs
+          .map((d) => ({ id: d.id, ...d.data() } as Peso))
+          .sort((a, b) => (b.fecha < a.fecha ? -1 : 1))
+      );
       setLoading(false);
     }, (err) => {
       console.error('[usePesosLote] onSnapshot error:', err.code, err.message);
