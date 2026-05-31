@@ -10,6 +10,7 @@ import {
   doc,
   increment,
   writeBatch,
+  deleteField,
 } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -171,4 +172,85 @@ export function useEliminarAnimal() {
     await batch.commit();
   }
   return { eliminarAnimal };
+}
+
+// ─── Registrar muerte de un animal ───────────────────────────────────────────
+
+interface RegistrarMuerteInput {
+  fecha: string;            // ISO date de la muerte
+  precioKg: number;         // ₡/kg estimado de mercado, > 0
+  causa?: string;
+  documentoVeterinario?: string;
+}
+
+export function useRegistrarMuerte() {
+  const { user } = useAuth();
+
+  // Devuelve el valorPerdida calculado (para mostrarlo en un toast si se desea).
+  async function registrarMuerte(animal: Animal, input: RegistrarMuerteInput): Promise<number> {
+    if (!user) throw new Error('No autenticado');
+    if (animal.estado !== 'activo') throw new Error('Solo se puede registrar la muerte de un animal activo');
+    if (input.precioKg <= 0) throw new Error('El precio por kg debe ser mayor que cero');
+    if (animal.pesoActual <= 0) throw new Error('El animal no tiene peso registrado');
+
+    const valorPerdida = Math.round(animal.pesoActual * input.precioKg);
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+
+    batch.update(doc(db, 'animales', animal.id), {
+      estado: 'muerto',
+      fechaSalida: input.fecha,
+      causaMuerte: input.causa?.trim() || '',
+      documentoVeterinario: input.documentoVeterinario?.trim() || '',
+      valorPerdida,
+      updatedAt: now,
+    });
+
+    batch.update(doc(db, 'lotes', animal.loteId), {
+      animalesActivos: increment(-1),
+      animalesMuertos: increment(1),
+      utilidadTotal: increment(-valorPerdida), // la pérdida reduce la utilidad del lote
+      updatedAt: now,
+    });
+
+    await batch.commit();
+    return valorPerdida;
+  }
+
+  return { registrarMuerte };
+}
+
+// ─── Anular (revertir) la muerte de un animal ────────────────────────────────
+
+export function useAnularMuerte() {
+  const { user } = useAuth();
+
+  async function anularMuerte(animal: Animal): Promise<void> {
+    if (!user) throw new Error('No autenticado');
+    if (animal.estado !== 'muerto') throw new Error('El animal no está registrado como muerto');
+
+    const valorPerdida = animal.valorPerdida ?? 0;
+    const now = new Date().toISOString();
+    const batch = writeBatch(db);
+
+    batch.update(doc(db, 'animales', animal.id), {
+      estado: 'activo',
+      fechaSalida: deleteField(),
+      causaMuerte: deleteField(),
+      documentoVeterinario: deleteField(),
+      valorPerdida: deleteField(),
+      updatedAt: now,
+    });
+
+    batch.update(doc(db, 'lotes', animal.loteId), {
+      animalesActivos: increment(1),
+      animalesMuertos: increment(-1),
+      utilidadTotal: increment(valorPerdida), // restaura la utilidad
+      updatedAt: now,
+    });
+
+    await batch.commit();
+  }
+
+  return { anularMuerte };
 }
