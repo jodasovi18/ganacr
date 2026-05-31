@@ -35,7 +35,9 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - Onboarding: crea primera finca al registrarse
 - Mover animales entre lotes de la misma finca (MoverAnimalesModal + writeBatch)
 - Gastos a nivel de finca con distribución proporcional entre lotes (GastosFincaTab, GastoFincaModal)
-- **Pendiente de Fase 2A**: mover animales entre fincas distintas (cross-finca)
+- **Mover animales entre fincas distintas (cross-finca)**: COMPLETO — `useMoverAnimales`
+  maneja `isCrossFinca` (migra fincaId de animales y pesos, marca `importado: true`);
+  `MoverAnimalesModal` lo expone en la sección "Otras fincas". Verificado 30 mayo 2026.
 
 ### Fase 2B — Gestión básica — PARCIALMENTE COMPLETO
 - [x] Módulo de sanidad: vacunas y tratamientos por animal (SanidadTab, EventoSanitarioModal)
@@ -81,7 +83,6 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 
 ## Pendiente inmediato
 - [ ] (Opcional) Limpiar campos `id`/`_testData` espurios de los docs demo
-- [ ] Mover animales entre fincas distintas (cross-finca, Fase 2A restante)
 - [ ] Control de partos (Fase 2B)
 
 ## Roadmap — Próximas fases
