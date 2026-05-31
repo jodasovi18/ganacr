@@ -116,7 +116,7 @@ export default function RegistrarMuerteModal({ animal, onClose }: Props) {
           {/* Aviso fiscal */}
           <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
             📋 <strong>Recordatorio:</strong> con un documento de respaldo emitido por un
-            médico veterinario, el valor en libros de este animal puede considerarse pérdida
+            médico veterinario, la pérdida registrada por este animal puede considerarse
             deducible en tu declaración de renta (Ley 7092, art. 8), sujeto a los requisitos
             de la Dirección General de Tributación. Si lo tenés, guardá el dictamen. Consultá
             con tu contador.
