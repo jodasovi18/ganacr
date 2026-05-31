@@ -49,46 +49,55 @@ cross-finca como completo. Si hay bug → arreglarlo (entonces se replantea como
 
 ### Modelo de datos (Enfoque A — campos en el animal)
 
-`Animal` (en `src/types/index.ts`) — agregar dos campos opcionales:
+`Animal` (en `src/types/index.ts`) — agregar tres campos opcionales:
 - `causaMuerte?: string`
 - `documentoVeterinario?: string`  (texto libre, **opcional** — no todos los productores
   tramitan el dictamen)
+- `valorPerdida?: number`  (₡ — valor actual estimado registrado como pérdida al morir;
+  ver cálculo abajo)
 
 Ya existen y se reutilizan: `estado: 'muerto'`, `fechaSalida`, `Lote.animalesMuertos`.
 
-**No se crea colección nueva.** La muerte es 1:1 con un animal; la pérdida = `precioCompra`
-(valor en libros) se deriva consultando los muertos. (Se descartó una colección `muertes`
-por sobre-ingeniería: a diferencia de las ventas, no agrupa varios animales ni tiene
-cálculo complejo que congelar.)
+**Valor de la pérdida = valor actual estimado**, NO el precio de compra. Se calcula al
+registrar la muerte como `pesoActual × precio/kg`, donde el precio/kg lo ingresa el usuario
+(precio de mercado estimado, igual que en el modal de mover animales). El resultado se
+**persiste** en `valorPerdida` para que el reporte y el contador del lote no dependan de
+recalcular con un precio que no se guardaría de otro modo.
+
+**No se crea colección nueva.** La muerte es 1:1 con un animal; los datos viven en el doc
+del animal. (Se descartó una colección `muertes` por sobre-ingeniería: a diferencia de las
+ventas, no agrupa varios animales ni tiene cálculo complejo que congelar.)
 
 ### Hooks (en `src/hooks/useAnimales.ts`)
 
-**`useRegistrarMuerte`** → `registrarMuerte(animal, { fecha, causa?, documentoVeterinario? })`:
+**`useRegistrarMuerte`** → `registrarMuerte(animal, { fecha, precioKg, causa?, documentoVeterinario? })`:
+- Calcula `valorPerdida = Math.round(animal.pesoActual × precioKg)`.
+- Valida `precioKg > 0` y `pesoActual > 0`.
 - `writeBatch` atómico:
   - Animal: `estado='muerto'`, `fechaSalida=fecha`, `causaMuerte`, `documentoVeterinario`,
-    `updatedAt`.
+    `valorPerdida`, `updatedAt`.
   - Lote: `animalesActivos: increment(-1)`, `animalesMuertos: increment(+1)`,
-    `utilidadTotal: increment(-animal.precioCompra)`  ← la pérdida (valor en libros),
+    `utilidadTotal: increment(-valorPerdida)`  ← la pérdida (valor actual estimado),
     `updatedAt`.
 - Solo permitido si `animal.estado === 'activo'`.
 
 **`useAnularMuerte`** → `anularMuerte(animal)`:
 - Revierte: `estado='activo'`, `fechaSalida=deleteField()`, `causaMuerte=deleteField()`,
-  `documentoVeterinario=deleteField()`.
+  `documentoVeterinario=deleteField()`, `valorPerdida=deleteField()`.
 - Lote: `animalesActivos: increment(+1)`, `animalesMuertos: increment(-1)`,
-  `utilidadTotal: increment(+animal.precioCompra)`.
+  `utilidadTotal: increment(+animal.valorPerdida)`  ← usa el valor persistido.
 
 ### Reparto socio
 
-La pérdida atribuible al socio = `precioCompra × socio.porcentaje / 100`, calculada en el
-**reporte** (no se congela en el doc), consistente con cómo `calculadora.ts` reparte la
-utilidad en ventas. En lote `propio`, toda la pérdida es del propietario.
+La pérdida atribuible al socio = `valorPerdida × socio.porcentaje / 100`, calculada en el
+**reporte** desde el `valorPerdida` persistido, consistente con cómo `calculadora.ts`
+reparte la utilidad en ventas. En lote `propio`, toda la pérdida es del propietario.
 
 ### Impacto en estadísticas
 
 - `totalInvertido` del lote **NO se modifica** (el capital se invirtió de verdad).
-- `utilidadTotal` baja por `precioCompra` → la pérdida se refleja en la utilidad del lote
-  y del Dashboard. Coherente con "Pérdida: restar de utilidad".
+- `utilidadTotal` baja por `valorPerdida` (valor actual estimado) → la pérdida se refleja
+  en la utilidad del lote y del Dashboard. Coherente con "Pérdida: restar de utilidad".
 
 ### UI
 
@@ -96,10 +105,12 @@ utilidad en ventas. En lote `propio`, toda la pérdida es del propietario.
 `LoteDetalle`), junto a editar/eliminar. Solo visible si el animal está activo.
 
 **`RegistrarMuerteModal`** (shadcn `Dialog`):
-- Campos: **fecha de muerte** (obligatoria, default hoy), **causa** (opcional),
-  **documento veterinario** (opcional, texto). (Sin campo "notas" propio para no chocar
-  con `Animal.notas` de la compra; la causa cubre la descripción.)
-- Muestra el **valor en libros** (`precioCompra`) que se registrará como pérdida.
+- Campos: **fecha de muerte** (obligatoria, default hoy), **precio/kg estimado**
+  (obligatorio, > 0), **causa** (opcional), **documento veterinario** (opcional, texto).
+  (Sin campo "notas" propio para no chocar con `Animal.notas` de la compra; la causa cubre
+  la descripción.)
+- Muestra en vivo el **valor estimado de la pérdida** = `pesoActual × precio/kg` que se
+  registrará (incluye el `pesoActual` y el cálculo, igual que el modal de mover animales).
 - **Caja de aviso fiscal** (informativa, no bloqueante):
   > 📋 Recordatorio: con un documento de respaldo emitido por un médico veterinario, el
   > valor en libros de este animal puede considerarse pérdida deducible en tu declaración
@@ -125,8 +136,9 @@ aplicación depende del criterio de Tributación. Por eso el aviso en la app es 
 ## 4. Reporte de pérdidas para renta
 
 **`exportarPerdidasExcel(animalesMuertos, lotesMap, nombreFinca)`** en `src/utils/exportExcel.ts`:
-- Hoja Excel con columnas: arete, raza, lote, fecha de muerte, causa, valor en libros
-  (pérdida ₡), % socio, pérdida socio ₡, pérdida propietario ₡, documento veterinario.
+- Hoja Excel con columnas: arete, raza, lote, fecha de muerte, causa, peso (kg),
+  valor estimado de la pérdida (₡ = `valorPerdida`), % socio, pérdida socio ₡, pérdida
+  propietario ₡, documento veterinario.
 - Fila de totales al final.
 
 **Botón "Reporte de pérdidas"** en el Dashboard (junto a "Excel"), habilitado solo si hay
