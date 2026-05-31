@@ -84,6 +84,9 @@ export interface Animal {
   fechaIngreso: string;
   fechaSalida?: string;
   notas?: string;
+  causaMuerte?: string;          // motivo de la muerte (opcional)
+  documentoVeterinario?: string; // referencia al dictamen veterinario (opcional)
+  valorPerdida?: number;         // ₡ valor actual estimado registrado como pérdida al morir
   createdAt: string;
   updatedAt: string;
 }

@@ -108,3 +108,54 @@ export function exportarLotesExcel(
   const safeFinca = nombreFinca.replace(/[^a-zA-Z0-9]/g, '_');
   XLSX.writeFile(wb, `GanaCR_${safeFinca}_${fecha}.xlsx`);
 }
+
+// ─── Reporte de pérdidas por muerte (para declaración de renta) ───────────────
+
+export function exportarPerdidasExcel(
+  animalesMuertos: Animal[],
+  lotesMap: Map<string, Lote>,
+  nombreFinca: string
+): void {
+  const rows: (string | number)[][] = [];
+  rows.push(['REPORTE DE PÉRDIDAS POR MUERTE — ' + nombreFinca]);
+  rows.push([]);
+  rows.push([
+    'Arete', 'Raza', 'Lote', 'Fecha muerte', 'Causa', 'Peso (kg)',
+    'Valor estimado pérdida (₡)', '% socio', 'Pérdida socio (₡)',
+    'Pérdida propietario (₡)', 'Documento veterinario',
+  ]);
+
+  let totalPerdida = 0;
+  for (const a of animalesMuertos) {
+    const lote = lotesMap.get(a.loteId);
+    const valor = a.valorPerdida ?? 0;
+    totalPerdida += valor;
+    const pctSocio = lote?.tipoPropiedad === 'medias' && lote.socio ? lote.socio.porcentaje : 0;
+    const perdidaSocio = Math.round(valor * (pctSocio / 100));
+    const perdidaPropietario = valor - perdidaSocio;
+    rows.push([
+      a.numeroArete,
+      a.raza,
+      lote?.nombreLote ?? '',
+      fechaExcel(a.fechaSalida),
+      a.causaMuerte ?? '',
+      a.pesoActual,
+      valor,
+      pctSocio,
+      perdidaSocio,
+      perdidaPropietario,
+      a.documentoVeterinario ?? '',
+    ]);
+  }
+
+  rows.push([]);
+  rows.push(['', '', '', '', '', 'TOTAL', totalPerdida]);
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sanitizarNombreHoja('Pérdidas'));
+
+  const fecha = new Date().toISOString().substring(0, 10);
+  const safeFinca = nombreFinca.replace(/[^a-zA-Z0-9]/g, '_');
+  XLSX.writeFile(wb, `GanaCR_Perdidas_${safeFinca}_${fecha}.xlsx`);
+}

@@ -14,7 +14,7 @@ import GastosFincaTab from '@/components/GastosFincaTab';
 import { Lote, GastoFinca, Animal, Venta } from '@/types';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
-import { exportarLotesExcel } from '@/utils/exportExcel';
+import { exportarLotesExcel, exportarPerdidasExcel } from '@/utils/exportExcel';
 import { Gasto } from '@/types';
 import { exportarLotePDF } from '@/utils/exportPDF';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exportando, setExportando] = useState(false);
   const [exportError, setExportError] = useState('');
+  const [exportandoPerdidas, setExportandoPerdidas] = useState(false);
   const [generandoPDF, setGenerandoPDF]       = useState(false);
   const [pdfError, setPdfError]               = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -155,6 +156,27 @@ export default function Dashboard() {
     }
   }
 
+  async function handleReportePerdidas() {
+    if (!fincaActiva || !user) return;
+    setExportandoPerdidas(true);
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'animales'),
+        where('userId', '==', user.uid),
+        where('fincaId', '==', fincaActiva.id),
+        where('estado', '==', 'muerto'),
+      ));
+      const muertos = snap.docs.map(d => ({ ...d.data(), id: d.id } as Animal));
+      muertos.sort((a, b) => ((b.fechaSalida ?? '') < (a.fechaSalida ?? '') ? -1 : 1));
+      const lotesMap = new Map(lotes.map(l => [l.id, l]));
+      exportarPerdidasExcel(muertos, lotesMap, fincaActiva.nombre);
+    } catch (err) {
+      console.error('[Dashboard] Error reporte pérdidas:', err);
+    } finally {
+      setExportandoPerdidas(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {necesitaOnboarding && <OnboardingFinca />}
@@ -229,6 +251,10 @@ export default function Dashboard() {
                   <Button variant="outline" size="sm" onClick={handleExportarExcel} disabled={exportando || lotes.length === 0}>
                     <FileSpreadsheet size={14} className="mr-1" />
                     {exportando ? 'Exportando...' : 'Excel'}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleReportePerdidas} disabled={exportandoPerdidas}>
+                    <FileSpreadsheet size={14} className="mr-1" />
+                    {exportandoPerdidas ? 'Generando...' : 'Reporte de pérdidas'}
                   </Button>
                   <Button size="sm" onClick={() => setShowCrear(true)} disabled={!fincaActiva}>
                     <Plus size={14} className="mr-1" /> Nuevo lote

@@ -35,13 +35,20 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - Onboarding: crea primera finca al registrarse
 - Mover animales entre lotes de la misma finca (MoverAnimalesModal + writeBatch)
 - Gastos a nivel de finca con distribución proporcional entre lotes (GastosFincaTab, GastoFincaModal)
-- **Pendiente de Fase 2A**: mover animales entre fincas distintas (cross-finca)
+- **Mover animales entre fincas distintas (cross-finca)**: COMPLETO — `useMoverAnimales`
+  maneja `isCrossFinca` (migra fincaId de animales y pesos, marca `importado: true`);
+  `MoverAnimalesModal` lo expone en la sección "Otras fincas". Verificado 30 mayo 2026.
 
 ### Fase 2B — Gestión básica — PARCIALMENTE COMPLETO
 - [x] Módulo de sanidad: vacunas y tratamientos por animal (SanidadTab, EventoSanitarioModal)
 - [x] Gráficos de evolución de peso por animal (AnimalWeightChart) y por lote (LoteAvgChart)
 - [x] Export Excel de inventario y ventas (`exportarLotesExcel`)
 - [x] Reporte PDF de lote con datos completos (`ReporteLotePDF`, `ReporteSocioPDF`)
+- [x] Registro de muerte/baja de animal: lo retira del inventario y registra la pérdida
+  (valor actual estimado = pesoActual × precio/kg) restándola de `utilidadTotal`; aviso
+  fiscal (Ley 7092); reparto socio por %; reversión con `useAnularMuerte`; reporte Excel
+  de pérdidas para renta (`exportarPerdidasExcel`). Hooks `useRegistrarMuerte`/`useAnularMuerte`,
+  `RegistrarMuerteModal`. (30 mayo 2026)
 - [ ] Control de partos (madre, fecha, peso al nacer) — PENDIENTE
 - [ ] Filtro avanzado de animales (por raza, estado, rango de peso) — PENDIENTE
 
@@ -76,12 +83,10 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
   `data.nombre`), enmascarando el bug.
 - **FIX**: invertir el spread a `{ ...d.data(), id: d.id }` en los 18 sitios (el doc id real
   siempre gana). Verificado en producción: 5 lotes en La Esperanza, 1 en El Roble, detalle OK.
-- Nota: los docs demo aún tienen los campos basura (`id`/`_testData`), ahora inofensivos.
-  Limpieza opcional pendiente si se quiere higiene de datos.
+- Limpieza de campos basura (`id`/`_testData`) del demo: COMPLETO — `npm run clean-demo`
+  (script `scripts/clean-demo-fields.ts`), 1404 docs limpiados el 30 mayo 2026.
 
 ## Pendiente inmediato
-- [ ] (Opcional) Limpiar campos `id`/`_testData` espurios de los docs demo
-- [ ] Mover animales entre fincas distintas (cross-finca, Fase 2A restante)
 - [ ] Control de partos (Fase 2B)
 
 ## Roadmap — Próximas fases

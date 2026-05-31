@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLote } from '@/hooks/useLotes';
-import { useAnimales, useEliminarAnimal } from '@/hooks/useAnimales';
+import { useAnimales, useEliminarAnimal, useAnularMuerte } from '@/hooks/useAnimales';
 import { useGastos, useEliminarGasto } from '@/hooks/useGastos';
 import { useVentas, useAnularVenta } from '@/hooks/useVentas';
 import { formatColones, formatKg, formatFecha } from '@/utils/calculadora';
@@ -17,6 +17,7 @@ import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
+import RegistrarMuerteModal from '@/components/RegistrarMuerteModal';
 import { exportarLotesExcel } from '@/utils/exportExcel';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
@@ -45,6 +46,7 @@ export default function LoteDetalle() {
   const { eliminarAnimal } = useEliminarAnimal();
   const { eliminarGasto } = useEliminarGasto();
   const { anularVenta } = useAnularVenta();
+  const { anularMuerte } = useAnularMuerte();
 
   const { eventos, loading: loadingEventos } = useEventosSanitarios(loteId ?? null);
   const { eliminarEvento } = useEliminarEventoSanitario();
@@ -71,6 +73,8 @@ export default function LoteDetalle() {
   const [deleteAnimal, setDeleteAnimal] = useState<Animal | null>(null);
   const [deleteGasto, setDeleteGasto] = useState<Gasto | null>(null);
   const [deleteVenta, setDeleteVenta] = useState<Venta | null>(null);
+  const [muerteAnimal, setMuerteAnimal] = useState<Animal | null>(null);
+  const [revertMuerteAnimal, setRevertMuerteAnimal] = useState<Animal | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filterText, setFilterText] = useState('');
 
@@ -138,6 +142,19 @@ export default function LoteDetalle() {
       setDeleteVenta(null);
     } catch (err) {
       console.error('[handleAnularVenta]', err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleRevertMuerte() {
+    if (!revertMuerteAnimal) return;
+    setDeletingId(revertMuerteAnimal.id);
+    try {
+      await anularMuerte(revertMuerteAnimal);
+      setRevertMuerteAnimal(null);
+    } catch (err) {
+      console.error('[handleRevertMuerte]', err);
     } finally {
       setDeletingId(null);
     }
@@ -392,6 +409,16 @@ export default function LoteDetalle() {
                                   </Badge>
                                 </td>
                                 <td className="px-3 py-2">
+                                  {animal.estado === 'muerto' && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 text-xs"
+                                      onClick={() => setRevertMuerteAnimal(animal)}
+                                    >
+                                      Revertir muerte
+                                    </Button>
+                                  )}
                                   {animal.estado === 'activo' && (
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
@@ -414,6 +441,12 @@ export default function LoteDetalle() {
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => setEditAnimal(animal)}>
                                           <Pencil className="w-4 h-4 mr-2" /> Editar
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          className="text-destructive"
+                                          onClick={() => setMuerteAnimal(animal)}
+                                        >
+                                          💀 Registrar muerte
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                           className="text-destructive"
@@ -469,7 +502,15 @@ export default function LoteDetalle() {
                                   <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setSanidadAnimalInicial(animal.id); setShowSanidad(true); }}>🩺</Button>
                                   <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setAnimalPeso(animal); setShowPeso(true); }}>⚖️</Button>
                                   <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setEditAnimal(animal); }}><Pencil className="w-3 h-3" /></Button>
+                                  <Button variant="outline" size="sm" className="h-7 text-xs text-destructive" onClick={(e) => { e.stopPropagation(); setMuerteAnimal(animal); }}>💀</Button>
                                   <Button variant="outline" size="sm" className="h-7 text-xs text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteAnimal(animal); }}><Trash2 className="w-3 h-3" /></Button>
+                                </div>
+                              )}
+                              {animal.estado === 'muerto' && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setRevertMuerteAnimal(animal); }}>
+                                    Revertir muerte
+                                  </Button>
                                 </div>
                               )}
                               {/* Historial sanitario individual */}
@@ -659,6 +700,26 @@ export default function LoteDetalle() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* ── Modal registrar muerte ── */}
+      {muerteAnimal && (
+        <RegistrarMuerteModal
+          animal={muerteAnimal}
+          onClose={() => setMuerteAnimal(null)}
+        />
+      )}
+
+      {/* ── Confirmar revertir muerte ── */}
+      {revertMuerteAnimal && (
+        <ConfirmarBorradoModal
+          titulo={`¿Revertir la muerte de ${revertMuerteAnimal.numeroArete}?`}
+          descripcion="El animal volverá a estado activo y la pérdida registrada será revertida en la utilidad del lote."
+          labelConfirmar="Revertir muerte"
+          loading={deletingId === revertMuerteAnimal.id}
+          onConfirm={handleRevertMuerte}
+          onClose={() => setRevertMuerteAnimal(null)}
+        />
       )}
 
       {/* ── Modal mover animales ── */}
