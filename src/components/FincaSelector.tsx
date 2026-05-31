@@ -29,6 +29,9 @@ export default function FincaSelector() {
   useEffect(() => {
     setUmbralAmarillo(fincaActiva?.pesoUmbralAmarillo ?? 15);
     setUmbralRojo(fincaActiva?.pesoUmbralRojo ?? 30);
+    // Sólo re-sincroniza al cambiar de finca (por id); incluir los umbrales pisaría
+    // las ediciones en curso del usuario.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fincaActiva?.id]);
 
   if (loading || !fincaActiva) return null;
