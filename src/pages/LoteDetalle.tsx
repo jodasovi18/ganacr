@@ -369,7 +369,11 @@ export default function LoteDetalle() {
                   <div className="text-center py-12 space-y-1">
                     <div className="text-3xl">🔍</div>
                     <h3 className="font-semibold">Sin resultados</h3>
-                    <p className="text-sm text-muted-foreground">No hay animales con arete "{filterText}"</p>
+                    <p className="text-sm text-muted-foreground">
+                      {filterText
+                        ? `No hay animales con arete "${filterText}"`
+                        : 'No hay animales que coincidan con los filtros'}
+                    </p>
                   </div>
                 ) : (
                   <>
