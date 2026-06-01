@@ -77,6 +77,7 @@ export interface Animal {
   numeroArete: string;        // único por usuario
   raza: string;
   origen?: 'comprado' | 'nacido_finca' | 'sin_registro'; // ausente = 'comprado' (retrocompat)
+  areteSenasa?: string;       // número DIIO oficial SENASA (opcional). Vacío = sin arete registrado
   numeroSubasta?: string;
   pesoInicial: number;        // kg
   pesoActual: number;         // kg (se actualiza con cada pesaje)
