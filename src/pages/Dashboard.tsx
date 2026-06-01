@@ -317,7 +317,7 @@ export default function Dashboard() {
                       <p className="text-sm text-muted-foreground">
                         {lote.animalesActivos} animales · {formatColones(lote.totalInvertido)}
                       </p>
-                      {sinAretePorLote[lote.id] > 0 && (
+                      {(sinAretePorLote[lote.id] ?? 0) > 0 && (
                         <span className="inline-block mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
                           ⚠️ {sinAretePorLote[lote.id]} sin arete
                         </span>

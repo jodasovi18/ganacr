@@ -142,7 +142,7 @@ export function useEditarAnimal() {
     if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
     const batch = writeBatch(db);
-    batch.update(doc(db, 'animales', animalId), { ...data, pesoActual: data.pesoInicial, updatedAt: now });
+    batch.update(doc(db, 'animales', animalId), { ...data, areteSenasa: data.areteSenasa ?? '', pesoActual: data.pesoInicial, updatedAt: now });
     const priceDiff = data.precioCompra - oldPrecioCompra;
     if (priceDiff !== 0) {
       batch.update(doc(db, 'lotes', loteId), {
