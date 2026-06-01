@@ -20,6 +20,9 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
 
   const [numeroArete, setNumeroArete] = useState(editData?.numeroArete ?? '');
   const [raza, setRaza] = useState(editData?.raza ?? '');
+  const [origen, setOrigen] = useState<'comprado' | 'nacido_finca' | 'sin_registro'>(
+    editData?.origen ?? 'comprado'
+  );
   const [numeroSubasta, setNumeroSubasta] = useState(editData?.numeroSubasta ?? '');
   const [pesoInicial, setPesoInicial] = useState(editData?.pesoInicial?.toString() ?? '');
   const [precioCompra, setPrecioCompra] = useState(editData?.precioCompra?.toString() ?? '');
@@ -33,8 +36,8 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
-    if (!numeroArete.trim() || !raza.trim() || !pesoInicial || !precioCompra) {
-      setError('Todos los campos marcados son requeridos');
+    if (!numeroArete.trim() || !raza.trim() || !pesoInicial) {
+      setError('Arete, raza y peso inicial son requeridos');
       return;
     }
     setLoading(true);
@@ -42,11 +45,12 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
       if (isEdit && editData) {
         await editarAnimal(editData.id, loteId, editData.precioCompra, {
           raza: raza.trim(),
-          numeroSubasta: numeroSubasta.trim(),
+          numeroSubasta: origen === 'comprado' ? numeroSubasta.trim() : '',
           pesoInicial: Number(pesoInicial),
-          precioCompra: Number(precioCompra),
+          precioCompra: precioCompra ? Number(precioCompra) : 0,
           fechaIngreso,
           notas: notas.trim(),
+          origen,
         });
       } else {
         await agregarAnimal({
@@ -54,11 +58,12 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
           loteId,
           numeroArete: numeroArete.trim().toUpperCase(),
           raza: raza.trim(),
-          numeroSubasta: numeroSubasta.trim(),
+          numeroSubasta: origen === 'comprado' ? numeroSubasta.trim() : '',
           pesoInicial: Number(pesoInicial),
-          precioCompra: Number(precioCompra),
+          precioCompra: precioCompra ? Number(precioCompra) : 0,
           fechaIngreso,
           notas,
+          origen,
         });
       }
       onClose();
@@ -88,10 +93,12 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
                 className={isEdit ? 'opacity-60 cursor-not-allowed' : ''}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>N° subasta</Label>
-              <Input placeholder="Ej: 45" value={numeroSubasta} onChange={(e) => setNumeroSubasta(e.target.value)} />
-            </div>
+            {origen === 'comprado' && (
+              <div className="space-y-1.5">
+                <Label>N° subasta</Label>
+                <Input placeholder="Ej: 45" value={numeroSubasta} onChange={(e) => setNumeroSubasta(e.target.value)} />
+              </div>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -117,14 +124,27 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
             </select>
           </div>
 
+          <div className="space-y-1.5">
+            <Label>Origen *</Label>
+            <select
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background text-foreground"
+              value={origen}
+              onChange={(e) => setOrigen(e.target.value as 'comprado' | 'nacido_finca' | 'sin_registro')}
+            >
+              <option value="comprado">Comprado (subasta u otra compra)</option>
+              <option value="nacido_finca">Nacido en la finca</option>
+              <option value="sin_registro">Sin registro de compra</option>
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Peso inicial (kg) *</Label>
               <Input type="number" min="1" step="0.5" placeholder="Ej: 320" value={pesoInicial} onChange={(e) => setPesoInicial(e.target.value)} required />
             </div>
             <div className="space-y-1.5">
-              <Label>Precio de compra (₡) *</Label>
-              <Input type="number" min="1" step="any" placeholder="Ej: 450000" value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} required />
+              <Label>{origen === 'comprado' ? 'Precio de compra (₡)' : 'Valor estimado (₡)'}</Label>
+              <Input type="number" min="0" step="any" placeholder={origen === 'comprado' ? 'Ej: 450000' : 'Opcional'} value={precioCompra} onChange={(e) => setPrecioCompra(e.target.value)} />
             </div>
           </div>
 
