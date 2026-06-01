@@ -112,6 +112,17 @@ export default function AnimalesFilterBar({ filtro, onChange, razasDisponibles }
             </div>
           </div>
 
+          {/* Sin arete SENASA */}
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              className="accent-primary"
+              checked={filtro.sinAreteSenasa}
+              onChange={(e) => onChange({ ...filtro, sinAreteSenasa: e.target.checked })}
+            />
+            Solo sin arete SENASA
+          </label>
+
           {activos > 0 && (
             <Button variant="ghost" size="sm" className="text-xs" onClick={() => onChange(FILTRO_VACIO)}>
               Limpiar filtros

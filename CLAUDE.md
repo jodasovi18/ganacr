@@ -116,11 +116,15 @@ madres, montas, partos, peso al nacer, destete).
 Contexto: SENASA implementó obligatoriedad de areteo y registro de movilización.
 Los ganaderos, especialmente en zonas rurales, no tienen herramientas digitales
 offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
-- [ ] Registro de areteo oficial por animal (número de arete SENASA)
-- [ ] Guías de movilización en PDF listas para presentar
-- [ ] Inventario del hato sincronizable con Trazar-Agro cuando haya conectividad
-- [ ] Funcionamiento 100% offline-first (zonas sin señal)
-- [ ] Alertas de animales sin arete registrado
+- [x] **Registro de areteo oficial por animal** (`Animal.areteSenasa` = número DIIO,
+  opcional sin validación): campo en `AgregarAnimalModal`, visible en LoteDetalle. (31 may 2026)
+- [x] **Alertas de animales sin arete**: ⚠️ por animal activo sin arete (LoteDetalle),
+  aviso de finca + badge por lote en Dashboard (hook `useAnimalesSinArete`, onSnapshot), y
+  filtro "Solo sin arete SENASA". (31 may 2026)
+- [x] **Indicador offline**: la app ya sincroniza offline (IndexedDB); se agregó
+  `useOnlineStatus` + `OfflineIndicator` (chip "Sin conexión" en App). (31 may 2026)
+- [ ] Guías de movilización en PDF listas para presentar — PENDIENTE
+- [ ] Inventario del hato sincronizable con Trazar-Agro — DIFERIDO (sin documentación de su API)
 
 ### Fase 4 — Finanzas y costos ganaderos
 - [ ] Costo por kilo producido (inversión + gastos / kg ganado)

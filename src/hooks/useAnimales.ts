@@ -52,6 +52,7 @@ interface AgregarAnimalInput {
   raza: string;
   numeroSubasta?: string;
   origen?: 'comprado' | 'nacido_finca' | 'sin_registro';
+  areteSenasa?: string;
   pesoInicial: number;
   precioCompra: number;
   fechaIngreso: string;
@@ -83,6 +84,7 @@ export function useAgregarAnimal() {
       raza: input.raza,
       numeroSubasta: input.numeroSubasta ?? '',
       origen: input.origen ?? 'comprado',
+      areteSenasa: input.areteSenasa ?? '',
       pesoInicial: input.pesoInicial,
       pesoActual: input.pesoInicial,
       precioCompra: input.precioCompra,
@@ -121,6 +123,7 @@ interface EditarAnimalInput {
   raza: string;
   numeroSubasta?: string;
   origen?: 'comprado' | 'nacido_finca' | 'sin_registro';
+  areteSenasa?: string;
   pesoInicial: number;
   precioCompra: number;
   fechaIngreso: string;
@@ -139,7 +142,7 @@ export function useEditarAnimal() {
     if (!user) throw new Error('No autenticado');
     const now = new Date().toISOString();
     const batch = writeBatch(db);
-    batch.update(doc(db, 'animales', animalId), { ...data, pesoActual: data.pesoInicial, updatedAt: now });
+    batch.update(doc(db, 'animales', animalId), { ...data, areteSenasa: data.areteSenasa ?? '', pesoActual: data.pesoInicial, updatedAt: now });
     const priceDiff = data.precioCompra - oldPrecioCompra;
     if (priceDiff !== 0) {
       batch.update(doc(db, 'lotes', loteId), {

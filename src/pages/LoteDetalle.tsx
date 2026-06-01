@@ -410,7 +410,15 @@ export default function LoteDetalle() {
                                     )}
                                   </td>
                                 )}
-                                <td className="px-3 py-2"><strong>{animal.numeroArete}</strong></td>
+                                <td className="px-3 py-2">
+                                  <strong>{animal.numeroArete}</strong>
+                                  {animal.estado === 'activo' && !animal.areteSenasa && (
+                                    <span className="ml-1.5 text-xs text-amber-600" title="Sin arete SENASA">⚠️</span>
+                                  )}
+                                  {animal.areteSenasa && (
+                                    <span className="block text-[10px] text-muted-foreground">DIIO: {animal.areteSenasa}</span>
+                                  )}
+                                </td>
                                 <td className="px-3 py-2">
                                   {animal.raza}
                                   {animal.origen && animal.origen !== 'comprado' && (
@@ -499,7 +507,12 @@ export default function LoteDetalle() {
                           >
                             <CardContent className="p-3">
                               <div className="flex items-center justify-between mb-2">
-                                <span className="font-bold text-sm">{animal.numeroArete}</span>
+                                <span className="font-bold text-sm">
+                                  {animal.numeroArete}
+                                  {animal.estado === 'activo' && !animal.areteSenasa && (
+                                    <span className="ml-1 text-xs text-amber-600" title="Sin arete SENASA">⚠️</span>
+                                  )}
+                                </span>
                                 <Badge variant={animal.estado === 'activo' ? 'default' : 'secondary'} className="text-xs">
                                   {animal.estado}
                                 </Badge>

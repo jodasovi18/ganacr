@@ -23,6 +23,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
   const [origen, setOrigen] = useState<'comprado' | 'nacido_finca' | 'sin_registro'>(
     editData?.origen ?? 'comprado'
   );
+  const [areteSenasa, setAreteSenasa] = useState(editData?.areteSenasa ?? '');
   const [numeroSubasta, setNumeroSubasta] = useState(editData?.numeroSubasta ?? '');
   const [pesoInicial, setPesoInicial] = useState(editData?.pesoInicial?.toString() ?? '');
   const [precioCompra, setPrecioCompra] = useState(editData?.precioCompra?.toString() ?? '');
@@ -51,6 +52,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
           fechaIngreso,
           notas: notas.trim(),
           origen,
+          areteSenasa: areteSenasa.trim(),
         });
       } else {
         await agregarAnimal({
@@ -64,6 +66,7 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
           fechaIngreso,
           notas,
           origen,
+          areteSenasa: areteSenasa.trim(),
         });
       }
       onClose();
@@ -99,6 +102,16 @@ export default function AgregarAnimalModal({ fincaId, loteId, onClose, editData 
                 <Input placeholder="Ej: 45" value={numeroSubasta} onChange={(e) => setNumeroSubasta(e.target.value)} />
               </div>
             )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Arete oficial SENASA (DIIO)</Label>
+            <Input
+              placeholder="Número oficial del dispositivo"
+              value={areteSenasa}
+              onChange={(e) => setAreteSenasa(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Opcional. Podés completarlo después.</p>
           </div>
 
           <div className="space-y-1.5">
