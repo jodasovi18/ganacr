@@ -6,6 +6,7 @@ import Dashboard from '@/pages/Dashboard';
 import LoteDetalle from '@/pages/LoteDetalle';
 import { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
+import OfflineIndicator from '@/components/OfflineIndicator';
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster position="top-right" richColors />
+        <OfflineIndicator />
       </BrowserRouter>
     </AuthProvider>
   );
