@@ -51,6 +51,7 @@ interface AgregarAnimalInput {
   numeroArete: string;
   raza: string;
   numeroSubasta?: string;
+  origen?: 'comprado' | 'nacido_finca' | 'sin_registro';
   pesoInicial: number;
   precioCompra: number;
   fechaIngreso: string;
@@ -81,6 +82,7 @@ export function useAgregarAnimal() {
       numeroArete: input.numeroArete,
       raza: input.raza,
       numeroSubasta: input.numeroSubasta ?? '',
+      origen: input.origen ?? 'comprado',
       pesoInicial: input.pesoInicial,
       pesoActual: input.pesoInicial,
       precioCompra: input.precioCompra,
@@ -118,6 +120,7 @@ export function useActualizarAnimal() {
 interface EditarAnimalInput {
   raza: string;
   numeroSubasta?: string;
+  origen?: 'comprado' | 'nacido_finca' | 'sin_registro';
   pesoInicial: number;
   precioCompra: number;
   fechaIngreso: string;

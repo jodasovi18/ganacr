@@ -15,6 +15,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { exportarLotePDF, exportarSocioPDF } from '@/utils/exportPDF';
 import PesosTab from '@/components/PesosTab';
 import { Animal, Gasto, Venta, EventoSanitario } from '@/types';
+import AnimalesFilterBar from '@/components/AnimalesFilterBar';
+import { filtrarAnimales, FiltroAnimales, FILTRO_VACIO } from '@/utils/filtrarAnimales';
 import { useAllLotes } from '@/hooks/useLotes';
 import MoverAnimalesModal from '@/components/MoverAnimalesModal';
 import RegistrarMuerteModal from '@/components/RegistrarMuerteModal';
@@ -77,6 +79,7 @@ export default function LoteDetalle() {
   const [revertMuerteAnimal, setRevertMuerteAnimal] = useState<Animal | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filterText, setFilterText] = useState('');
+  const [filtro, setFiltro] = useState<FiltroAnimales>(FILTRO_VACIO);
 
   // Mover animales — selection mode
   const [modoSeleccion, setModoSeleccion] = useState(false);
@@ -104,9 +107,10 @@ export default function LoteDetalle() {
   }
 
   const animalesActivos = animales.filter((a) => a.estado === 'activo');
-  const animalesFiltrados = animales.filter((a) =>
+  const animalesFiltrados = filtrarAnimales(animales, filtro).filter((a) =>
     a.numeroArete.toLowerCase().includes(filterText.toLowerCase())
   );
+  const razasDisponibles = Array.from(new Set(animales.map((a) => a.raza))).sort();
 
   async function handleDeleteAnimal() {
     if (!deleteAnimal) return;
@@ -312,7 +316,7 @@ export default function LoteDetalle() {
 
       {/* ── Tabs ── */}
       <div className="max-w-5xl mx-auto px-4">
-        <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab); setFilterText(''); cancelarModo(); }}>
+        <Tabs value={tab} onValueChange={(v) => { setTab(v as Tab); setFilterText(''); setFiltro(FILTRO_VACIO); cancelarModo(); }}>
           <div className="sticky top-[var(--header-h,160px)] z-10 bg-background pt-3 pb-1">
             <TabsList className="w-full overflow-x-auto justify-start h-auto flex-wrap gap-1">
               <TabsTrigger value="animales" className="text-xs sm:text-sm">🐄 Animales ({animales.length})</TabsTrigger>
@@ -354,11 +358,22 @@ export default function LoteDetalle() {
                   />
                 </div>
 
+                <AnimalesFilterBar filtro={filtro} onChange={setFiltro} razasDisponibles={razasDisponibles} />
+                {animalesFiltrados.length !== animales.length && (
+                  <p className="text-xs text-muted-foreground">
+                    Mostrando {animalesFiltrados.length} de {animales.length}
+                  </p>
+                )}
+
                 {animalesFiltrados.length === 0 ? (
                   <div className="text-center py-12 space-y-1">
                     <div className="text-3xl">🔍</div>
                     <h3 className="font-semibold">Sin resultados</h3>
-                    <p className="text-sm text-muted-foreground">No hay animales con arete "{filterText}"</p>
+                    <p className="text-sm text-muted-foreground">
+                      {filterText
+                        ? `No hay animales con arete "${filterText}"`
+                        : 'No hay animales que coincidan con los filtros'}
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -396,7 +411,14 @@ export default function LoteDetalle() {
                                   </td>
                                 )}
                                 <td className="px-3 py-2"><strong>{animal.numeroArete}</strong></td>
-                                <td className="px-3 py-2">{animal.raza}</td>
+                                <td className="px-3 py-2">
+                                  {animal.raza}
+                                  {animal.origen && animal.origen !== 'comprado' && (
+                                    <span className="ml-1.5 text-[10px] text-muted-foreground">
+                                      ({animal.origen === 'nacido_finca' ? 'nacido' : 'sin reg.'})
+                                    </span>
+                                  )}
+                                </td>
                                 <td className="px-3 py-2">{formatKg(animal.pesoInicial)}</td>
                                 <td className="px-3 py-2">{formatKg(animal.pesoActual)}</td>
                                 <td className={`px-3 py-2 ${ganancia >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -483,7 +505,15 @@ export default function LoteDetalle() {
                                 </Badge>
                               </div>
                               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                                <span className="text-muted-foreground">Raza</span><span><strong>{animal.raza}</strong></span>
+                                <span className="text-muted-foreground">Raza</span>
+                                <span>
+                                  <strong>{animal.raza}</strong>
+                                  {animal.origen && animal.origen !== 'comprado' && (
+                                    <span className="ml-1 text-[10px] text-muted-foreground">
+                                      ({animal.origen === 'nacido_finca' ? 'nacido' : 'sin reg.'})
+                                    </span>
+                                  )}
+                                </span>
                                 <span className="text-muted-foreground">Precio</span><span>{formatColones(animal.precioCompra)}</span>
                                 <span className="text-muted-foreground">Peso ini.</span><span>{formatKg(animal.pesoInicial)}</span>
                                 <span className="text-muted-foreground">Peso act.</span><span>{formatKg(animal.pesoActual)}</span>

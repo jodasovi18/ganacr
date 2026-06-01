@@ -76,6 +76,7 @@ export interface Animal {
   loteId: string;
   numeroArete: string;        // único por usuario
   raza: string;
+  origen?: 'comprado' | 'nacido_finca' | 'sin_registro'; // ausente = 'comprado' (retrocompat)
   numeroSubasta?: string;
   pesoInicial: number;        // kg
   pesoActual: number;         // kg (se actualiza con cada pesaje)
