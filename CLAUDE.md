@@ -55,7 +55,13 @@ madres, montas, partos, peso al nacer, destete).
   fiscal (Ley 7092); reparto socio por %; reversión con `useAnularMuerte`; reporte Excel
   de pérdidas para renta (`exportarPerdidasExcel`). Hooks `useRegistrarMuerte`/`useAnularMuerte`,
   `RegistrarMuerteModal`. (30 mayo 2026)
-- [ ] Filtro avanzado de animales (por raza, estado, rango de peso) — PENDIENTE
+- [x] **Origen del animal** (`Animal.origen`: comprado / nacido_finca / sin_registro): el
+  precio de compra es opcional y se re-etiqueta "Valor estimado" para no-comprados; retrocompat
+  (ausente = comprado). `AgregarAnimalModal`. (31 mayo 2026)
+- [x] **Filtro avanzado de animales** (estado, raza, origen, rango de peso, rango de ganancia):
+  función pura `filtrarAnimales` (`src/utils/filtrarAnimales.ts`, test `npm run test:filtro`) +
+  componente `AnimalesFilterBar`, integrado en la pestaña Animales del lote con contador
+  "Mostrando X de Y" y badges de origen. (31 mayo 2026)
 - ↪ Control de partos (madre, fecha, peso al nacer): MOVIDO al futuro **módulo de Cría**.
   No va en este módulo (engorde).
 
@@ -102,7 +108,7 @@ madres, montas, partos, peso al nacer, destete).
   `scripts/` quedan fuera del lint por ahora (env Node/Playwright distinto).
 
 ## Pendiente inmediato
-- [ ] Filtro avanzado de animales (Fase 2B engorde)
+- (Nada pendiente de Fase 2B engorde. Próximo gran bloque: Fase 3 — Trazabilidad SENASA.)
 
 ## Roadmap — Próximas fases
 
