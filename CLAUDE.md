@@ -7,6 +7,12 @@ de lotes de ganado, animales individuales, pesajes, gastos y ventas. Soporta el 
 Objetivo a mediano plazo: producto comercializable para ganaderos costarricenses,
 con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 
+**Arquitectura por módulos de explotación:** el sistema se divide por tipo de
+ganadería. El módulo en el que estamos trabajando es el de **ENGORDE** (compra,
+pesaje, engorde y venta de animales). El **control de partos / reproducción** NO
+pertenece a engorde: irá en un **futuro módulo de CRÍA** (ganadería de cría:
+madres, montas, partos, peso al nacer, destete).
+
 ## Stack
 - React 18 + TypeScript + Vite 5
 - Firebase: Firestore (base de datos) + Auth (autenticación)
@@ -49,8 +55,9 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
   fiscal (Ley 7092); reparto socio por %; reversión con `useAnularMuerte`; reporte Excel
   de pérdidas para renta (`exportarPerdidasExcel`). Hooks `useRegistrarMuerte`/`useAnularMuerte`,
   `RegistrarMuerteModal`. (30 mayo 2026)
-- [ ] Control de partos (madre, fecha, peso al nacer) — PENDIENTE
 - [ ] Filtro avanzado de animales (por raza, estado, rango de peso) — PENDIENTE
+- ↪ Control de partos (madre, fecha, peso al nacer): MOVIDO al futuro **módulo de Cría**.
+  No va en este módulo (engorde).
 
 ### Rediseño UI — COMPLETO (en producción)
 - Migración completa de CSS vanilla a **Tailwind CSS v4 + shadcn/ui**
@@ -86,8 +93,16 @@ con módulos que respondan a la legislación vigente (SENASA, SUGEF, MAG).
 - Limpieza de campos basura (`id`/`_testData`) del demo: COMPLETO — `npm run clean-demo`
   (script `scripts/clean-demo-fields.ts`), 1404 docs limpiados el 30 mayo 2026.
 
+### Tooling / DX (30 mayo 2026)
+- **`npm run lint` arreglado**: faltaba el archivo de config de ESLint (el script y los
+  plugins existían, pero nunca se creó `.eslintrc.cjs`). Agregado config estándar Vite +
+  React + TS (`eslint:recommended` + `@typescript-eslint` + `react-hooks`). Pasa limpio.
+  Notas: `no-unused-vars` ignora args con prefijo `_`; `react-refresh/only-export-components`
+  desactivada (falsos positivos por shadcn `buttonVariants` y context hooks). `tests/` y
+  `scripts/` quedan fuera del lint por ahora (env Node/Playwright distinto).
+
 ## Pendiente inmediato
-- [ ] Control de partos (Fase 2B)
+- [ ] Filtro avanzado de animales (Fase 2B engorde)
 
 ## Roadmap — Próximas fases
 
