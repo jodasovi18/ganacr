@@ -175,6 +175,17 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `tests/responsive/` — tests Playwright (`playwright.responsive.config.ts`)
 - `scripts/` — seed, cleanup, copy-to-demo y verify-demo (tsx con Firebase Admin SDK)
 
+## Flujo de trabajo (Git / PR)
+A partir del 31 may 2026 el trabajo de features va **por Pull Request**, no directo a `main`:
+1. Crear una rama desde `main` (`feature/...`, `fix/...`, `chore/...`).
+2. Implementar + commits frecuentes (mensaje termina con `Co-Authored-By: Claude ...`).
+3. Verificar: `npx tsc --noEmit`, `npm run lint`, `npm run build` y, si aplica, `npm run test:filtro`.
+4. `git push -u origin <rama>` y abrir el PR con `gh pr create`.
+5. **NO mergear a `main` hasta que José apruebe el PR.** Al mergear, Vercel despliega `main`.
+
+(Las features previas de esta sesión —muerte, origen/filtro, areteo, lint— se mergearon
+directo a `main` antes de adoptar este flujo; ya están en producción.)
+
 ## Convenciones del proyecto
 - Colones costarricenses (₡) para moneda, formateados con `formatColones()`
 - Fechas en ISO string, mostradas con `formatFecha()`
