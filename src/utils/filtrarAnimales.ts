@@ -11,6 +11,7 @@ export interface FiltroAnimales {
   pesoMax: number | null;
   gananciaMin: number | null;
   gananciaMax: number | null;
+  sinAreteSenasa: boolean;          // true = solo animales sin areteSenasa
 }
 
 export const FILTRO_VACIO: FiltroAnimales = {
@@ -21,6 +22,7 @@ export const FILTRO_VACIO: FiltroAnimales = {
   pesoMax: null,
   gananciaMin: null,
   gananciaMax: null,
+  sinAreteSenasa: false,
 };
 
 export function filtrarAnimales(animales: Animal[], f: FiltroAnimales): Animal[] {
@@ -33,6 +35,7 @@ export function filtrarAnimales(animales: Animal[], f: FiltroAnimales): Animal[]
     const ganancia = a.pesoActual - a.pesoInicial;
     if (f.gananciaMin != null && ganancia < f.gananciaMin) return false;
     if (f.gananciaMax != null && ganancia > f.gananciaMax) return false;
+    if (f.sinAreteSenasa && a.areteSenasa) return false;
     return true;
   });
 }
@@ -44,5 +47,6 @@ export function contarFiltrosActivos(f: FiltroAnimales): number {
   if (f.origen) n++;
   if (f.pesoMin != null || f.pesoMax != null) n++;
   if (f.gananciaMin != null || f.gananciaMax != null) n++;
+  if (f.sinAreteSenasa) n++;
   return n;
 }
