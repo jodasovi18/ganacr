@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinca } from '@/contexts/FincaContext';
 import { useLotes, useEliminarLoteConCascada } from '@/hooks/useLotes';
+import { useAnimalesSinArete } from '@/hooks/useAnimalesSinArete';
 import { formatColones, formatFecha } from '@/utils/calculadora';
 import CrearLoteModal from '@/components/CrearLoteModal';
 import ConfirmarBorradoModal from '@/components/ConfirmarBorradoModal';
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const { userData, logout, user } = useAuth();
   const { fincaActiva, necesitaOnboarding } = useFinca();
   const { lotes, loading } = useLotes(fincaActiva?.id ?? null);
+  const { total: sinAreteTotal, porLote: sinAretePorLote } = useAnimalesSinArete(fincaActiva?.id ?? null);
   const navigate = useNavigate();
   const { eliminarLoteConCascada } = useEliminarLoteConCascada();
 
@@ -270,6 +272,11 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="lotes">
+            {sinAreteTotal > 0 && (
+              <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                ⚠️ {sinAreteTotal} animal{sinAreteTotal !== 1 ? 'es' : ''} sin arete SENASA registrado.
+              </div>
+            )}
             {loading ? (
               <p className="text-center text-muted-foreground py-12">Cargando lotes...</p>
             ) : lotes.length === 0 ? (
@@ -310,6 +317,11 @@ export default function Dashboard() {
                       <p className="text-sm text-muted-foreground">
                         {lote.animalesActivos} animales · {formatColones(lote.totalInvertido)}
                       </p>
+                      {sinAretePorLote[lote.id] > 0 && (
+                        <span className="inline-block mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+                          ⚠️ {sinAretePorLote[lote.id]} sin arete
+                        </span>
+                      )}
                       {lote.utilidadTotal !== 0 && (
                         <p className={`text-sm font-semibold mt-0.5 ${lote.utilidadTotal >= 0 ? 'text-success' : 'text-destructive'}`}>
                           Utilidad: {formatColones(lote.utilidadTotal)}
