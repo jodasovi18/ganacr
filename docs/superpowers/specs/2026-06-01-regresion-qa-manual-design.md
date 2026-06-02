@@ -64,13 +64,42 @@ Cada área: ejecutar los flujos, registrar **pass/fail** y detalle de cualquier 
 
 ## Manejo de bugs
 
-- **Documentar todo** en `docs/qa/2026-06-01-regresion-demo.md`: por área, pass/fail, pasos
-  para reproducir, severidad (Crítico/Importante/Menor/Nit), y screenshot/DOM si aplica.
-- **Arreglar** cada bug confirmado por el **flujo PR** (rama desde main → fix → `tsc`/`lint`/
-  `build` → `gh pr create`, sin mergear sin aprobación de José). Bugs triviales relacionados
-  pueden ir agrupados en un PR; bugs grandes, PR propio.
-- No arreglar sobre la marcha en medio del barrido salvo que bloquee continuar; preferir
-  terminar el área, anotar, y luego abrir el/los PR(s).
+**Documentar todo** en `docs/qa/2026-06-01-regresion-demo.md`: por área, pass/fail, pasos
+para reproducir, severidad (Crítico/Importante/Menor/Nit), y screenshot/DOM si aplica.
+
+### Estrategia de agrupación de fixes (por dominio/arquitectura)
+
+El codebase está organizado por **feature de dominio** — cada una es una unidad cohesiva
+de `hook(s)` + `modal/componente(s)` + integración en `pages/` (+ a veces `types`/`utils`).
+Un mismo bug suele tocar varias capas de UNA feature (ej. el hook y su modal). Por eso los
+fixes se agrupan **por dominio**, no por capa ni por severidad:
+
+1. **Un PR por dominio/feature afectado.** Todos los bugs cuyo fix toca el mismo dominio van
+   juntos, porque comparten contexto y archivos. Dominios y su `scope` de commit:
+   - `animales` (`useAnimales`, `AgregarAnimalModal`) · `lotes` (`useLotes`, `CrearLoteModal`)
+   - `ventas` (`useVentas`, `VenderAnimalesModal`, `calculadora`) · `muerte` (`useRegistrar/AnularMuerte`, `RegistrarMuerteModal`)
+   - `pesos` (`usePesos`/`usePesosLote`, `PesosTab`, SVG charts) · `mover` (`useMoverAnimales`, `MoverAnimalesModal`)
+   - `gastos` / `gastos-finca` (`useGastos`/`useGastosFinca`, modales/tabs) · `sanidad` (`useEventosSanitarios`, `SanidadTab`)
+   - `areteo` (`useAnimalesSinArete`, badges, alertas) · `filtro` (`filtrarAnimales`, `AnimalesFilterBar`)
+   - `export` (`exportExcel`/`exportPDF`) · `dashboard` / `finca` (`Dashboard`, `FincaContext/Selector`) · `offline` (`useOnlineStatus`)
+   Rationale: cada PR queda cohesivo y revisable con todo el contexto de esa feature; evita
+   partir un fix entre PRs por capa; respeta los límites de archivos del proyecto.
+
+2. **Bug Crítico / bloqueante → su propio PR, de inmediato** (no esperar a agrupar), para
+   poder mergear y desplegar el fix sin demora.
+
+3. **Bugs de lógica pura** (`calculadora`, `filtrarAnimales`, math de `exportExcel`) →
+   **test que falla primero (TDD)** antes del fix, dentro del PR de su dominio. Reusar el
+   patrón `npm run test:filtro` (tsx) o agregar un test análogo.
+
+4. **Nits triviales transversales** (typos de copy/labels, espaciado, `aria-label` faltante,
+   etc. dispersos en varios componentes) → **un único PR `chore(qa): nits`** al final.
+
+5. Si un área **no tiene bugs**, no genera PR — queda documentada como pass.
+
+**Orden:** no arreglar a mitad del barrido salvo que un bug bloquee continuar (ese sí se
+arregla y mergea de inmediato como Crítico). Para el resto: terminar el área, anotar, y al
+cerrar el barrido (o por lotes de dominios ya cubiertos) abrir los PR(s) agrupados.
 
 ## Entregable
 
