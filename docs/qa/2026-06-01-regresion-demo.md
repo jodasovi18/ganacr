@@ -17,8 +17,8 @@
 | 5 | Ventas y anulación | ✅ build actual | — |
 | 6 | Muerte/baja y reporte de pérdidas | 🟡 verif. sesión previa | — |
 | 7 | Mover animales | 🟡 modal verif. previo · mover-completo diferido | — |
-| 8 | Gastos (lote y finca) | 🔎 diferido (cierre) | — |
-| 9 | Sanidad | 🔎 diferido (cierre) | — |
+| 8 | Gastos (lote y finca) | ❌ gasto-finca falla (permisos) | BUG-1 |
+| 9 | Sanidad | ⚠️ probable mismo bug (sin probar) | BUG-1 |
 | 10 | Areteo / alertas SENASA | ✅ build actual | — |
 | 11 | Filtro avanzado | ✅ build actual | — |
 | 12 | Exports / Reportes | 🔎 diferido (cierre) | — |
@@ -29,26 +29,52 @@
 
 ## Bugs consolidados
 
-**Ninguno encontrado** en lo cubierto. Los flujos de mayor riesgo (plata/inventario:
-crear lote, alta de animal, **venta con cálculo de utilidad**, **anular venta** con
-reversión) pasaron limpios en el build actual. No hay PRs de fix que abrir.
+### 🔴 BUG-1 (Crítico) — Gasto de finca falla con "Missing or insufficient permissions"
+- **Síntoma:** registrar un gasto de finca (tab "Gastos de Finca" → "Registrar gasto") falla;
+  el modal muestra **"Missing or insufficient permissions."** y no guarda. Reproducido en
+  producción (`index-DXQmLulp.js`), usuario demo.
+- **Diagnóstico (confirmado):** **reglas de Firestore de producción desactualizadas**. No es
+  App Check (es global, y el resto de escrituras —lotes, animales, ventas, muerte— funciona);
+  es específico de la colección `gastosFinca`. El repo `firestore.rules` SÍ tiene
+  `match /gastosFinca` (L41) y `match /eventosSanitarios` (L47), agregadas en `3364515` y
+  `d52215b`, pero **nunca se deployaron** (esta sesión solo se deployaron índices; el
+  `deploy --only firestore:rules` falló por auth y no se reintentó). Firestore deniega por
+  defecto las colecciones sin regla.
+- **Impacto:** **Gastos de finca roto en producción.** **Sanidad (`eventosSanitarios`) muy
+  probablemente también** (misma regla sin deployar) — síntoma idéntico, no probado en vivo.
+- **Fix:** desplegar las reglas (NO requiere cambio de código; el repo ya tiene la correcta):
+  `firebase deploy --only firestore:rules --project ganacr`. Es un cambio de seguridad de
+  producción → lo corre José.
+- **Dominio:** infra/seguridad. **Severidad: Crítico** (features shipped rotas en prod).
+
+### Resto — sin bugs
+Pasaron limpios en el build actual: crear lote, alta de animal, **venta + anular** (cálculo
+de utilidad), **muerte registrar/revertir**, **mover same-finca** (con contadores del
+destino), borrado-cascade de lote, areteo/alertas, filtro avanzado.
+
+### Nit
+- A11y: warning de consola `Missing 'Description' or 'aria-describedby' for DialogContent`.
+  Menor; agrupar en `chore(qa): nits` si se decide.
 
 ## Cierre y cobertura
 
-Por decisión de cerrar el barrido tras los críticos limpios:
+Incluye la **pasada corta** sobre el build actual (`index-DXQmLulp.js`):
 
-- **Cubierto a fondo en el build actual de prod** (`index-DXQmLulp.js`): Dashboard/stats,
-  multi-finca, crear lote, alta de animal (modal/origen/arete SENASA/DIIO), venta+anular,
-  areteo/alertas, filtro avanzado.
-- **Verificado antes en esta sesión** (otros bundles, mismos componentes): muerte
-  registrar/revertir, origen "Valor estimado", modal cross-finca, indicador offline oculto
-  online. _Riesgo residual:_ merges posteriores tocaron `LoteDetalle`/`useAnimales`/
-  `Dashboard`; conviene un smoke de muerte y mover-completo en una próxima pasada.
-- **Diferido** (no bloqueante): pesajes, gastos lote+finca, sanidad, exports (Excel/PDF),
-  responsive, estado-offline real, edición de lote y borrado-cascade.
+- **Cubierto a fondo en el build actual de prod:** Dashboard/stats, multi-finca, crear lote,
+  alta de animal (modal/origen/arete SENASA/DIIO), **venta+anular**, **muerte
+  registrar/revertir** (smoke), **mover same-finca** (con contadores del destino:
+  Charolais 5→6 animales, +₡450k traspaso), **borrado-cascade** de lote, areteo/alertas,
+  filtro avanzado. Todos ✅.
+- **Bug encontrado en la pasada corta:** gasto de finca (BUG-1, ver arriba). Sanidad
+  probablemente afectada por el mismo problema.
+- **Verificado en sesión previa** (otros bundles): origen "Valor estimado", modal cross-finca,
+  offline oculto online.
+- **Diferido** (no bloqueante): pesajes, exports (Excel/PDF, requieren download), responsive,
+  estado-offline real, edición de lote, **mover cross-finca completo** (write path = same-finca
+  + migración de fincaId, ya verificado el same-finca y el hook).
 
-**Recomendación:** una próxima pasada corta sobre el build actual cubriendo muerte (smoke),
-gastos de finca (distribución), mover-completo y exports cerraría el riesgo residual.
+**Acción requerida antes del merge útil:** deployar las reglas de Firestore (BUG-1). Tras
+eso, re-probar gasto de finca y sanidad.
 
 ---
 
