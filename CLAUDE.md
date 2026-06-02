@@ -98,6 +98,10 @@ madres, montas, partos, peso al nacer, destete).
   siempre gana). Verificado en producción: 5 lotes en La Esperanza, 1 en El Roble, detalle OK.
 - Limpieza de campos basura (`id`/`_testData`) del demo: COMPLETO — `npm run clean-demo`
   (script `scripts/clean-demo-fields.ts`), 1404 docs limpiados el 30 mayo 2026.
+- ⚠️ **`copy-to-demo` DUPLICA** (no borra antes + IDs nuevos cada corrida). Para resetear el
+  demo, el procedimiento correcto es **`npm run wipe-demo` → `npm run copy-to-demo` →
+  `npm run clean-demo`** (`wipe-demo` = `scripts/wipe-demo.ts`, borra todo el demo por email).
+  Pendiente opcional: que `copy-to-demo` haga el wipe internamente. (2 jun 2026)
 
 ### Tooling / DX (30 mayo 2026)
 - **`npm run lint` arreglado**: faltaba el archivo de config de ESLint (el script y los
@@ -210,10 +214,18 @@ directo a `main` antes de adoptar este flujo; ya están en producción.)
 - `gastosFinca` — gastos a nivel de finca con distribución entre lotes
 - `eventosSanitarios` — vacunas y tratamientos por animal
 
-## Índices Firestore relevantes
-Ver `firestore.indexes.json` — índices compuestos para queries por userId + fincaId + loteId.
-**IMPORTANTE**: Los índices deben deployarse con `firebase deploy --only firestore:indexes`.
-Sin este paso, las queries multi-campo fallan silenciosamente (0 resultados, sin error en consola).
+## Índices y reglas Firestore (deploy)
+Ver `firestore.indexes.json` (índices) y `firestore.rules` (seguridad).
+- **Índices**: `firebase deploy --only firestore:indexes`. (Hoy `indexes.json` está vacío: las
+  queries no usan `orderBy`, ordenan en cliente, así que no requieren índices compuestos.)
+- **Reglas**: `firebase deploy --only firestore:rules`. **CRÍTICO deployarlas al agregar una
+  colección nueva.** Una colección sin regla en producción **deniega toda escritura**
+  (`Missing or insufficient permissions`), aunque el repo tenga la regla.
+- **Lección (2 jun 2026, BUG-1 del QA)**: `gastosFinca` y `eventosSanitarios` tenían reglas en
+  el repo pero **nunca se habían deployado** → Gastos de Finca y Sanidad estaban **rotos en
+  producción** (permission-denied) desde que se shipearon. Se deployaron las reglas y ambas
+  features quedaron OK. Regla de oro: **al agregar una colección, deployar las reglas en el
+  mismo paso.**
 
 ## Contexto del desarrollador
 - José Daniel, contador en Costa Rica con conocimientos en Python, JS, TypeScript
