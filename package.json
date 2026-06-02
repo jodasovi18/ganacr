@@ -13,6 +13,7 @@
     "copy-to-demo": "tsx --tsconfig scripts/tsconfig.json scripts/copy-to-demo.ts",
     "verify-demo": "tsx --tsconfig scripts/tsconfig.json scripts/verify-demo.ts",
     "clean-demo": "tsx --tsconfig scripts/tsconfig.json scripts/clean-demo-fields.ts",
+    "wipe-demo": "tsx --tsconfig scripts/tsconfig.json scripts/wipe-demo.ts",
     "test:qa": "playwright test",
     "test:filtro": "tsx scripts/test-filtrar-animales.ts"
   },
