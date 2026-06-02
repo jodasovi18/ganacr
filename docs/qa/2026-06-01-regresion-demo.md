@@ -17,8 +17,8 @@
 | 5 | Ventas y anulación | ✅ build actual | — |
 | 6 | Muerte/baja y reporte de pérdidas | 🟡 verif. sesión previa | — |
 | 7 | Mover animales | 🟡 modal verif. previo · mover-completo diferido | — |
-| 8 | Gastos (lote y finca) | ❌ gasto-finca falla (permisos) | BUG-1 |
-| 9 | Sanidad | ⚠️ probable mismo bug (sin probar) | BUG-1 |
+| 8 | Gastos (lote y finca) | ✅ gasto-finca OK (tras fix BUG-1) | BUG-1 ✅resuelto |
+| 9 | Sanidad | ✅ evento OK (tras fix BUG-1) | BUG-1 ✅resuelto |
 | 10 | Areteo / alertas SENASA | ✅ build actual | — |
 | 11 | Filtro avanzado | ✅ build actual | — |
 | 12 | Exports / Reportes | 🔎 diferido (cierre) | — |
@@ -29,9 +29,9 @@
 
 ## Bugs consolidados
 
-### 🔴 BUG-1 (Crítico) — Gasto de finca falla con "Missing or insufficient permissions"
-- **Síntoma:** registrar un gasto de finca (tab "Gastos de Finca" → "Registrar gasto") falla;
-  el modal muestra **"Missing or insufficient permissions."** y no guarda. Reproducido en
+### 🟢 BUG-1 (Crítico) — RESUELTO ✅ — Gasto de finca / Sanidad fallaban con "permissions"
+- **Síntoma:** registrar un gasto de finca (tab "Gastos de Finca" → "Registrar gasto") fallaba;
+  el modal mostraba **"Missing or insufficient permissions."** y no guardaba. Reproducido en
   producción (`index-DXQmLulp.js`), usuario demo.
 - **Diagnóstico (confirmado):** **reglas de Firestore de producción desactualizadas**. No es
   App Check (es global, y el resto de escrituras —lotes, animales, ventas, muerte— funciona);
@@ -40,12 +40,28 @@
   `d52215b`, pero **nunca se deployaron** (esta sesión solo se deployaron índices; el
   `deploy --only firestore:rules` falló por auth y no se reintentó). Firestore deniega por
   defecto las colecciones sin regla.
-- **Impacto:** **Gastos de finca roto en producción.** **Sanidad (`eventosSanitarios`) muy
-  probablemente también** (misma regla sin deployar) — síntoma idéntico, no probado en vivo.
-- **Fix:** desplegar las reglas (NO requiere cambio de código; el repo ya tiene la correcta):
-  `firebase deploy --only firestore:rules --project ganacr`. Es un cambio de seguridad de
-  producción → lo corre José.
-- **Dominio:** infra/seguridad. **Severidad: Crítico** (features shipped rotas en prod).
+- **Impacto:** **Gastos de finca Y Sanidad estaban rotos en producción** desde que se
+  shipearon (no se notó porque nadie los usó en prod).
+- **Fix aplicado (2 jun 2026):** José corrió `firebase deploy --only firestore:rules --project ganacr`
+  ("released rules ... to cloud.firestore"). NO requirió cambio de código (el repo ya tenía
+  la regla correcta).
+- **Verificado post-fix en producción:**
+  - **Gasto de finca** ✅: guarda sin error; distribución proporcional correcta (₡60.000 →
+    Criollo 100 act: ₡27.273 + Brahman 120 act: ₡32.727 = ₡60.000).
+  - **Sanidad** ✅: evento sanitario (vacuna) guarda sin error; Sanidad (1).
+- **Dominio:** infra/seguridad. **Severidad: Crítico.** **Estado: RESUELTO.**
+
+### 🟠 BUG-2 (Importante, solo tooling) — `copy-to-demo` DUPLICA en cada corrida
+- **Síntoma:** descubierto al limpiar el demo. `npm run copy-to-demo` **no borra los datos
+  previos del demo antes de copiar** y usa IDs nuevos cada vez → cada corrida **duplica**
+  todos los documentos. Tras varias corridas el demo tenía ~2814 docs (≈ 2× los 1404 reales).
+- **Impacto:** solo afecta el script de mantenimiento del demo (no la app de usuarios). Pero
+  "restaurar el demo con copy-to-demo" en realidad lo inflaba.
+- **Fix aplicado:** se agregó `scripts/wipe-demo.ts` (`npm run wipe-demo`) que borra todos los
+  docs del demo por email; el procedimiento correcto de reset es **wipe → copy-to-demo →
+  clean-demo**. Se ejecutó y el demo quedó en baseline exacto (2 fincas, 6 lotes, 342
+  animales, `verify-demo` ✅).
+- **Pendiente (opcional):** que `copy-to-demo` haga el wipe internamente al inicio.
 
 ### Resto — sin bugs
 Pasaron limpios en el build actual: crear lote, alta de animal, **venta + anular** (cálculo
