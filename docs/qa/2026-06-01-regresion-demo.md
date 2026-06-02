@@ -13,7 +13,7 @@
 | 1 | Auth & Dashboard & Multi-finca | ✅ build actual | — |
 | 2 | Lotes (crear/editar/borrar) | ✅ crear · 🔎 editar/borrar diferido | — |
 | 3 | Animales (agregar/editar/borrar) | ✅ alta build actual | — |
-| 4 | Pesajes | 🔎 diferido (cierre) | — |
+| 4 | Pesajes | ✅ build actual | — |
 | 5 | Ventas y anulación | ✅ build actual | — |
 | 6 | Muerte/baja y reporte de pérdidas | 🟡 verif. sesión previa | — |
 | 7 | Mover animales | 🟡 modal verif. previo · mover-completo diferido | — |
@@ -21,9 +21,9 @@
 | 9 | Sanidad | ✅ evento OK (tras fix BUG-1) | BUG-1 ✅resuelto |
 | 10 | Areteo / alertas SENASA | ✅ build actual | — |
 | 11 | Filtro avanzado | ✅ build actual | — |
-| 12 | Exports / Reportes | 🔎 diferido (cierre) | — |
+| 12 | Exports / Reportes | 🟢 Excel ✅ · PDF Lote ✅ · PDF Socio ❌→fix | BUG-3 ✅fix |
 | 13 | Offline | 🟡 oculto-online verif. · estado-offline diferido | — |
-| 14 | Responsive (smoke) | 🔎 diferido (cierre) | — |
+| 14 | Responsive (smoke) | 🟡 chrome 375/768 ✅ · BUG-4 toolbar | BUG-4 ✅fix |
 
 **Leyenda:** ✅ pass (build actual) · 🟡 pass en sesión previa / otro build · 🔎 diferido al cerrar · ❌ bug
 
@@ -63,6 +63,35 @@
   animales, `verify-demo` ✅).
 - **Pendiente (opcional):** que `copy-to-demo` haga el wipe internamente al inicio.
 
+### 🟠 BUG-3 (Alto) — RESUELTO ✅ (fix en PR) — PDF de Socio fallaba (fuente Roboto 404)
+- **Síntoma:** generar el **PDF de Socio** (lotes a-medias, menú ⋮ → "PDF Socio") fallaba.
+  Consola: `Failed to fetch font from https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf: 404`.
+- **Diagnóstico (confirmado):** `ReporteSocioPDF` registraba la fuente **Roboto** con
+  `Font.register` desde `fonts.gstatic.com`; la URL de la variante **bold (700)** está rota (404),
+  lo que abortaba el render. `ReporteLotePDF` (que **sí** funciona) usa la fuente integrada
+  **Helvetica** y no hace ningún fetch — por eso PDF Lote pasaba y PDF Socio no.
+- **Impacto:** PDF de Socio **roto en producción para TODOS los lotes a-medias** (feature central
+  "ganado a medias"). Además el fetch remoto **rompía el offline-first**: sin conexión el PDF nunca
+  se generaría.
+- **Fix (este PR, `fix(export)`):** se elimina `Font.register` y se usa Helvetica/Helvetica-Bold
+  integrada, igual que `ReporteLotePDF`. Cero dependencia de red al generar PDFs. Build verificado
+  (tsc + vite). **Re-verificar E2E en prod tras el deploy.**
+- **Dominio:** export/PDF. **Severidad: Alto.** **Estado: RESUELTO (pend. merge+deploy).**
+
+### 🟡 BUG-4 (Menor) — RESUELTO ✅ (fix en PR) — Toolbar del Dashboard desbordaba a 375px
+- **Síntoma:** en mobile estrecho (**375px**, iPhone SE) el Dashboard tenía **scroll horizontal**
+  (~48px de overflow). Medido con smoke Playwright a viewport real (`scrollWidth` 423 vs 375).
+- **Diagnóstico (confirmado):** el grupo de botones de acción (Excel / Reporte de pérdidas /
+  Nuevo lote) en `Dashboard.tsx` usaba `flex gap-2` **sin `flex-wrap`** (medía 407px y no envolvía).
+  La fila externa sí tenía `flex-wrap`, pero el grupo interno no. Las **cards de lote** no se ven
+  afectadas (el botón "Ver lote" usa `flex-1`).
+- **Impacto:** scroll lateral en el Dashboard en teléfonos pequeños — viola la convención
+  **mobile-first** del proyecto.
+- **Fix (este PR, `fix(dashboard)`):** `flex gap-2` → `flex flex-wrap justify-end gap-2`. Los
+  botones envuelven y quedan alineados a la derecha. **Verificado:** overflow a 375px **48 → 0px**;
+  768px sin cambios (0px). Build verificado.
+- **Dominio:** dashboard. **Severidad: Menor.** **Estado: RESUELTO (pend. merge+deploy).**
+
 ### Resto — sin bugs
 Pasaron limpios en el build actual: crear lote, alta de animal, **venta + anular** (cálculo
 de utilidad), **muerte registrar/revertir**, **mover same-finca** (con contadores del
@@ -73,6 +102,11 @@ destino), borrado-cascade de lote, areteo/alertas, filtro avanzado.
   Menor; agrupar en `chore(qa): nits` si se decide.
 
 ## Cierre y cobertura
+
+> **Actualización 2026-06-02 — flujos diferidos cerrados.** Se completó la pasada de
+> **Pesos ✅**, **Exports** (Excel ✅ · PDF Lote ✅ · PDF Socio ❌→**BUG-3** con fix) y
+> **Responsive** (smoke Playwright 375/768; **BUG-4** toolbar con fix). BUG-1 (reglas) ya estaba
+> resuelto. Los 2 bugs nuevos (export + dashboard) van con su fix en este mismo PR.
 
 Incluye la **pasada corta** sobre el build actual (`index-DXQmLulp.js`):
 
@@ -130,8 +164,12 @@ eso, re-probar gasto de finca y sanidad.
 - Modal completo y correcto (origen, valor, arete SENASA, N° subasta condicional). ✅
 - Editar/borrar y variantes de origen (nacido/sin registro): smoke OK (modal ya verificado); se hará alta adicional si el tiempo lo permite.
 
-### Área 4 — Pesajes
-_(pendiente)_
+### Área 4 — Pesajes ✅
+- Registrar peso en un animal (NS-004 del lote Nelore Stress, 403 → 420 kg): `pesoActual` se
+  actualiza y la **ganancia** se recalcula (+57 kg). Modal cierra OK, sin errores de consola. ✅
+- Tab **Pesos**: 7 gráficos SVG renderizan; "Promedio del lote ↑ 78 kg total"; semáforo
+  "🔴 9 animales sin pesar en más de 30 días"; "ESTADO DE PESAJE — 10 ANIMALES". ✅
+- **Nota:** este flujo mutó el demo (NS-004 = 420 kg) → se restaura al cierre (wipe→copy→clean).
 
 ### Área 5 — Ventas y anulación
 _(pendiente)_
@@ -154,11 +192,31 @@ _(pendiente)_
 ### Área 11 — Filtro avanzado
 _(pendiente)_
 
-### Área 12 — Exports / Reportes
-_(pendiente)_
+### Área 12 — Exports / Reportes 🟢 (1 bug: BUG-3, ya con fix)
+- **Excel** (inventario, menú ⋮ → "Exportar Excel"): dispara la descarga **sin errores de
+  consola**. ✅
+- **PDF Lote** (menú ⋮ → "PDF Lote"): genera **sin errores**. Usa Helvetica integrada. ✅
+- **PDF Socio** (menú ⋮ → "PDF Socio"): **❌ fallaba** por fuente Roboto bold 404 → **BUG-3**
+  (ver arriba). **Fix aplicado** en este PR (Helvetica integrada). Re-verificar en prod tras deploy.
 
 ### Área 13 — Offline
 _(pendiente)_
 
-### Área 14 — Responsive
-_(pendiente)_
+### Área 14 — Responsive (smoke) 🟡 (1 bug: BUG-4, ya con fix)
+**Método:** el `resize_window` de Chrome MCP **no cambia el viewport real** (`innerWidth` quedaba
+en 1920). Se hizo un **smoke Playwright** a viewport real (375×812 y 768×1024) contra vite local,
+con screenshots y medición de overflow horizontal.
+- **375px (mobile):** navbar **colapsa a hamburguesa** ✅; stat cards en **grid 2×2** ✅; modal
+  (Dialog) **contenido y centrado** ✅. Se detectó **48px de overflow** en la toolbar de acciones
+  → **BUG-4** (ver arriba). **Tras el fix: 0px.** ✅
+- **768px (tablet):** **0px** de overflow; layout correcto. ✅
+- **Limitación (no bloqueante):** **App Check bloquea navegadores automatizados** (reCAPTCHA v3 →
+  403 → `permission-denied`); en automatización **solo carga el estado vacío/onboarding**, no el
+  Dashboard con lotes ni LoteDetalle con datos. La **chrome persistente** (navbar, stats, toolbar,
+  tabs, modales) sí se verificó. Los layouts mobile **dependientes de datos** (cards de lote, tabla
+  de animales, tabs de LoteDetalle) quedan para una **pasada en dispositivo real** o un **debug
+  token de App Check** en el entorno de pruebas.
+- **Deuda técnica detectada:** las suites Playwright (`tests/qa/`, `tests/responsive/`) usan
+  **selectores pre-migración** (`.lote-card`, `.pdf-dropdown`, `.detalle-acciones`,
+  `.finca-selector-chip`, `button "📄 PDF"`) que **ya no existen** tras el rediseño shadcn/Tailwind
+  → no corren contra el build actual. Modernizarlas es un esfuerzo aparte (recomendado).
