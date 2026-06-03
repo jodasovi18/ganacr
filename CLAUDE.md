@@ -131,10 +131,12 @@ offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
 - [ ] Inventario del hato sincronizable con Trazar-Agro — DIFERIDO (sin documentación de su API)
 
 ### Fase 4 — Finanzas y costos ganaderos
-- [ ] Costo por kilo producido (inversión + gastos / kg ganado)
-- [ ] Margen por animal vendido
-- [ ] Rentabilidad por lote y comparativa entre lotes
-- [ ] Simulador de escenarios de venta (si vendo hoy vs. en 30 días)
+- [x] **Costo por kilo producido** (de engorde y total) — núcleo Fase 4-A, jun 2026
+- [x] **Margen por animal vendido** — núcleo Fase 4-A, jun 2026
+- [x] **Rentabilidad por lote + comparativa entre lotes** (resultado estimado, ROI, inventario en
+  pie con ₡/kg de referencia editable): `utils/finanzas.ts` (puro, TDD), `useFinanzasFinca`,
+  pestañas "💰 Finanzas" en LoteDetalle (`FinanzasLoteTab`) y Dashboard (`FinanzasFincaTab`). jun 2026
+- [ ] Simulador de escenarios de venta (si vendo hoy vs. en 30 días) — Fase 4-B (usa `gananciaDiariaProm`)
 - [ ] Módulo simplificado compatible con líneas de crédito MAG al 6%
 
 ### Fase 5 — Gestión de pastos y finca
