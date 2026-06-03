@@ -26,3 +26,8 @@ export async function abrirLote(page: Page, nombreLote: string = LOTE_PROPIO.nom
   await card.getByRole('button', { name: /Ver lote/i }).click();
   await expect(page).toHaveURL(/\/lote\//);
 }
+
+/** Abre el menú ⋮ de la fila (tabla desktop) de un animal por su arete. */
+export async function abrirMenuAnimal(page: Page, arete: string) {
+  await page.locator('tr', { hasText: arete }).getByRole('button').last().click();
+}

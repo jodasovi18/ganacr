@@ -2,19 +2,20 @@ import { test, expect } from '@playwright/test';
 import { login, abrirLote } from './helpers';
 import { LOTE_PROPIO } from './fixtures';
 
+const overflow = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+
 // Corre solo en el project "mobile" (Pixel 5, 393px) por el testMatch del config.
 test.describe('Responsive (mobile, con datos)', () => {
-  test('Dashboard no tiene overflow horizontal y muestra navbar móvil', async ({ page }) => {
+  test('Dashboard sin overflow horizontal', async ({ page }) => {
     await login(page);
-    const ov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(ov).toBeLessThanOrEqual(2);
-    await expect(page.getByText('ANIMALES')).toBeVisible();
+    expect(await overflow(page)).toBeLessThanOrEqual(2);
+    await expect(page.getByText(LOTE_PROPIO.nombre).first()).toBeVisible();
   });
 
-  test('LoteDetalle no tiene overflow horizontal', async ({ page }) => {
+  test('LoteDetalle sin overflow horizontal', async ({ page }) => {
     await login(page);
     await abrirLote(page, LOTE_PROPIO.nombre);
-    const ov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(ov).toBeLessThanOrEqual(2);
+    expect(await overflow(page)).toBeLessThanOrEqual(2);
   });
 });

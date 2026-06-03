@@ -9,19 +9,19 @@ test.describe('Lotes', () => {
     await expect(page.getByText(LOTE_PROPIO.nombre)).toBeVisible();
   });
 
-  test('crea un lote propio nuevo', async ({ page }) => {
+  test('crea y borra un lote propio', async ({ page }) => {
+    // crear
     await page.getByRole('button', { name: /Nuevo lote/i }).click();
-    await page.getByLabel(/Nombre del lote/i).fill('QA Lote E2E');
-    await page.getByRole('button', { name: /Crear lote/i }).click();
-    await expect(page.getByText('QA Lote E2E')).toBeVisible({ timeout: 10_000 });
-  });
-
-  test('borra un lote (cascade)', async ({ page }) => {
-    const card = page.locator('div').filter({ hasText: 'QA Lote E2E' }).first();
-    await card.getByRole('button', { name: /eliminar|borrar/i }).click().catch(async () => {
-      await card.getByRole('button').last().click(); // botón trash (icono)
-    });
-    await page.getByRole('button', { name: /Eliminar|Confirmar/i }).click();
+    await page.getByPlaceholder(/Ej: Lote/i).fill('QA Lote E2E');
+    await page.locator('[role=dialog] button[type=submit]').click();
+    const card = page.locator('div')
+      .filter({ has: page.getByRole('button', { name: /Ver lote/i }) })
+      .filter({ hasText: 'QA Lote E2E' })
+      .last();
+    await expect(card).toBeVisible({ timeout: 10_000 });
+    // borrar (botón trash de la card → confirmar en el diálogo)
+    await card.getByRole('button').last().click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Eliminar' }).click();
     await expect(page.getByText('QA Lote E2E')).toHaveCount(0, { timeout: 10_000 });
   });
 });

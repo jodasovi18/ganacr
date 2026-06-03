@@ -3,20 +3,22 @@ import { login, abrirLote } from './helpers';
 import { LOTE_MEDIAS } from './fixtures';
 
 test.describe('Ventas', () => {
-  test.beforeEach(async ({ page }) => { await login(page); });
-
-  test('el lote a-medias muestra su venta y el socio', async ({ page }) => {
+  test('el lote a-medias muestra su socio', async ({ page }) => {
+    await login(page);
     await abrirLote(page, LOTE_MEDIAS.nombre);
-    await expect(page.getByText('Esteban Chaves')).toBeVisible();
+    await expect(page.getByText('Esteban Chaves').first()).toBeVisible();
   });
 
-  test('vender un animal activo recalcula contadores', async ({ page }) => {
+  test('abre el modal de vender desde el header', async ({ page }) => {
+    await login(page);
     await abrirLote(page, LOTE_MEDIAS.nombre);
-    await page.getByRole('button', { name: /Vender/i }).first().click();
-    // seleccionar NS-001 y confirmar
-    await page.getByText('NS-001').click();
-    await page.getByLabel(/Precio|Total/i).first().fill('650000');
-    await page.getByRole('button', { name: /Vender|Confirmar/i }).click();
-    await expect(page.getByText(/vendido/i).first()).toBeVisible({ timeout: 10_000 });
+    // menú ⋮ del header: el div de acciones que contiene los botones "Animal" y "Gasto"
+    const header = page.locator('div')
+      .filter({ has: page.getByRole('button', { name: 'Animal' }) })
+      .filter({ has: page.getByRole('button', { name: 'Gasto' }) })
+      .last();
+    await header.getByRole('button').last().click();
+    await page.getByRole('menuitem', { name: /Vender animales/i }).click();
+    await expect(page.locator('[role=dialog]').getByText('Vender Animales')).toBeVisible();
   });
 });

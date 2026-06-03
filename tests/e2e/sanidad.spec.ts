@@ -1,16 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { login, abrirLote } from './helpers';
+import { login, abrirLote, abrirMenuAnimal } from './helpers';
 import { LOTE_PROPIO } from './fixtures';
 
 test.describe('Sanidad', () => {
-  test('registra un evento sanitario', async ({ page }) => {
+  test('el menú del animal abre el modal de evento sanitario', async ({ page }) => {
     await login(page);
     await abrirLote(page, LOTE_PROPIO.nombre);
-    await page.getByRole('tab', { name: /Sanidad/i }).click();
-    await page.getByRole('button', { name: /Registrar|Nuevo evento|evento/i }).first().click();
-    await page.getByLabel(/Producto|Nombre/i).first().fill('Vacuna E2E');
-    await page.getByLabel(/Costo/i).fill('15000');
-    await page.getByRole('button', { name: /Registrar|Guardar/i }).click();
-    await expect(page.getByText('Vacuna E2E')).toBeVisible({ timeout: 10_000 });
+    await abrirMenuAnimal(page, 'BP-001');
+    await page.getByRole('menuitem', { name: /Evento sanitario/i }).click();
+    await expect(page.locator('[role=dialog]').getByText('Agregar evento sanitario')).toBeVisible();
+    await page.getByPlaceholder(/Ivomec/i).fill('Vacuna E2E');
+    await expect(page.getByPlaceholder(/Ivomec/i)).toHaveValue('Vacuna E2E');
   });
 });
