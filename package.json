@@ -14,7 +14,11 @@
     "verify-demo": "tsx --tsconfig scripts/tsconfig.json scripts/verify-demo.ts",
     "clean-demo": "tsx --tsconfig scripts/tsconfig.json scripts/clean-demo-fields.ts",
     "wipe-demo": "tsx --tsconfig scripts/tsconfig.json scripts/wipe-demo.ts",
-    "test:qa": "playwright test",
+    "emu": "firebase emulators:start --only firestore,auth --project ganacr",
+    "seed:emulator": "tsx scripts/seed-emulator.ts",
+    "test:e2e": "firebase emulators:exec --only firestore,auth --project ganacr \"playwright test\"",
+    "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test": "npm run test:unit && npm run test:e2e",
     "test:filtro": "tsx scripts/test-filtrar-animales.ts"
   },
   "dependencies": {
