@@ -65,6 +65,7 @@ export interface Lote {
   totalGastos: number;      // suma de todos los gastos del lote
   totalVentas: number;      // suma de ingresos por ventas
   utilidadTotal: number;
+  precioReferenciaKg?: number; // ₡/kg para valorar el inventario en pie (opcional)
   createdAt: string;
   updatedAt: string;
 }
