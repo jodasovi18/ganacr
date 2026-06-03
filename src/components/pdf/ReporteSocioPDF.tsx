@@ -1,16 +1,5 @@
-import { Document, Font, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { Animal, Gasto, Lote, Venta } from '@/types';
-
-Font.register({
-  family: 'Roboto',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf' },
-    {
-      src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf',
-      fontWeight: 700,
-    },
-  ],
-});
 
 const C = {
   primary:     '#1b4332',
@@ -25,7 +14,7 @@ const C = {
 };
 
 const s = StyleSheet.create({
-  page:             { fontFamily: 'Roboto', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
+  page:             { fontFamily: 'Helvetica', fontSize: 9, color: C.text, paddingHorizontal: 30, paddingVertical: 28 },
   header:           { backgroundColor: C.primary, padding: 14, marginBottom: 16, borderRadius: 4 },
   headerBrand:      { fontSize: 15, color: C.white, fontWeight: 'bold', marginBottom: 3 },
   headerPara:       { fontSize: 9, color: '#a7d4bc', marginBottom: 2 },

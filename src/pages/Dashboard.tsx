@@ -247,7 +247,7 @@ export default function Dashboard() {
               <TabsTrigger value="lotes">Lotes</TabsTrigger>
               <TabsTrigger value="gastosFinca">Gastos de Finca</TabsTrigger>
             </TabsList>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-end gap-2">
               {dashboardTab === 'lotes' && (
                 <>
                   <Button variant="outline" size="sm" onClick={handleExportarExcel} disabled={exportando || lotes.length === 0}>
