@@ -34,7 +34,6 @@ nul
 scripts/service-account.json
 
 # Playwright output
-tests/qa/screenshots/
-tests/responsive/screenshots/
+tests/e2e/.artifacts/
 playwright-report/
 .superpowers/
