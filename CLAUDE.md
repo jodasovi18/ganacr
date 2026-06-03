@@ -127,8 +127,13 @@ offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
   filtro "Solo sin arete SENASA". (31 may 2026)
 - [x] **Indicador offline**: la app ya sincroniza offline (IndexedDB); se agregó
   `useOnlineStatus` + `OfflineIndicator` (chip "Sin conexión" en App). (31 may 2026)
-- [ ] Guías de movilización en PDF listas para presentar — PENDIENTE
-- [ ] Inventario del hato sincronizable con Trazar-Agro — DIFERIDO (sin documentación de su API)
+- ❌ **Guías de movilización propias — DESCARTADO (no viable legalmente).** Investigación (jun 2026):
+  la guía de movilización válida la emite **únicamente Trazar-Agro** (MAG/OIRSA). Requiere notificar
+  la salida con el CIIO ≤5 días antes y la guía digital oficial vence en 24h; GanaCR NO puede emitir
+  una guía oficial. Lo que sí aporta valor (y es legal): inventario con CIIO listo, una "pre-guía"
+  interna **rotulada como NO oficial** para agilizar la notificación, y registro de movimientos.
+- [ ] Inventario del hato sincronizable con Trazar-Agro — DIFERIDO (su API no está documentada
+  públicamente; una integración requeriría autorización oficial MAG/OIRSA)
 
 ### Fase 4 — Finanzas y costos ganaderos
 - [ ] Costo por kilo producido (inversión + gastos / kg ganado)
