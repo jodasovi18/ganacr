@@ -59,7 +59,7 @@ madres, montas, partos, peso al nacer, destete).
   precio de compra es opcional y se re-etiqueta "Valor estimado" para no-comprados; retrocompat
   (ausente = comprado). `AgregarAnimalModal`. (31 mayo 2026)
 - [x] **Filtro avanzado de animales** (estado, raza, origen, rango de peso, rango de ganancia):
-  función pura `filtrarAnimales` (`src/utils/filtrarAnimales.ts`, test `npm run test:filtro`) +
+  función pura `filtrarAnimales` (`src/utils/filtrarAnimales.ts`, test `npm run test:unit`) +
   componente `AnimalesFilterBar`, integrado en la pestaña Animales del lote con contador
   "Mostrando X de Y" y badges de origen. (31 mayo 2026)
 - ↪ Control de partos (madre, fecha, peso al nacer): MOVIDO al futuro **módulo de Cría**.
@@ -176,14 +176,18 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `src/index.css` — Tailwind v4 + @theme inline + @layer base con paleta Campo Claro
 - `src/lib/utils.ts` — función `cn()` de shadcn/ui
 - `docs/superpowers/` — specs y planes de implementación (brainstorming sessions)
-- `tests/responsive/` — tests Playwright (`playwright.responsive.config.ts`)
-- `scripts/` — seed, cleanup, copy-to-demo y verify-demo (tsx con Firebase Admin SDK)
+- `tests/e2e/` — suite E2E sobre Firebase Emulator (Firestore+Auth); `npm run test:e2e`
+  (requiere JDK 17). Datos sembrados por `scripts/seed-emulator.ts` (fixtures en `tests/e2e/fixtures.ts`).
+- `tests/unit/` — tests Node rápidos (cálculos, filtro, render PDF Lote/Socio); `npm run test:unit`.
+- App Check bloquea navegadores automatizados → los E2E usan el emulador (sin App Check).
+  `firebase.json` define los emuladores; `firebase.ts` conecta con `VITE_USE_EMULATOR` (`.env.test`).
+- `scripts/` — seed, cleanup, copy-to-demo, verify-demo, seed-emulator (tsx con Firebase Admin SDK)
 
 ## Flujo de trabajo (Git / PR)
 A partir del 31 may 2026 el trabajo de features va **por Pull Request**, no directo a `main`:
 1. Crear una rama desde `main` (`feature/...`, `fix/...`, `chore/...`).
 2. Implementar + commits frecuentes (mensaje termina con `Co-Authored-By: Claude ...`).
-3. Verificar: `npx tsc --noEmit`, `npm run lint`, `npm run build` y, si aplica, `npm run test:filtro`.
+3. Verificar: `npx tsc --noEmit`, `npm run lint`, `npm run build` y `npm run test:unit` (y `npm run test:e2e` con JDK 17).
 4. `git push -u origin <rama>` y abrir el PR con `gh pr create`.
 5. **NO mergear a `main` hasta que José apruebe el PR.** Al mergear, Vercel despliega `main`.
 
