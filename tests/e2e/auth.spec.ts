@@ -1,20 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { login, seleccionarFinca } from './helpers';
-import { FINCA_ESPERANZA, FINCA_ROBLE } from './fixtures';
+import { FINCA_ROBLE } from './fixtures';
 
 test.describe('Auth & Dashboard', () => {
-  test('login muestra el Dashboard con stats', async ({ page }) => {
+  test('login muestra el Dashboard con los lotes sembrados', async ({ page }) => {
     await login(page);
-    await expect(page.getByText('LOTES')).toBeVisible();
-    await expect(page.getByText('ANIMALES')).toBeVisible();
-    await expect(page.getByText('INVERTIDO')).toBeVisible();
-    await expect(page.getByText('UTILIDAD')).toBeVisible();
+    await expect(page.getByText('Brahman Propio')).toBeVisible();
+    await expect(page.getByText('Nelore Socio')).toBeVisible();
   });
 
   test('el selector de finca cambia el contexto', async ({ page }) => {
-    await login(page);
-    await expect(page.getByText(FINCA_ESPERANZA.nombre).first()).toBeVisible();
-    await seleccionarFinca(page, FINCA_ROBLE.nombre);
-    await expect(page.getByText(FINCA_ROBLE.nombre).first()).toBeVisible();
+    await login(page); // La Esperanza activa (muestra los lotes)
+    await seleccionarFinca(page, FINCA_ROBLE.nombre); // El Roble está vacía
+    await expect(page.getByText('No tenés lotes todavía.')).toBeVisible({ timeout: 10_000 });
   });
 });

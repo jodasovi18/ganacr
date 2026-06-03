@@ -57,14 +57,13 @@ export async function seedEmulator() {
   const batch = db.batch();
   // users
   batch.set(db.collection('users').doc(USER.uid), { id: USER.uid, email: USER.email, nombre: USER.nombre, createdAt: NOW });
-  // fincas
-  for (const f of [FINCA_ESPERANZA, FINCA_ROBLE]) {
-    batch.set(db.collection('fincas').doc(f.id), { id: f.id, userId: USER.uid, nombre: f.nombre, createdAt: NOW, updatedAt: NOW });
-  }
+  // fincas — createdAt distinto para que La Esperanza sea la activa por defecto (list[0])
+  batch.set(db.collection('fincas').doc(FINCA_ESPERANZA.id), { id: FINCA_ESPERANZA.id, userId: USER.uid, nombre: FINCA_ESPERANZA.nombre, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: NOW });
+  batch.set(db.collection('fincas').doc(FINCA_ROBLE.id), { id: FINCA_ROBLE.id, userId: USER.uid, nombre: FINCA_ROBLE.nombre, createdAt: '2026-01-02T00:00:00.000Z', updatedAt: NOW });
 
   // Venta del lote a-medias (vende ns-3): utilidad bruta y reparto 50/50
   const ventaMedias = {
-    id: 'venta-1', userId: USER.uid, fincaId: FINCA_ROBLE.id, loteId: LOTE_MEDIAS.id,
+    id: 'venta-1', userId: USER.uid, fincaId: FINCA_ESPERANZA.id, loteId: LOTE_MEDIAS.id,
     fecha: '2026-04-10',
     animales: [{ animalId: 'ns-3', numeroArete: 'NS-003', pesoFinal: 480, precioVenta: 700000, precioCompra: 420000 }],
     cantidadAnimales: 1, totalInversion: 420000, gastosProporcion: 30000,
@@ -73,16 +72,16 @@ export async function seedEmulator() {
   };
 
   const lotePropio = loteDesdeAnimales(LOTE_PROPIO, FINCA_ESPERANZA.id, 'propio', PROPIO_ANIMALES, 120000, []);
-  const loteMedias = loteDesdeAnimales(LOTE_MEDIAS, FINCA_ROBLE.id, 'medias', MEDIAS_ANIMALES, 60000, [ventaMedias]);
+  const loteMedias = loteDesdeAnimales(LOTE_MEDIAS, FINCA_ESPERANZA.id, 'medias', MEDIAS_ANIMALES, 60000, [ventaMedias]);
   batch.set(db.collection('lotes').doc(lotePropio.id), lotePropio);
   batch.set(db.collection('lotes').doc(loteMedias.id), loteMedias);
 
   for (const a of PROPIO_ANIMALES) batch.set(db.collection('animales').doc(a.id), animalDoc(a, FINCA_ESPERANZA.id, LOTE_PROPIO.id));
-  for (const a of MEDIAS_ANIMALES) batch.set(db.collection('animales').doc(a.id), animalDoc(a, FINCA_ROBLE.id, LOTE_MEDIAS.id));
+  for (const a of MEDIAS_ANIMALES) batch.set(db.collection('animales').doc(a.id), animalDoc(a, FINCA_ESPERANZA.id, LOTE_MEDIAS.id));
 
   // Gastos
   batch.set(db.collection('gastos').doc('g-propio-1'), { id: 'g-propio-1', userId: USER.uid, fincaId: FINCA_ESPERANZA.id, loteId: LOTE_PROPIO.id, concepto: 'Sales minerales', tipo: 'alimento', monto: 120000, fecha: '2026-02-01', createdAt: NOW });
-  batch.set(db.collection('gastos').doc('g-medias-1'), { id: 'g-medias-1', userId: USER.uid, fincaId: FINCA_ROBLE.id, loteId: LOTE_MEDIAS.id, concepto: 'Desparasitante', tipo: 'veterinario', monto: 60000, fecha: '2026-03-15', createdAt: NOW });
+  batch.set(db.collection('gastos').doc('g-medias-1'), { id: 'g-medias-1', userId: USER.uid, fincaId: FINCA_ESPERANZA.id, loteId: LOTE_MEDIAS.id, concepto: 'Desparasitante', tipo: 'veterinario', monto: 60000, fecha: '2026-03-15', createdAt: NOW });
   // Venta
   batch.set(db.collection('ventas').doc(ventaMedias.id), ventaMedias);
   // Pesos (historial mínimo para gráficos de bp-1 propio)
