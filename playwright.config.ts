@@ -1,30 +1,22 @@
 import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 export default defineConfig({
-  testDir: './tests/qa',
+  testDir: './tests/e2e',
   timeout: 60_000,
-  retries: 1,
+  retries: 0,
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
+  globalSetup: './tests/e2e/global-setup.ts',
   webServer: {
-    command: 'npx vite --port 5174',
+    command: 'npx vite --mode test --port 5174 --strictPort',
     url: 'http://localhost:5174',
     reuseExistingServer: true,
     timeout: 60_000,
   },
-  use: {
-    baseURL: 'http://localhost:5174',
-    screenshot: 'only-on-failure',
-    video: 'off',
-    headless: true,
-  },
-  outputDir: 'tests/qa/screenshots',
+  use: { baseURL: 'http://localhost:5174', screenshot: 'only-on-failure', video: 'off', headless: true },
+  outputDir: 'tests/e2e/.artifacts',
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+    { name: 'desktop', testIgnore: /responsive\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', testMatch: /responsive\.spec\.ts/, use: { ...devices['Pixel 5'] } },
   ],
 });
