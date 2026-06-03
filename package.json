@@ -18,8 +18,7 @@
     "seed:emulator": "tsx scripts/seed-emulator.ts",
     "test:e2e": "firebase emulators:exec --only firestore,auth --project ganacr \"playwright test\"",
     "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
-    "test": "npm run test:unit && npm run test:e2e",
-    "test:filtro": "tsx scripts/test-filtrar-animales.ts"
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
