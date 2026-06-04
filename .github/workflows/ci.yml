@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: Lint · Build · Unit · Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build (tsc + vite)
+        run: npm run build
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Security audit (informativo, no bloquea)
+        run: npm audit --omit=dev || true
+
+  emulator-tests:
+    name: Reglas · Backup (emulador Firebase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - name: Reglas de seguridad Firestore
+        run: npm run test:rules
+      - name: Round-trip de respaldo
+        run: npm run test:backup
