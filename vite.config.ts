@@ -10,4 +10,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Firebase rara vez cambia → chunk propio cacheable, separado del código de la app.
+        // (@react-pdf/renderer y xlsx se separan solos vía import() dinámico.)
+        manualChunks(id) {
+          if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) {
+            return 'firebase'
+          }
+        },
+      },
+    },
+  },
 })

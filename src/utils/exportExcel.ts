@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx';
 import { Animal, Lote, Venta } from '@/types';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -17,12 +16,15 @@ function fechaExcel(isoDate: string | undefined | null): string {
 
 // ─── Exportación principal ────────────────────────────────────────────────────
 
-export function exportarLotesExcel(
+export async function exportarLotesExcel(
   lotes: Lote[],
   animalesPorLote: Map<string, Animal[]>,
   ventasPorLote: Map<string, Venta[]>,
   nombreFinca: string
-): void {
+): Promise<void> {
+  // Carga diferida: xlsx es pesado y solo se necesita al exportar.
+  const XLSX = await import('xlsx');
+
   const wb = XLSX.utils.book_new();
 
   for (const lote of lotes) {
@@ -111,11 +113,14 @@ export function exportarLotesExcel(
 
 // ─── Reporte de pérdidas por muerte (para declaración de renta) ───────────────
 
-export function exportarPerdidasExcel(
+export async function exportarPerdidasExcel(
   animalesMuertos: Animal[],
   lotesMap: Map<string, Lote>,
   nombreFinca: string
-): void {
+): Promise<void> {
+  // Carga diferida: xlsx es pesado y solo se necesita al exportar.
+  const XLSX = await import('xlsx');
+
   const rows: (string | number)[][] = [];
   rows.push(['REPORTE DE PÉRDIDAS POR MUERTE — ' + nombreFinca]);
   rows.push([]);

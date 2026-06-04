@@ -150,7 +150,7 @@ export default function Dashboard() {
         ventasPorLote.get(v.loteId)!.push(v);
       });
 
-      exportarLotesExcel(lotes, animalesPorLote, ventasPorLote, fincaActiva.nombre);
+      await exportarLotesExcel(lotes, animalesPorLote, ventasPorLote, fincaActiva.nombre);
     } catch (err) {
       console.error('[Dashboard] Error exportando Excel:', err);
       setExportError('No se pudo exportar. Intentá de nuevo.');
@@ -172,7 +172,7 @@ export default function Dashboard() {
       const muertos = snap.docs.map(d => ({ ...d.data(), id: d.id } as Animal));
       muertos.sort((a, b) => ((b.fechaSalida ?? '') < (a.fechaSalida ?? '') ? -1 : 1));
       const lotesMap = new Map(lotes.map(l => [l.id, l]));
-      exportarPerdidasExcel(muertos, lotesMap, fincaActiva.nombre);
+      await exportarPerdidasExcel(muertos, lotesMap, fincaActiva.nombre);
     } catch (err) {
       console.error('[Dashboard] Error reporte pérdidas:', err);
     } finally {
