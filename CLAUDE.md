@@ -136,7 +136,8 @@ offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
 - [x] **Rentabilidad por lote + comparativa entre lotes** (resultado estimado, ROI, inventario en
   pie con ₡/kg de referencia editable): `utils/finanzas.ts` (puro, TDD), `useFinanzasFinca`,
   pestañas "💰 Finanzas" en LoteDetalle (`FinanzasLoteTab`) y Dashboard (`FinanzasFincaTab`). jun 2026
-- [ ] Simulador de escenarios de venta (si vendo hoy vs. en 30 días) — Fase 4-B (usa `gananciaDiariaProm`)
+- [x] **Simulador de escenarios de venta** (vender hoy vs. en N días): `utils/simulador.ts` (puro,
+  TDD) + pestaña "📈 Simulador" en LoteDetalle (`SimuladorLoteTab`). Veredicto por valor marginal/día. jun 2026
 - [ ] Módulo simplificado compatible con líneas de crédito MAG al 6%
 
 ### Fase 5 — Gestión de pastos y finca
