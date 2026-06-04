@@ -24,6 +24,7 @@ import { exportarLotesExcel } from '@/utils/exportExcel';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
 import FinanzasLoteTab from '@/components/FinanzasLoteTab';
+import SimuladorLoteTab from '@/components/SimuladorLoteTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ArrowLeft, Plus, MoreVertical, FileSpreadsheet, FileText, Trash2, Pencil, Scale } from 'lucide-react';
 
-type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad' | 'finanzas';
+type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad' | 'finanzas' | 'simulador';
 
 export default function LoteDetalle() {
   const { loteId } = useParams<{ loteId: string }>();
@@ -326,6 +327,7 @@ export default function LoteDetalle() {
               <TabsTrigger value="pesos" className="text-xs sm:text-sm">⚖️ Pesos</TabsTrigger>
               <TabsTrigger value="sanidad" className="text-xs sm:text-sm">🩺 Sanidad ({eventos.length})</TabsTrigger>
               <TabsTrigger value="finanzas" className="text-xs sm:text-sm">💰 Finanzas</TabsTrigger>
+              <TabsTrigger value="simulador" className="text-xs sm:text-sm">📈 Simulador</TabsTrigger>
             </TabsList>
           </div>
 
@@ -724,6 +726,10 @@ export default function LoteDetalle() {
 
           <TabsContent value="finanzas">
             {lote && <FinanzasLoteTab lote={lote} animales={animales} ventas={ventas} />}
+          </TabsContent>
+
+          <TabsContent value="simulador">
+            {lote && <SimuladorLoteTab lote={lote} animales={animales} ventas={ventas} />}
           </TabsContent>
         </Tabs>
       </div>
