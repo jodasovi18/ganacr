@@ -196,11 +196,11 @@ export default function LoteDetalle() {
     setAnimalesAMover(animalesSeleccionados);
   }
 
-  function handleExportarExcel() {
+  async function handleExportarExcel() {
     if (!lote || !fincaActiva) return;
     const animalesPorLote = new Map([[lote.id, animales]]);
     const ventasPorLote   = new Map([[lote.id, ventas]]);
-    exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
+    await exportarLotesExcel([lote], animalesPorLote, ventasPorLote, fincaActiva.nombre);
   }
 
   async function handleGenerarPDF() {
