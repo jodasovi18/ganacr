@@ -2,57 +2,69 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Usuario solo puede leer/escribir su propio perfil
+    function autenticado()      { return request.auth != null; }
+    function esDueno()          { return autenticado() && resource.data.userId == request.auth.uid; }
+    function creandoComoDueno() { return autenticado() && request.resource.data.userId == request.auth.uid; }
+    function userIdInmutable()  { return request.resource.data.userId == resource.data.userId; }
+    function tamanoOk()         { return request.resource.data.size() <= 40; }
+    function d()                { return request.resource.data; }
+
+    // Validaciones por colección: set chico de campos críticos (no espeja el esquema)
+    function fincaValida()      { return d().nombre is string; }
+    function loteValido()       { return d().tipoPropiedad in ['propio', 'medias'] && d().totalInvertido is number; }
+    function animalValido()     { return d().estado in ['activo', 'vendido', 'muerto'] && d().pesoActual is number && d().precioCompra is number; }
+    function pesoValido()       { return d().peso is number; }
+    function gastoValido()      { return d().monto is number; }
+    function gastoFincaValido() { return d().montoTotal is number; }
+    function eventoValido()     { return d().costo is number; }
+    function ventaValida()      { return d().totalVenta is number; }
+
+    // users: keyed por uid (no tiene campo userId)
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, delete:   if autenticado() && request.auth.uid == userId;
+      allow create, update: if autenticado() && request.auth.uid == userId
+        && tamanoOk() && d().email is string && d().nombre is string;
     }
 
-    // Fincas: solo el dueño
-    match /fincas/{fincaId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /fincas/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && fincaValida();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && fincaValida();
     }
-
-    // Lotes: solo el dueño
-    match /lotes/{loteId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /lotes/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && loteValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && loteValido();
     }
-
-    // Animales: solo el dueño
-    match /animales/{animalId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /animales/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && animalValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && animalValido();
     }
-
-    // Pesos: solo el dueño
-    match /pesos/{pesoId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /pesos/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && pesoValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && pesoValido();
     }
-
-    // Gastos: solo el dueño
-    match /gastos/{gastoId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /gastos/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && gastoValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && gastoValido();
     }
-
-    // GastosFinca: solo el dueño
-    match /gastosFinca/{gastoFincaId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /gastosFinca/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && gastoFincaValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && gastoFincaValido();
     }
-
-    // EventosSanitarios: solo el dueño
-    match /eventosSanitarios/{eventoId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /eventosSanitarios/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && eventoValido();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && eventoValido();
     }
-
-    // Ventas: solo el dueño
-    match /ventas/{ventaId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    match /ventas/{id} {
+      allow read, delete: if esDueno();
+      allow create:       if creandoComoDueno() && tamanoOk() && ventaValida();
+      allow update:       if esDueno() && userIdInmutable() && tamanoOk() && ventaValida();
     }
   }
 }
