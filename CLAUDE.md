@@ -186,6 +186,10 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
 - `tests/e2e/` — suite E2E sobre Firebase Emulator (Firestore+Auth); `npm run test:e2e`
   (requiere JDK 17). Datos sembrados por `scripts/seed-emulator.ts` (fixtures en `tests/e2e/fixtures.ts`).
 - `tests/unit/` — tests Node rápidos (cálculos, filtro, render PDF Lote/Socio); `npm run test:unit`.
+- `tests/rules/` — tests de las reglas Firestore (`@firebase/rules-unit-testing`); `npm run test:rules`
+  (requiere JDK 17). Reglas **endurecidas**: owner-only + `userId` inmutable + sanity de tipos en
+  campos críticos + tope de tamaño por doc. El E2E es verificación cruzada de que las reglas no
+  rompen escrituras reales.
 - App Check bloquea navegadores automatizados → los E2E usan el emulador (sin App Check).
   `firebase.json` define los emuladores; `firebase.ts` conecta con `VITE_USE_EMULATOR` (`.env.test`).
 - `scripts/` — seed, cleanup, copy-to-demo, verify-demo, seed-emulator (tsx con Firebase Admin SDK)
