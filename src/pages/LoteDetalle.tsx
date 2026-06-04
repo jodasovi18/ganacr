@@ -23,6 +23,7 @@ import RegistrarMuerteModal from '@/components/RegistrarMuerteModal';
 import { exportarLotesExcel } from '@/utils/exportExcel';
 import { useEventosSanitarios, useEliminarEventoSanitario } from '@/hooks/useEventosSanitarios';
 import SanidadTab from '@/components/SanidadTab';
+import FinanzasLoteTab from '@/components/FinanzasLoteTab';
 import EventoSanitarioModal from '@/components/EventoSanitarioModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ArrowLeft, Plus, MoreVertical, FileSpreadsheet, FileText, Trash2, Pencil, Scale } from 'lucide-react';
 
-type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad';
+type Tab = 'animales' | 'gastos' | 'ventas' | 'pesos' | 'sanidad' | 'finanzas';
 
 export default function LoteDetalle() {
   const { loteId } = useParams<{ loteId: string }>();
@@ -324,6 +325,7 @@ export default function LoteDetalle() {
               <TabsTrigger value="ventas" className="text-xs sm:text-sm">💰 Ventas ({ventas.length})</TabsTrigger>
               <TabsTrigger value="pesos" className="text-xs sm:text-sm">⚖️ Pesos</TabsTrigger>
               <TabsTrigger value="sanidad" className="text-xs sm:text-sm">🩺 Sanidad ({eventos.length})</TabsTrigger>
+              <TabsTrigger value="finanzas" className="text-xs sm:text-sm">💰 Finanzas</TabsTrigger>
             </TabsList>
           </div>
 
@@ -718,6 +720,10 @@ export default function LoteDetalle() {
               onEliminar={setEventoToDelete}
               deletingId={deletingEventoId}
             />
+          </TabsContent>
+
+          <TabsContent value="finanzas">
+            {lote && <FinanzasLoteTab lote={lote} animales={animales} ventas={ventas} />}
           </TabsContent>
         </Tabs>
       </div>

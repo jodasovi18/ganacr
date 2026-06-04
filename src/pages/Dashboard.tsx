@@ -12,6 +12,7 @@ import OnboardingFinca from '@/components/OnboardingFinca';
 import { useGastosFinca, useEliminarGastoFinca } from '@/hooks/useGastosFinca';
 import GastoFincaModal from '@/components/GastoFincaModal';
 import GastosFincaTab from '@/components/GastosFincaTab';
+import FinanzasFincaTab from '@/components/FinanzasFincaTab';
 import { Lote, GastoFinca, Animal, Venta } from '@/types';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/services/firebase';
@@ -25,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreVertical, Plus, FileSpreadsheet, FileText, Trash2, Pencil } from 'lucide-react';
 
-type DashboardTab = 'lotes' | 'gastosFinca';
+type DashboardTab = 'lotes' | 'gastosFinca' | 'finanzas';
 
 export default function Dashboard() {
   const { userData, logout, user } = useAuth();
@@ -246,6 +247,7 @@ export default function Dashboard() {
             <TabsList>
               <TabsTrigger value="lotes">Lotes</TabsTrigger>
               <TabsTrigger value="gastosFinca">Gastos de Finca</TabsTrigger>
+              <TabsTrigger value="finanzas">💰 Finanzas</TabsTrigger>
             </TabsList>
             <div className="flex flex-wrap justify-end gap-2">
               {dashboardTab === 'lotes' && (
@@ -369,6 +371,10 @@ export default function Dashboard() {
               onEliminar={setDeleteGastoFinca}
               deletingId={deletingGastoFincaId}
             />
+          </TabsContent>
+
+          <TabsContent value="finanzas">
+            <FinanzasFincaTab fincaId={fincaActiva?.id ?? null} lotes={lotes} />
           </TabsContent>
         </Tabs>
       </main>
