@@ -17,6 +17,7 @@
     "emu": "firebase emulators:start --only firestore,auth --project ganacr",
     "seed:emulator": "tsx scripts/seed-emulator.ts",
     "test:e2e": "firebase emulators:exec --only firestore,auth --project ganacr \"playwright test\"",
+    "test:rules": "firebase emulators:exec --only firestore --project ganacr \"node --import tsx --test tests/rules/firestore-rules.test.ts\"",
     "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
     "test": "npm run test:unit && npm run test:e2e"
   },
@@ -46,6 +47,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
     "@playwright/test": "^1.60.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
