@@ -18,6 +18,7 @@
     "seed:emulator": "tsx scripts/seed-emulator.ts",
     "test:e2e": "firebase emulators:exec --only firestore,auth --project ganacr \"playwright test\"",
     "test:rules": "firebase emulators:exec --only firestore --project ganacr \"node --import tsx --test tests/rules/firestore-rules.test.ts\"",
+    "test:backup": "firebase emulators:exec --only firestore --project ganacr \"node --import tsx --test tests/backup/round-trip.test.ts\"",
     "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
     "test": "npm run test:unit && npm run test:e2e"
   },
