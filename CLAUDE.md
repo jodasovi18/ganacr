@@ -192,7 +192,9 @@ como sujetos obligados ante SUGEF/Ley 7786 y limitar efectivo en transacciones.
   rompen escrituras reales.
 - App Check bloquea navegadores automatizados → los E2E usan el emulador (sin App Check).
   `firebase.json` define los emuladores; `firebase.ts` conecta con `VITE_USE_EMULATOR` (`.env.test`).
-- `scripts/` — seed, cleanup, copy-to-demo, verify-demo, seed-emulator (tsx con Firebase Admin SDK)
+- `scripts/` — seed, cleanup, copy-to-demo, verify-demo, seed-emulator (tsx con Firebase Admin SDK);
+  backup-admin/export-backup/import-backup/verify-backup (respaldo/DR, ver sección Respaldo y DR)
+- `tests/backup/` — round-trip de respaldo contra el emulador; `npm run test:backup` (requiere JDK 17).
 
 ## Flujo de trabajo (Git / PR)
 A partir del 31 may 2026 el trabajo de features va **por Pull Request**, no directo a `main`:
@@ -241,6 +243,19 @@ Ver `firestore.indexes.json` (índices) y `firestore.rules` (seguridad).
   producción** (permission-denied) desde que se shipearon. Se deployaron las reglas y ambas
   features quedaron OK. Regla de oro: **al agregar una colección, deployar las reglas en el
   mismo paso.**
+
+## Respaldo y recuperación de datos (DR) — COMPLETO
+Seguro off-cloud ante el caso extremo de que Firestore falle. Scripts Admin SDK (tsx), **solo datos
+Firestore** (las 9 colecciones; **no** Firebase Auth — no se sacan hashes de contraseña off-cloud).
+- `npm run backup:export` → `backups/<ts>/<colección>.ndjson` + `manifest.json` (conteos).
+- `npm run backup:import -- <dir> [--force]` → restaura; **salvaguarda**: aborta si el destino ya
+  tiene datos (para DR se apunta a un proyecto nuevo/vacío y procede solo).
+- `npm run backup:verify -- <dir>` → valida integridad NDJSON vs manifest.
+- `backups/` está **gitignored** (datos personales). `scripts/service-account.json` privilegiado/gitignored.
+- Test: `npm run test:backup` (round-trip export→clear→import contra el emulador, requiere JDK 17).
+- `scripts/backup-admin.ts` detecta entorno (emulador con `FIRESTORE_EMULATOR_HOST` vs prod con
+  service-account). Runbook completo (off-cloud, restaurar, PITR + GCS programado, simulacro):
+  `docs/runbook-respaldo-dr.md`.
 
 ## Contexto del desarrollador
 - José Daniel, contador en Costa Rica con conocimientos en Python, JS, TypeScript

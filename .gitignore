@@ -37,3 +37,6 @@ scripts/service-account.json
 tests/e2e/.artifacts/
 playwright-report/
 .superpowers/
+
+# Respaldos de datos (contienen datos personales — nunca versionar)
+backups/
