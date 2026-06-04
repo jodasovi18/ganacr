@@ -138,7 +138,10 @@ offline para cumplir. Es el gap más urgente del mercado costarricense hoy.
   pestañas "💰 Finanzas" en LoteDetalle (`FinanzasLoteTab`) y Dashboard (`FinanzasFincaTab`). jun 2026
 - [x] **Simulador de escenarios de venta** (vender hoy vs. en N días): `utils/simulador.ts` (puro,
   TDD) + pestaña "📈 Simulador" en LoteDetalle (`SimuladorLoteTab`). Veredicto por valor marginal/día. jun 2026
-- [ ] Módulo simplificado compatible con líneas de crédito MAG al 6%
+- ❌ Módulo crédito MAG — DESCARTADO por ahora (no prioritario). Nota (investigado jun 2026):
+  sería viable (GanaCR puede generar el insumo financiero del "plan de inversión"); la tasa real
+  del programa MAG/SBD/Banco Nacional es **8%**, no 6%. Requisito central: plan de inversión que
+  el MAG/INA validan en finca.
 
 ### Fase 5 — Gestión de pastos y finca
 - [ ] Mapa básico de potreros (polígonos simples)
