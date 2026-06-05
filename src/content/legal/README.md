@@ -15,9 +15,8 @@ Estos `.md` son la **fuente única** del texto legal que **renderiza la aplicaci
 ## ⚠️ Pendiente antes de la beta (NO publicar sin esto)
 
 1. **Revisión por un(a) abogado(a) costarricense.** El texto es una base técnica, no asesoría legal.
-2. **Datos del titular:** ✅ completados (José Daniel Solís Villalobos / SOLARA Soft, 05/06/2026).
-   Actualizá acá si cambian. Confirmar con el abogado la coherencia "responsable (persona) vs.
-   titular del software (SOLARA Soft)".
+2. **Datos del titular:** ✅ completados (José Daniel Solís Villalobos, 05/06/2026).
+   Actualizá acá si cambian.
 3. **Evaluar inscripción ante PRODHAB** y los requisitos del protocolo de seguridad del Reglamento.
 
 ## Versionado del consentimiento
