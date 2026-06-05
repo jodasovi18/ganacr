@@ -1,13 +1,9 @@
-# Términos y Condiciones de Uso — GanaCR
+# Términos y Condiciones de Uso
 
-> ⚠️ **BORRADOR — requiere revisión de un(a) abogado(a) costarricense antes de publicarse.**
-> Texto base preparado según el funcionamiento real del sistema; **no constituye asesoría legal**.
-> Completá los campos entre `[corchetes]` y validalo con un profesional antes de mostrarlo a usuarios.
-
-**Última actualización:** [fecha] · **Vigencia a partir de:** [fecha]
+**Última actualización:** 05/06/2026 · **Vigencia a partir de:** 05/06/2026
 
 Estos Términos y Condiciones ("Términos") regulan el uso de **GanaCR** ("la Aplicación", "el
-Servicio"), provisto por **[Nombre/razón social del titular]** ("nosotros"). Al registrarte o usar el
+Servicio"), provisto por **José Daniel Solís Villalobos** ("nosotros"). Al registrarte o usar el
 Servicio, aceptás estos Términos. Si no estás de acuerdo, no uses el Servicio.
 
 ## 1. Descripción del Servicio
@@ -15,13 +11,13 @@ Servicio, aceptás estos Términos. Si no estás de acuerdo, no uses el Servicio
 GanaCR es una aplicación web para la **gestión ganadera** (control de fincas, lotes, animales,
 pesajes, gastos, ventas y reportes) orientada a productores de Costa Rica.
 
-## 2. Fase BETA
+## 2. Fase beta
 
 El Servicio se encuentra actualmente en **fase beta (de pruebas)**. Esto implica que:
 
 - Puede contener errores, cambiar o interrumpirse sin previo aviso.
-- **Se ofrece "tal cual" ("as is"), sin garantías** de disponibilidad, exactitud ni continuidad.
-- Aunque tomamos medidas para protegerlos, **podría haber pérdida o alteración de datos**; te
+- Se ofrece **"tal cual" ("as is"), sin garantías** de disponibilidad, exactitud ni continuidad.
+- Aunque tomamos medidas para protegerlos, podría haber pérdida o alteración de datos; te
   recomendamos conservar tus propios respaldos de la información crítica.
 - Durante la beta el Servicio se ofrece **sin costo**; las condiciones comerciales futuras se
   comunicarán oportunamente.
@@ -38,11 +34,11 @@ El Servicio se encuentra actualmente en **fase beta (de pruebas)**. Esto implica
 Te comprometés a **no**:
 
 - Usar el Servicio con fines ilícitos o no autorizados.
-- Vulnerar o intentar vulnerar la seguridad del Servicio o acceder a datos de otros usuarios.
+- Vulnerar o intentar vulnerar la seguridad del Servicio o acceder a datos de otras personas usuarias.
 - Interferir con el funcionamiento del Servicio o sobrecargarlo de forma abusiva.
 - Cargar contenido o datos sobre los que no tengas derecho.
 
-## 5. Responsabilidades del usuario
+## 5. Tus responsabilidades
 
 - **Exactitud de los datos:** sos responsable de la información que ingresás y de las decisiones que
   tomes con base en ella.
@@ -57,14 +53,14 @@ Te comprometés a **no**:
 Las funciones de **finanzas, rentabilidad, simulador de venta, reportes y estimaciones** del Servicio
 son **herramientas informativas de apoyo**. **No constituyen asesoría financiera, contable,
 tributaria, veterinaria ni profesional de ningún tipo.** Las decisiones que tomes con base en ellas
-son de tu exclusiva responsabilidad. Consultá a un profesional cuando corresponda.
+son de tu exclusiva responsabilidad. Consultá a una persona profesional cuando corresponda.
 
 ## 7. Propiedad intelectual
 
-- El software, la marca y el diseño de GanaCR son propiedad de **[titular]** y están protegidos por
+- El software, la marca y el diseño de GanaCR son propiedad de **José Daniel Solís Villalobos** y están protegidos por
   la legislación aplicable. No se te otorga ningún derecho sobre ellos salvo el uso del Servicio
   conforme a estos Términos.
-- **Tus datos son tuyos:** la información que ingresás te pertenece. Te otorgamos las funciones de
+- **Tus datos son tuyos:** la información que ingresás te pertenece. Te ofrecemos funciones de
   **exportación** (Excel/PDF) para que puedas obtener una copia.
 
 ## 8. Disponibilidad
@@ -103,4 +99,4 @@ protección al consumidor reconozca a las personas usuarias.
 
 ## 14. Contacto
 
-Para consultas sobre estos Términos: **[correo de contacto]**.
+Para consultas sobre estos Términos: **jodasolvil18@gmail.com**.

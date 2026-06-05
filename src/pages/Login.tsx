@@ -16,6 +16,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [aceptoTerminos, setAceptoTerminos] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -26,6 +27,7 @@ export default function Login() {
         await login(email, password);
       } else {
         if (!nombre.trim()) { setError('El nombre es requerido'); setLoading(false); return; }
+        if (!aceptoTerminos) { setError('Debés aceptar los Términos y la Política de Privacidad'); setLoading(false); return; }
         await register(email, password, nombre, nombreFinca);
       }
     } catch (err: unknown) {
@@ -152,6 +154,23 @@ export default function Login() {
                 </div>
               </div>
 
+              {modo === 'registro' && (
+                <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={aceptoTerminos}
+                    onChange={(e) => setAceptoTerminos(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-primary"
+                  />
+                  <span>
+                    Acepto los{' '}
+                    <a href="/terminos" target="_blank" rel="noopener noreferrer" className="text-primary underline">Términos y Condiciones</a>
+                    {' '}y la{' '}
+                    <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="text-primary underline">Política de Privacidad</a>.
+                  </span>
+                </label>
+              )}
+
               {error && (
                 <p className="text-sm text-destructive bg-destructive/8 border border-destructive/20 rounded-md px-3 py-2">
                   {error}
@@ -161,13 +180,19 @@ export default function Login() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={loading}
+                disabled={loading || (modo === 'registro' && !aceptoTerminos)}
               >
                 {loading ? 'Cargando...' : modo === 'login' ? 'Ingresar' : 'Crear cuenta'}
               </Button>
             </form>
           </CardContent>
         </Card>
+
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          <a href="/terminos" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">Términos</a>
+          {' · '}
+          <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">Privacidad</a>
+        </p>
       </div>
     </div>
   );

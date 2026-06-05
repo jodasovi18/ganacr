@@ -10,6 +10,9 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
 import { Usuario } from '@/types';
 
+// Versión del texto legal aceptado al registrarse. Subir cuando cambie de forma sustancial.
+export const VERSION_TERMINOS = '2026-06';
+
 interface AuthContextType {
   user: User | null;
   userData: Usuario | null;
@@ -48,12 +51,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function register(email: string, password: string, nombre: string, nombreFinca?: string) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const ahora = new Date().toISOString();
     const newUser: Usuario = {
       id: cred.user.uid,
       email,
       nombre,
       nombreFinca,
-      createdAt: new Date().toISOString(),
+      createdAt: ahora,
+      // Consentimiento legal: solo se llega a register() tras aceptar en el formulario.
+      aceptoTerminos: true,
+      fechaConsentimiento: ahora,
+      versionTerminos: VERSION_TERMINOS,
     };
     await setDoc(doc(db, 'users', cred.user.uid), newUser);
     setUserData(newUser);
