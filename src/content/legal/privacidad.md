@@ -1,6 +1,6 @@
 # Política de Privacidad
 
-**Última actualización:** [fecha] · **Vigencia a partir de:** [fecha]
+**Última actualización:** 05/06/2026 · **Vigencia a partir de:** 05/06/2026
 
 GanaCR ("la Aplicación", "el Servicio", "nosotros") respeta tu privacidad y protege tus datos
 personales conforme a la **Ley N° 8968 — Protección de la Persona frente al tratamiento de sus datos
@@ -9,10 +9,10 @@ quién los compartimos y cuáles son tus derechos.
 
 ## 1. Responsable del tratamiento
 
-- **Responsable:** [Nombre completo o razón social]
-- **Identificación:** [cédula de identidad o jurídica]
-- **Domicilio:** [domicilio en Costa Rica]
-- **Correo de contacto para privacidad:** [correo de contacto]
+- **Responsable:** José Daniel Solís Villalobos
+- **Identificación:** 207680616
+- **Domicilio:** Quesada, San Carlos, Alajuela, Costa Rica.
+- **Correo de contacto para privacidad:** jodasolvil18@gmail.com
 
 ## 2. Qué datos personales tratamos
 
@@ -83,7 +83,7 @@ autorizados, pérdida o alteración.
 ## 8. Tus derechos (Ley 8968)
 
 Tenés derecho a **acceder, rectificar, actualizar y eliminar** tus datos personales, así como a
-**revocar tu consentimiento**. Para ejercerlos, escribí a **[correo de contacto]**. Responderemos en
+**revocar tu consentimiento**. Para ejercerlos, escribí a **jodasolvil18@gmail.com**. Responderemos en
 los plazos que establece la normativa (en general, **cinco días hábiles**).
 
 Si considerás que tus derechos no fueron atendidos, podés acudir a la **Agencia de Protección de Datos
@@ -100,4 +100,4 @@ sustanciales, te lo notificaremos por un medio razonable.
 
 ## 11. Contacto
 
-Para cualquier consulta sobre privacidad: **[correo de contacto]**.
+Para cualquier consulta sobre privacidad: **jodasolvil18@gmail.com**.

@@ -1,9 +1,9 @@
 # Términos y Condiciones de Uso
 
-**Última actualización:** [fecha] · **Vigencia a partir de:** [fecha]
+**Última actualización:** 05/06/2026 · **Vigencia a partir de:** 05/06/2026
 
 Estos Términos y Condiciones ("Términos") regulan el uso de **GanaCR** ("la Aplicación", "el
-Servicio"), provisto por **[Nombre/razón social del titular]** ("nosotros"). Al registrarte o usar el
+Servicio"), provisto por **SOLARA Soft** ("nosotros"). Al registrarte o usar el
 Servicio, aceptás estos Términos. Si no estás de acuerdo, no uses el Servicio.
 
 ## 1. Descripción del Servicio
@@ -57,7 +57,7 @@ son de tu exclusiva responsabilidad. Consultá a una persona profesional cuando 
 
 ## 7. Propiedad intelectual
 
-- El software, la marca y el diseño de GanaCR son propiedad de **[titular]** y están protegidos por
+- El software, la marca y el diseño de GanaCR son propiedad de **SOLARA Soft** y están protegidos por
   la legislación aplicable. No se te otorga ningún derecho sobre ellos salvo el uso del Servicio
   conforme a estos Términos.
 - **Tus datos son tuyos:** la información que ingresás te pertenece. Te ofrecemos funciones de
@@ -99,4 +99,4 @@ protección al consumidor reconozca a las personas usuarias.
 
 ## 14. Contacto
 
-Para consultas sobre estos Términos: **[correo de contacto]**.
+Para consultas sobre estos Términos: **jodasolvil18@gmail.com**.
