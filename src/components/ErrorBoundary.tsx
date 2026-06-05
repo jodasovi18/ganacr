@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
 
 interface Props {
   children: ReactNode;
@@ -22,7 +23,8 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // TODO(monitoreo): reemplazar por Sentry.captureException(error) cuando esté el DSN.
+    // Reporta a Sentry (no-op si no está inicializado, p. ej. en desarrollo).
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
     console.error('[ErrorBoundary] Error no capturado:', error, info.componentStack);
   }
 
