@@ -176,6 +176,9 @@ export interface Usuario {
   nombre: string;
   nombreFinca?: string;       // legacy — replaced by Finca collection
   createdAt: string;
+  aceptoTerminos?: boolean;       // consentimiento legal al registrarse
+  fechaConsentimiento?: string;   // ISO timestamp de la aceptación
+  versionTerminos?: string;       // versión del texto legal aceptado
 }
 
 // ─── Resultados de cálculos ─────────────────────────────────────────────────
