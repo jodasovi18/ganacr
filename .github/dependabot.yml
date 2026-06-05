@@ -11,6 +11,11 @@ updates:
         dependency-type: production
       desarrollo:
         dependency-type: development
+    # No proponer saltos de versión MAYOR (migraciones rompedoras) de forma automática.
+    # Solo minor/patch + parches de seguridad. Los majors (React 19, etc.) se hacen a mano con QA.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
