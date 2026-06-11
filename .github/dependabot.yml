@@ -16,6 +16,9 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # eslint-plugin-react-refresh 0.5+ exige eslint 9 (peer). Mantenemos eslint 8 hasta la
+      # migración manual del ecosistema eslint post-beta; hasta entonces, ignorarlo.
+      - dependency-name: "eslint-plugin-react-refresh"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
